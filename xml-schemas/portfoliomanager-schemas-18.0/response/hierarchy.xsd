@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="18.0">
+	<xs:element name="hierarchy" type="hierarchyType">
+		<xs:annotation>
+			<xs:documentation>Contains the identifiers of the entities that are above a particular entity in the Portfolio Manager hierarchy</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="hierarchyType">
+		<xs:sequence>
+			<xs:element name="accountId" type="xs:long" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Id of the Property Data Administrator</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="username" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Username of the Property Data Administrator</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="propertyId" type="xs:long" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Id of the property</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="propertyUseId" type="xs:long" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Id of the property use</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="useDetailId" type="xs:long" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Id of the use detail record</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="meterId" type="xs:long" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Id of the meter</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="consumptionDataId" type="xs:long" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Id of the consumption data record</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="wasteMeterDataId" type="xs:long" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Id of the waste meter data record</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

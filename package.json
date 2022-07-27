@@ -1,0 +1,87 @@
+{
+  "name": "portfolio-manager",
+  "version": "1.0.0-next.1",
+  "description": "Unofficial CLI Tool and SDK for Energy Star Portfolio Manager",
+  "engines": {
+    "node": ">=12"
+  },
+  "files": [
+    "dist/"
+  ],
+  "bin": "dist/cjs/index.js",
+  "main": "dist/cjs/index.js",
+  "module": "dist/mjs/index.js",
+  "scripts": {
+    "build": "rm -fr dist/* && tsc -p tsconfig.mjs.json && tsc -p tsconfig.cjs.json && bash fixup.sh",
+    "fixup": "bash fixup.sh",
+    "pretest": "npm run build",
+    "test": "mocha ./dist/cjs/*.spec.js",
+    "pretest:cjs": "npm run build",
+    "test:cjs": "mocha ./dist/cjs/*.spec.js",
+    "pretest:mjs": "npm run build",
+    "test:mjs": "mocha ./dist/mjs/*.spec.js",
+    "semantic-release": "semantic-release",
+    "src-bin": "npx ts-node ./src/index.ts",
+    "build-bin": "node ./dist/index.js"
+  },
+  "author": {
+    "name": "Darrel O'Pry"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "@types/chai": "^4.3.1",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "^18.0.3",
+    "@types/node-fetch": "^2.6.2",
+    "chai": "^4.3.6",
+    "cross-env": "^7.0.3",
+    "mocha": "^10.0.0",
+    "node-fetch": "^2.6.7",
+    "nodemon": "^2.0.19",
+    "semantic-release": "^19.0.5",
+    "should": "^13.2.3",
+    "source-map-support": "^0.5.21",
+    "ts-node": "^10.8.2",
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "commander": "^9.4.0",
+    "fast-xml-parser": "^4.0.9"
+  },
+  "release": {
+    "branches": [
+      "+([0-9])?(.{+([0-9]),x}).x",
+      "main",
+      {
+        "name": "next",
+        "prerelease": true
+      }
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      [
+        "@semantic-release/changelog",
+        {
+          "changelogFile": "CHANGELOG.md"
+        }
+      ],
+      [
+        "@semantic-release/npm"
+      ],
+      [
+        "@semantic-release/git",
+        {
+          "assets": [
+            "CHANGES.md",
+            "package.json",
+            "package-lock.json"
+          ],
+          "message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
+        }
+      ]
+    ]
+  }
+}

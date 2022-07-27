@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="18.0">
+	<!-- INCLUDES -->
+	<xs:include schemaLocation="../common/links.xsd"/>
+	<xs:include schemaLocation="../common/audit.xsd"/>
+
+	<!-- Root elements -->
+	<xs:element name="wasteDataList" type="wasteMeterDataType"/>
+	<xs:element name="wasteData" type="wasteMeterEntryType">
+		<xs:annotation>
+			<xs:documentation>Waste data used for a waste meter that is set up to be metered.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+
+	<!-- Element definitions -->
+	<xs:complexType name="wasteMeterEntryType">
+		<xs:annotation>
+			<xs:documentation>A service type used for representing a single waste meter entry datum.</xs:documentation>
+		</xs:annotation>
+		<xs:all>
+			<xs:element name="id" type="xs:long" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The id of the meter entry.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="startDate" type="xs:date" minOccurs="1">
+				<xs:annotation>
+					<xs:documentation>The first date of the meter entry reading.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="endDate" type="xs:date" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The last date of the meter entry reading.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="quantity" type="xs:decimal" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The quantity of the meter entry.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="timesEmptied" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The number of times that the waste meter container was emptied for the meter entry.</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:decimal">
+						<xs:minInclusive value="0"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="averagePercentFull" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The average percentage full of the waste meter container for the meter entry.</xs:documentation>
+				</xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:long">
+                        <xs:enumeration value="0"/>
+                        <xs:enumeration value="25"/>
+                        <xs:enumeration value="50"/>
+                        <xs:enumeration value="75"/>
+                        <xs:enumeration value="100"/>
+                    </xs:restriction>
+                </xs:simpleType>
+			</xs:element>
+			<xs:element name="cost" type="optionalWasteCost" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The cost of meter entry.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="disposalDestination" type="disposalDestinationType" minOccurs="0"/>
+			<xs:element name="audit" type="logType" minOccurs="0"/>
+		</xs:all>
+		<xs:attribute name="estimatedValue" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>Whether the meter entry is an estimated value.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="wasteMeterDataType">
+		<xs:annotation>
+			<xs:documentation>A service type used for getting and sending waste meter entry data.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="wasteData" minOccurs="0" maxOccurs="120"/>
+			<xs:element name="links" type="linksType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="disposalDestinationType">
+		<xs:annotation>
+			<xs:documentation>A service type used for representing a disposal destination entry.</xs:documentation>
+		</xs:annotation>
+		<xs:all>
+			<xs:element name="landfillPercentage" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The percentage of the quantity that was disposed at a land fill.</xs:documentation>
+				</xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:decimal">
+                        <xs:minInclusive value="0"/>
+                    </xs:restriction>
+                </xs:simpleType>
+			</xs:element>
+			<xs:element name="incinerationPercentage" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The percentage of the quantity that was disposed by incineration.</xs:documentation>
+				</xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:decimal">
+                        <xs:minInclusive value="0"/>
+                    </xs:restriction>
+                </xs:simpleType>
+			</xs:element>
+			<xs:element name="wasteToEnergyPercentage" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The percentage of the quantity that was disposed at a waste to energy facility.</xs:documentation>
+				</xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:decimal">
+                        <xs:minInclusive value="0"/>
+                    </xs:restriction>
+                </xs:simpleType>
+			</xs:element>
+			<xs:element name="unknownDestPercentage" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The percentage of the quantity disposed in another way or when the disposal method is unknown.</xs:documentation>
+				</xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:decimal">
+                        <xs:minInclusive value="0"/>
+                    </xs:restriction>
+                </xs:simpleType>
+			</xs:element>
+		</xs:all>
+	</xs:complexType>
+
+	<xs:simpleType name="optionalWasteCost">
+		<xs:union>
+			<xs:simpleType>
+				<xs:restriction base='xs:string'>
+					<xs:enumeration value=""/>
+				</xs:restriction>
+			</xs:simpleType>
+			<xs:simpleType>
+				<xs:restriction base='xs:decimal'>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:union>
+	</xs:simpleType>
+
+</xs:schema>

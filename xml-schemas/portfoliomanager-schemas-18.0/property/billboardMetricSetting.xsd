@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="18.0">
+
+	<xs:element name="billboardMetricSetting">
+		<xs:annotation>
+			<xs:documentation>Settings to your billboard metric</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:all>
+				<xs:element name="billboardMetric" nillable="false" type="xs:string" minOccurs="1"/>
+			</xs:all>
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>

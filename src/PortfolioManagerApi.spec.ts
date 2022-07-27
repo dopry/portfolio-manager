@@ -1,0 +1,326 @@
+import { expect } from "chai";
+import {
+  IAccount,
+  IAddress,
+  IMeter,
+  IOrganization,
+  isIResponse,
+} from "./types/xml";
+import { PortfolioManagerApi } from "./PortfolioManagerApi";
+import { IProperty } from "./types";
+
+const BASE_URL = "https://portfoliomanager.energystar.gov/wstest/";
+const STAMP = new Date()
+  .toISOString()
+  .replaceAll(":", "_")
+  .replaceAll(".", "_");
+const USERNAME = "test" + STAMP;
+const PASSWORD = STAMP;
+
+const client = new PortfolioManagerApi(BASE_URL, USERNAME, PASSWORD);
+
+const address: IAddress = {
+  "@_address1": "123 Main St",
+  "@_city": "Test",
+  "@_postalCode": "1234567",
+  "@_country": "US",
+  "@_state": "NY",
+};
+
+describe("EpaPortfolioManagerClient", () => {
+  it("can be constucted", () => {
+    expect(client).to.be.an.instanceof(PortfolioManagerApi);
+  });
+
+  it("can create a test account", async () => {
+    const organization: IOrganization = {
+      "@_name": "Test",
+      primaryBusiness: "Energy Efficiency Program",
+      energyStarPartner: true,
+      energyStarPartnerType: "Other",
+      otherPartnerDescription: "Test Partner Deacription",
+    };
+    const account: IAccount = {
+      username: USERNAME,
+      password: PASSWORD,
+      webserviceUser: true,
+      searchable: false,
+      contact: {
+        firstName: "Test",
+        lastName: "User",
+        email: "" + USERNAME + "@energystar.gov",
+        phone: "555-555-5555",
+        jobTitle: "Test User",
+        address,
+      },
+      organization,
+      includeTestPropertiesInGraphics: false,
+      languagePreference: "en_US",
+    };
+    // try {
+    const postAccountResponse = await client.accountAccountPost(account);
+    expect(postAccountResponse.response["@_status"]).to.equal("Ok");
+    expect(postAccountResponse.response.id).to.be.a("number");
+    expect(postAccountResponse.response.links).to.be.an("object");
+    expect(postAccountResponse.response.links.link[0]).to.deep.equal({
+      "@_linkDescription": "This is the GET url for this Account.",
+      "@_link": "/account",
+      "@_httpMethod": "GET",
+    });
+    const getAccountResponse = await client.accountAccountGet();
+    expect(getAccountResponse.account).to.be.an("object");
+    expect(getAccountResponse.account.id).to.equal(
+      postAccountResponse.response.id
+    );
+    expect(getAccountResponse.account.username).to.equal(USERNAME);
+    expect(getAccountResponse.account.password).to.equal("********");
+    expect(getAccountResponse.account.webserviceUser).to.equal(true);
+    expect(getAccountResponse.account.searchable).to.equal(false);
+    expect(getAccountResponse.account.contact).to.be.an("object");
+    expect(getAccountResponse.account.contact.firstName).to.equal("Test");
+    expect(getAccountResponse.account.contact.lastName).to.equal("User");
+    expect(getAccountResponse.account.contact.email).to.equal(
+      "" + USERNAME + "@energystar.gov"
+    );
+    expect(getAccountResponse.account.contact.phone).to.equal("555-555-5555");
+    expect(getAccountResponse.account.contact.jobTitle).to.equal("Test User");
+    expect(getAccountResponse.account.contact.address).to.be.an("object");
+    expect(getAccountResponse.account.contact.address["@_address1"]).to.equal(
+      "123 Main St"
+    );
+    expect(getAccountResponse.account.contact.address["@_city"]).to.equal(
+      "Test"
+    );
+    expect(getAccountResponse.account.contact.address["@_postalCode"]).to.equal(
+      "1234567"
+    );
+    expect(getAccountResponse.account.contact.address["@_country"]).to.equal(
+      "US"
+    );
+    expect(getAccountResponse.account.contact.address["@_state"]).to.equal(
+      "NY"
+    );
+    expect(getAccountResponse.account.organization).to.be.an("object");
+    expect(getAccountResponse.account.organization["@_name"]).to.equal("Test");
+    expect(getAccountResponse.account.organization.primaryBusiness).to.equal(
+      "Energy Efficiency Program"
+    );
+    expect(getAccountResponse.account.organization.energyStarPartner).to.equal(
+      true
+    );
+    expect(
+      getAccountResponse.account.organization.energyStarPartnerType
+    ).to.equal("Other");
+    expect(
+      getAccountResponse.account.organization.otherPartnerDescription
+    ).to.equal("Test Partner Deacription");
+    // expect(getAccountResponse.account.includeTestPropertiesInGraphics).to.equal(false);
+    expect(getAccountResponse.account.languagePreference).to.equal("en_US");
+
+    // } catch (e) {
+    //   console.log(e);
+    //   throw e
+    // }
+  });
+
+  it("can create a test property", async () => {
+    const property: IProperty = {
+      isFederalProperty: false,
+      occupancyPercentage: 80,
+      name: "Test Property",
+      constructionStatus: "Test",
+      primaryFunction: "Data Center",
+      grossFloorArea: {
+        value: 8000,
+        "@_units": "Square Feet",
+      },
+      yearBuilt: 2022,
+      address,
+    };
+    const { account } = await client.accountAccountGet();
+    const postPropertyResponse = await client.propertyPropertyPost(
+      property,
+      account.id || 0
+    );
+    expect(postPropertyResponse.response["@_status"]).to.equal("Ok");
+    expect(postPropertyResponse.response.id).to.be.a("number");
+    expect(postPropertyResponse.response.links).to.be.an("object");
+    expect(postPropertyResponse.response.links.link).to.be.an("array");
+    expect(
+      postPropertyResponse.response.links.link[0]["@_linkDescription"]
+    ).to.equal("This is the GET url for this Property.");
+    expect(postPropertyResponse.response.links.link[0]["@_link"]).to.match(
+      /^\/property\/\d+$/
+    );
+    expect(
+      postPropertyResponse.response.links.link[0]["@_httpMethod"]
+    ).to.equal("GET");
+
+    const getPropertyResponse = await client.propertyPropertyGet(
+      postPropertyResponse.response.id
+    );
+    expect(getPropertyResponse.property).to.be.an("object");
+    expect(getPropertyResponse.property.accessLevel).to.equal("Read Write");
+    expect(getPropertyResponse.property.address).to.be.an("object");
+    expect(getPropertyResponse.property.address["@_address1"]).to.equal(
+      "123 Main St"
+    );
+    expect(getPropertyResponse.property.address["@_city"]).to.equal("Test");
+    expect(getPropertyResponse.property.address["@_postalCode"]).to.equal(
+      "1234567"
+    );
+    expect(getPropertyResponse.property.address["@_country"]).to.equal("US");
+    expect(getPropertyResponse.property.address["@_state"]).to.equal("NY");
+    expect(getPropertyResponse.property.audit?.createdBy).to.equal(USERNAME);
+    expect(getPropertyResponse.property.audit?.createdByAccountId).to.equal(
+      account.id
+    );
+    expect(getPropertyResponse.property.audit?.createdDate).to.match(
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}-04:00$/
+    );
+    expect(getPropertyResponse.property.audit?.lastUpdatedBy).to.equal(
+      USERNAME
+    );
+    expect(getPropertyResponse.property.audit?.lastUpdatedByAccountId).to.equal(
+      account.id
+    );
+    expect(getPropertyResponse.property.audit?.lastUpdatedDate).to.match(
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}-04:00$/
+    );
+    expect(getPropertyResponse.property.constructionStatus).to.equal("Test");
+    expect(getPropertyResponse.property.grossFloorArea).to.be.an("object");
+    expect(getPropertyResponse.property.grossFloorArea["@_default"]).to.equal(
+      "N/A"
+    );
+    expect(getPropertyResponse.property.grossFloorArea["@_temporary"]).to.equal(
+      "false"
+    );
+    expect(getPropertyResponse.property.grossFloorArea["@_units"]).to.equal(
+      "Square Feet"
+    );
+    expect(getPropertyResponse.property.grossFloorArea.value).to.equal(8000);
+    expect(getPropertyResponse.property.isFederalProperty).to.equal(false);
+    expect(getPropertyResponse.property.name).to.equal("Test Property");
+    expect(getPropertyResponse.property.numberOfBuildings).to.equal(1);
+    expect(getPropertyResponse.property.occupancyPercentage).to.equal(80);
+    expect(getPropertyResponse.property.primaryFunction).to.equal(
+      "Data Center"
+    );
+    expect(getPropertyResponse.property.yearBuilt).to.equal(2022);
+
+    const postPropertyResponse2 = await client.propertyPropertyPost(
+      property,
+      account.id || 0
+    );
+    const propertyIds = [
+      postPropertyResponse.response.id.toString(),
+      postPropertyResponse2.response.id.toString(),
+    ];
+    const getPropertyListResponse = await client.propertyPropertyListGet(
+      account.id || 0
+    );
+    expect(getPropertyListResponse["?xml"]).to.deep.equal({
+      "@_encoding": "UTF-8",
+      "@_standalone": "yes",
+      "@_version": "1.0",
+    });
+    const listResponse = getPropertyListResponse.response;
+    expect(listResponse["@_status"]).to.equal("Ok");
+    expect(listResponse.links).to.be.an("object");
+    expect(listResponse.links.link).to.be.an("array");
+    if (isIResponse(listResponse)) {
+      expect(listResponse.links.link[0]).to.be.an("object");
+      expect(listResponse.links.link[0]["@_hint"]).to.equal("Test Property");
+      expect(listResponse.links.link[0]["@_httpMethod"]).to.equal("GET");
+      expect(propertyIds).to.contain(listResponse.links.link[0]["@_id"]);
+      expect(listResponse.links.link[0]["@_link"]).to.match(
+        /^\/property\/\d+$/
+      );
+      expect(listResponse.links.link[0]["@_linkDescription"]).to.equal(
+        "This is the GET url for this Property."
+      );
+
+      const remainingIds = propertyIds.filter(
+        (id) => id.toString() !== listResponse.links.link[0]["@_id"]
+      );
+
+      expect(listResponse.links.link[1]).to.be.an("object");
+      expect(listResponse.links.link[1]["@_hint"]).to.equal("Test Property");
+      expect(listResponse.links.link[1]["@_httpMethod"]).to.equal("GET");
+      expect(remainingIds).to.contain(listResponse.links.link[1]["@_id"]);
+      expect(listResponse.links.link[1]["@_link"]).to.match(
+        /^\/property\/\d+$/
+      );
+      expect(listResponse.links.link[1]["@_linkDescription"]).to.equal(
+        "This is the GET url for this Property."
+      );
+    } else {
+      throw new Error("Expected IResponse");
+    }
+  });
+
+  it("can create a meter", async () => {
+    const { account } = await client.accountAccountGet();
+    const getPropertyListResponse = await client.propertyPropertyListGet(
+      account.id || 0
+    );
+    const listResponse = getPropertyListResponse.response;
+
+    let propertyIdStr = listResponse.links.link[0]["@_id"] || null;
+    if (!propertyIdStr) {
+      throw new Error("Expected IResponseMultiple or IResponse");
+    }
+
+    const propertyId = parseInt(propertyIdStr);
+
+    const meter: IMeter = {
+      name: "Test Meter",
+      unitOfMeasure: "kWh (thousand Watt-hours)",
+      type: "Electric",
+      firstBillDate: new Date(2019, 0, 1),
+      inUse: true,
+    };
+    const postMeterResponse = await client.meterMeterPost(propertyId, meter);
+    // console.log(JSON.stringify(postMeterResponse, null, 2));
+    expect(postMeterResponse.response["@_status"]).to.equal("Ok");
+    expect(postMeterResponse.response.id).to.be.a("number");
+    expect(postMeterResponse.response.links).to.be.an("object");
+    expect(postMeterResponse.response.links.link).to.be.an("array");
+    // expect(postMeterResponse.response).to.equal({});
+
+    const getPropertyMeterListResponse = await client.meterMeterListGet(
+      propertyId
+    );
+    expect(
+      getPropertyMeterListResponse.response.links.link[0]["@_id"]
+    ).to.equal(postMeterResponse.response.id.toString());
+
+    const meter2: IMeter = {
+      name: "Test Meter 2",
+      unitOfMeasure: "kWh (thousand Watt-hours)",
+      type: "Electric",
+      firstBillDate: new Date(2019, 0, 1),
+      inUse: true,
+    };
+    const postMeterResponse2 = await client.meterMeterPost(
+      propertyId,
+      meter2
+    );
+    // console.log(JSON.stringify(postMeterResponse, null, 2));
+    expect(postMeterResponse2.response["@_status"]).to.equal("Ok");
+    expect(postMeterResponse2.response.id).to.be.a("number");
+    expect(postMeterResponse2.response.links).to.be.an("object");
+    expect(postMeterResponse2.response.links.link).to.be.an("array");
+    // expect(postMeterResponse.response).to.equal({});
+
+    const getPropertyMeterListResponse2 = await client.meterMeterListGet(
+      propertyId
+    );
+    expect(
+      getPropertyMeterListResponse2.response.links.link[1]["@_id"]
+    ).to.equal(postMeterResponse2.response.id.toString());
+    expect(
+      getPropertyMeterListResponse2.response.links.link[1]["@_hint"]
+    ).to.equal("Test Meter 2");
+  });
+});

@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="18.0">
+<!--
+    INCLUDES
+-->
+<xs:include schemaLocation="../common/address.xsd"/>
+<xs:include schemaLocation="../common/grossFloorArea.xsd"/>
+<xs:include schemaLocation="../common/irrigatedArea.xsd"/>
+<xs:include schemaLocation="../common/audit.xsd"/>
+<xs:include schemaLocation="../authorization/authorization.xsd"/>
+<xs:include schemaLocation="federalAgency.xsd"/>
+<!--
+     BASIC OPERATION ELEMENTS
+-->
+<xs:element name="property" type="propertyType"/>
+<!--
+    ADD PROPERTY
+-->
+<xs:complexType name="propertyType">
+    <xs:all>
+        <xs:element name="name" minOccurs="0">
+            <xs:annotation>
+                <xs:documentation>The name of the property.</xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:minLength value="1"/>
+                    <xs:maxLength value="80"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:element>
+        <xs:element name="constructionStatus" type="constructionStatusType" minOccurs="0">
+            <xs:annotation>
+                <xs:documentation>The construction status (either existing, design or test project).</xs:documentation>
+            </xs:annotation>
+        </xs:element>
+        <xs:element name="primaryFunction" type="primaryFunctionType" minOccurs="0">
+            <xs:annotation>
+                <xs:documentation>The primary function of the building.</xs:documentation>
+            </xs:annotation>
+        </xs:element>
+        <xs:element name="grossFloorArea" type="grossFloorAreaType" minOccurs="0">
+            <xs:annotation>
+                <xs:documentation>The Gross Floor Area</xs:documentation>
+            </xs:annotation>
+        </xs:element>
+        <xs:element name="irrigatedArea" type="irrigationAreaType" minOccurs="0">
+            <xs:annotation>
+                <xs:documentation>The Irrigated Area</xs:documentation>
+            </xs:annotation>
+        </xs:element>
+        <xs:element name="yearBuilt" type="xs:int" minOccurs="0">
+            <xs:annotation>
+                <xs:documentation>The year the property was built.</xs:documentation>
+            </xs:annotation>
+        </xs:element>
+        <xs:element name="address" type="addressType" minOccurs="0"/>
+        <xs:element name="numberOfBuildings" type="xs:int" minOccurs="0">
+            <xs:annotation>
+                <xs:documentation>The estimated number of buildings for this property.</xs:documentation>
+            </xs:annotation>
+        </xs:element>
+        <xs:element name="isFederalProperty" type="xs:boolean">
+            <xs:annotation>
+                <xs:documentation>Whether the property is federally owned.</xs:documentation>
+            </xs:annotation>
+        </xs:element>
+        <xs:element name="federalOwner" type="countryList" minOccurs="0">
+            <xs:annotation>
+                <xs:documentation>The property physical address - country.</xs:documentation>
+            </xs:annotation>
+        </xs:element>
+        <xs:element name="agency" type="AgencyType" minOccurs="0">
+            <xs:annotation>
+                <xs:documentation>The federal agency that owns or operates the building.</xs:documentation>
+            </xs:annotation>
+        </xs:element>
+        <xs:element name="agencyDepartmentRegion" minOccurs="0">
+            <xs:annotation>
+                <xs:documentation>Optional additional information about the federal department or region.</xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:minLength value="1"/>
+                    <xs:maxLength value="200"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:element>
+        <xs:element name="federalCampus" minOccurs="0">
+            <xs:annotation>
+                <xs:documentation>Name of the Federal Campus</xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:minLength value="1"/>
+                    <xs:maxLength value="200"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:element>
+        <xs:element name="occupancyPercentage" type="OccupancyType">
+            <xs:annotation>
+                <xs:documentation>The percentage occupancy of the property.</xs:documentation>
+            </xs:annotation>
+        </xs:element>
+        <xs:element name="notes" minOccurs="0">
+            <xs:annotation>
+                <xs:documentation>Notes about this property.</xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:minLength value="1"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:element>
+        <xs:element name="isInstitutionalProperty" type="xs:boolean" minOccurs="0">
+            <xs:annotation>
+                <xs:documentation>Whether the property is institutional property.</xs:documentation>
+            </xs:annotation>
+        </xs:element>
+        <xs:element name="accessLevel" type="shareLevelType" minOccurs="0">
+            <xs:annotation>
+                <xs:documentation>Current share level for the user calling the webservice.</xs:documentation>
+            </xs:annotation>
+        </xs:element>
+        <xs:element name="audit" type="logType" minOccurs="0"/>
+    </xs:all>
+</xs:complexType>
+<!--
+    ELEMENTS AND ATTRIBUTES
+-->
+<xs:simpleType name="primaryFunctionType">
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="Adult Education"/>
+        <xs:enumeration value="Ambulatory Surgical Center"/>
+        <xs:enumeration value="Aquarium"/>
+        <xs:enumeration value="Automobile Dealership"/>
+        <xs:enumeration value="Bank Branch"/>
+        <xs:enumeration value="Bar/Nightclub"/>
+        <xs:enumeration value="Barracks"/>
+        <xs:enumeration value="Bowling Alley"/>
+        <xs:enumeration value="Casino"/>
+        <xs:enumeration value="College/University"/>
+        <xs:enumeration value="Convenience Store with Gas Station"/>
+        <xs:enumeration value="Convenience Store without Gas Station"/>
+        <xs:enumeration value="Convention Center"/>
+        <xs:enumeration value="Courthouse"/>
+        <xs:enumeration value="Data Center"/>
+        <xs:enumeration value="Distribution Center"/>
+        <xs:enumeration value="Drinking Water Treatment &amp; Distribution"/>
+        <xs:enumeration value="Enclosed Mall"/>
+        <xs:enumeration value="Energy/Power Station"/>
+        <xs:enumeration value="Fast Food Restaurant"/>
+        <xs:enumeration value="Financial Office"/>
+        <xs:enumeration value="Fire Station"/>
+        <xs:enumeration value="Fitness Center/Health Club/Gym"/>
+        <xs:enumeration value="Food Sales"/>
+        <xs:enumeration value="Food Service"/>
+        <xs:enumeration value="Hospital (General Medical &amp; Surgical)"/>
+        <xs:enumeration value="Hotel"/>
+        <xs:enumeration value="Ice/Curling Rink"/>
+        <xs:enumeration value="Indoor Arena"/>
+        <xs:enumeration value="K-12 School"/>
+        <xs:enumeration value="Laboratory"/>
+        <xs:enumeration value="Library"/>
+        <xs:enumeration value="Lifestyle Center"/>
+        <xs:enumeration value="Mailing Center/Post Office"/>
+        <xs:enumeration value="Manufacturing/Industrial Plant"/>
+        <xs:enumeration value="Medical Office"/>
+        <xs:enumeration value="Mixed Use Property"/>
+        <xs:enumeration value="Movie Theater"/>
+        <xs:enumeration value="Multifamily Housing"/>
+        <xs:enumeration value="Museum"/>
+        <xs:enumeration value="Non-Refrigerated Warehouse"/>
+        <xs:enumeration value="Office"/>
+        <xs:enumeration value="Other - Education"/>
+        <xs:enumeration value="Other - Entertainment/Public Assembly"/>
+        <xs:enumeration value="Other - Lodging/Residential"/>
+        <xs:enumeration value="Other - Mall"/>
+        <xs:enumeration value="Other - Public Services"/>
+        <xs:enumeration value="Other - Recreation"/>
+        <xs:enumeration value="Other - Restaurant/Bar"/>
+        <xs:enumeration value="Other - Services"/>
+        <xs:enumeration value="Other - Stadium"/>
+        <xs:enumeration value="Other - Technology/Science"/>
+        <xs:enumeration value="Other - Utility"/>
+        <xs:enumeration value="Other"/>
+        <xs:enumeration value="Other/Specialty Hospital"/>
+        <xs:enumeration value="Outpatient Rehabilitation/Physical Therapy"/>
+        <xs:enumeration value="Parking"/>
+        <xs:enumeration value="Performing Arts"/>
+        <xs:enumeration value="Personal Services (Health/Beauty, Dry Cleaning, etc)"/>
+        <xs:enumeration value="Police Station"/>
+        <xs:enumeration value="Pre-school/Daycare"/>
+        <xs:enumeration value="Prison/Incarceration"/>
+        <xs:enumeration value="Race Track"/>
+        <xs:enumeration value="Refrigerated Warehouse"/>
+        <xs:enumeration value="Repair Services (Vehicle, Shoe, Locksmith, etc)"/>
+        <xs:enumeration value="Residence Hall/Dormitory"/>
+        <xs:enumeration value="Residential Care Facility"/>
+        <xs:enumeration value="Restaurant"/>
+        <xs:enumeration value="Retail Store"/>
+        <xs:enumeration value="Roller Rink"/>
+        <xs:enumeration value="Self-Storage Facility"/>
+        <xs:enumeration value="Senior Living Community"/>
+        <xs:enumeration value="Single Family Home"/>
+        <xs:enumeration value="Social/Meeting Hall"/>
+        <xs:enumeration value="Stadium (Closed)"/>
+        <xs:enumeration value="Stadium (Open)"/>
+        <xs:enumeration value="Strip Mall"/>
+        <xs:enumeration value="Supermarket/Grocery Store"/>
+        <xs:enumeration value="Swimming Pool"/>
+        <xs:enumeration value="Transportation Terminal/Station"/>
+        <xs:enumeration value="Urgent Care/Clinic/Other Outpatient"/>
+        <xs:enumeration value="Veterinary Office"/>
+        <xs:enumeration value="Vocational School"/>
+        <xs:enumeration value="Wastewater Treatment Plant"/>
+        <xs:enumeration value="Wholesale Club/Supercenter"/>
+        <xs:enumeration value="Worship Facility"/>
+        <xs:enumeration value="Zoo"/>
+    </xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="OccupancyType">
+    <xs:restriction base="xs:int">
+        <xs:enumeration value="0"/>
+        <xs:enumeration value="5"/>
+        <xs:enumeration value="10"/>
+        <xs:enumeration value="15"/>
+        <xs:enumeration value="20"/>
+        <xs:enumeration value="25"/>
+        <xs:enumeration value="30"/>
+        <xs:enumeration value="35"/>
+        <xs:enumeration value="40"/>
+        <xs:enumeration value="45"/>
+        <xs:enumeration value="50"/>
+        <xs:enumeration value="55"/>
+        <xs:enumeration value="60"/>
+        <xs:enumeration value="65"/>
+        <xs:enumeration value="70"/>
+        <xs:enumeration value="75"/>
+        <xs:enumeration value="80"/>
+        <xs:enumeration value="85"/>
+        <xs:enumeration value="90"/>
+        <xs:enumeration value="95"/>
+        <xs:enumeration value="100"/>
+    </xs:restriction>
+</xs:simpleType>
+<xs:simpleType name="constructionStatusType">
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="Existing"/>
+        <xs:enumeration value="Project"/>
+        <xs:enumeration value="Test"/>
+    </xs:restriction>
+</xs:simpleType>
+</xs:schema>

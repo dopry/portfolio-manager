@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="18.0">
+	<xs:include schemaLocation="../common/links.xsd"/>
+	<xs:element name="internationalWeatherStationList">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="station" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="links" type="linksType" minOccurs="0"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="station">
+		<xs:annotation>
+			<xs:documentation>International Weather Station information</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:attribute name="id" type="xs:long">
+				<xs:annotation>
+					<xs:documentation>The station WMO id.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="country" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The country code (ISO 3166) of the station.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="countryName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The country name of the station.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute name="stationName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the station.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

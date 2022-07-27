@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2005 rel. 3 U (http://www.altova.com) by SRA International (SRA International) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="18.0">
+	<!--
+        INCLUDES
+    -->
+	<xs:include schemaLocation="../common/address.xsd"/>
+	<xs:element name="account" type="accountType">
+		<xs:annotation>
+			<xs:documentation>Contains information for a Portfolio Manager account.
+</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="accountType">
+		<xs:all>
+			<xs:element name="id" type="xs:long" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The ID to the account.  This is ignored if specified in a XML request.  This is provided by Portfolio Manager only in a XML response.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="username">
+				<xs:annotation>
+					<xs:documentation>Your username.</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="60"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="password">
+				<xs:annotation>
+					<xs:documentation>Your password.  The password must be at least 8 characters in length and must contain 3 out of  4 of the following requirements: (i) uppercase characters, (ii) lowercase characters, (iii) base 10 digits (0 through 9), and (iv) nonalphanumeric characters: ~!@#$%^&amp;*_-+=`|\(){}[]:;"'&lt;&gt;,.?/</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="8"/>
+						<xs:maxLength value="120"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="contact" type="contactType"/>
+			<xs:element name="organization" type="organizationType"/>
+			<xs:element name="webserviceUser" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation>Whether you will be using web services.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="searchable" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation>Whether you want people to be able to search for you.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="includeTestPropertiesInGraphics" type="xs:boolean" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Indicates whether properties marked as “Test Properties” in the account will be included in the charts and graphs on My Portfolio page.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="emailPreferenceCanadianAccount" type="xs:boolean" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>This setting ONLY applies to accounts belonging to Canada.  NRCAN (Natural Resources of Canada) can contact you with training opportunities, tool updates, program news and other information about the ENERGY STAR program.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="billboardMetric" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Your saved billboard metric</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="languagePreference" minOccurs="0">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="en_US"/>
+						<xs:enumeration value="fr_CA"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:all>
+	</xs:complexType>
+	<xs:complexType name="contactType">
+		<xs:all>
+			<xs:element name="firstName">
+				<xs:annotation>
+					<xs:documentation>Your first name</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="100"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="lastName">
+				<xs:annotation>
+					<xs:documentation>Your last name</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="100"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="email">
+				<xs:annotation>
+					<xs:documentation>Your email address</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="100"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="address" type="addressType"/>
+			<xs:element name="jobTitle">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="100"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="phone">
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="30"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:all>
+	</xs:complexType>
+	<xs:complexType name="organizationType">
+		<xs:all>
+			<xs:element name="primaryBusiness" type="primaryBusinessType">
+				<xs:annotation>
+					<xs:documentation>Your primary business.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="otherBusinessDescription" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes other if you chose other as your primary business.</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="1000"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="energyStarPartner" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation>Whether organization is an ENERGY STAR Partner.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="energyStarPartnerType" type="typeOfEnergyStarPartner" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Whether organization is an ENERGY STAR SPP Partner. Only required if the organization is an ENERGY STAR Partner. </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="otherPartnerDescription" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes other if you chose other as your energy star partner.</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="100"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:all>
+		<xs:attribute name="name">
+			<xs:annotation>
+				<xs:documentation>Your Organization's name.</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:minLength value="1"/>
+					<xs:maxLength value="1000"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:simpleType name="primaryBusinessType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Architecture/Design Firm"/>
+			<xs:enumeration value="Banking/Financial"/>
+			<xs:enumeration value="Commercial Real Estate"/>
+			<xs:enumeration value="Congregation/Faith-Based Organization"/>
+			<xs:enumeration value="Data Center"/>
+			<xs:enumeration value="Drinking Water Treatment/Distribution"/>
+			<xs:enumeration value="Education"/>
+			<xs:enumeration value="Energy Efficiency Program"/>
+			<xs:enumeration value="Entertainment/Recreation"/>
+			<xs:enumeration value="Food Service"/>
+			<xs:enumeration value="Government: Local (U.S.)"/>
+			<xs:enumeration value="Government: Outside U.S."/>
+			<xs:enumeration value="Government: State (U.S.)"/>
+			<xs:enumeration value="Government: Federal (U.S.)"/>
+			<xs:enumeration value="Healthcare"/>
+			<xs:enumeration value="Hospitality"/>
+			<xs:enumeration value="Legal Services"/>
+			<xs:enumeration value="Manufacturing/Industrial"/>
+			<xs:enumeration value="Media"/>
+			<xs:enumeration value="Multifamily Housing"/>
+			<xs:enumeration value="Retail"/>
+			<xs:enumeration value="Senior Care"/>
+			<xs:enumeration value="Service and Product Provider/Consultant"/>
+			<xs:enumeration value="Transportation"/>
+			<xs:enumeration value="Utility"/>
+			<xs:enumeration value="Wastewater Treatment"/>
+			<xs:enumeration value="Other"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="typeOfEnergyStarPartner">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Associations"/>
+			<xs:enumeration value="Organizations that Own/Manage/Lease Buildings and Plants"/>
+			<xs:enumeration value="Service and Product Providers"/>
+			<xs:enumeration value="Small Businesses"/>
+			<xs:enumeration value="Utilities and Energy Efficiency Program Sponsors"/>
+			<xs:enumeration value="Other"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>
