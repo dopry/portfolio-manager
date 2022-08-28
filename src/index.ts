@@ -1,11 +1,17 @@
 #!/usr/bin/env node
-export * from './types'
-export * from './PortfolioManagerApi'
-export * from './PortfolioManager'
-export * from './cli'
-import { get_cli } from './cli'
+
+export * from "./types";
+export * from "./PortfolioManagerApi";
+export * from "./PortfolioManager";
+export * from "./PortfolioManagerCli";
+
+import { PortfolioManagerCli } from "./PortfolioManagerCli";
+
+async function main() {
+  const cli = new PortfolioManagerCli();
+  cli.parse(process.argv);
+}
 
 if (require.main === module) {
-  const cli = get_cli();
-  cli.parse(process.argv);
+  main();
 }
