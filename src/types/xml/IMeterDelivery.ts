@@ -8,9 +8,14 @@ export interface IMeterDelivery {
 }
 
 export function isIMeterDelivery(
-  meter: IMeterDelivery
-): meter is IMeterDelivery {
+  obj: unknown
+): obj is IMeterDelivery {
   return (
-    meter.hasOwnProperty("deliveryDate") && meter.hasOwnProperty("quantity")
+    obj !== undefined &&
+    obj !== null &&
+    typeof obj === "object" &&
+    obj.hasOwnProperty("id") &&
+    obj.hasOwnProperty("deliveryDate") &&
+    obj.hasOwnProperty("quantity")
   );
 }

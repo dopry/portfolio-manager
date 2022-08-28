@@ -26,13 +26,15 @@ export interface IMeterConsumption {
 }
 
 export function isIMeterConsumption(
-  meter: IMeterConsumption
-): meter is IMeterConsumption {
-  return (
-    meter.hasOwnProperty("startDate") &&
-    meter.hasOwnProperty("endDate") &&
-    meter.hasOwnProperty("usage")
-  );
+  obj: unknown
+): obj is IMeterConsumption {
+  return obj !== undefined
+    && obj !== null
+    && typeof obj === "object"
+    && obj.hasOwnProperty("id")
+    && obj.hasOwnProperty("startDate")
+    && obj.hasOwnProperty("endDate")
+    && obj.hasOwnProperty("usage");
 }
 
 export interface GreenPowerType {
