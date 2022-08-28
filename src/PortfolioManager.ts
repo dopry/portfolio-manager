@@ -1,6 +1,7 @@
 import { PortfolioManagerApi } from "./PortfolioManagerApi";
 import {
   IAccount,
+  IClientConsumption,
   IClientMeter,
   IClientProperty,
   ILink,
@@ -70,7 +71,7 @@ export class PortfolioManager {
     meterId: number,
     startDate?: Date,
     endDate?: Date
-  ): Promise<(IMeterDelivery | IMeterConsumption)[]> {
+  ): Promise<IClientConsumption[]> {
     const getConsumptionRecordFromMeterData = (
       meterData: IMeterData
     ): IMeterConsumption[] | IMeterDelivery[] => {
