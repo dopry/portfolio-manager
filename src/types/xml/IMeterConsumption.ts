@@ -25,7 +25,7 @@ export interface IMeterConsumption {
   audit: IAudit;
 }
 
-export function isMeterConsumption(
+export function isIMeterConsumption(
   meter: IMeterConsumption
 ): meter is IMeterConsumption {
   return (
