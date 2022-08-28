@@ -1,6 +1,7 @@
 import { PortfolioManagerApi } from "./PortfolioManagerApi";
 import {
   IAccount,
+  IClientMeter,
   IClientProperty,
   ILink,
   IMeter,
@@ -55,10 +56,13 @@ export class PortfolioManager {
       );
   }
 
-  async getMeter(meterId: number): Promise<IMeter> {
+  async getMeter(meterId: number): Promise<IClientMeter> {
     const response = await this.api.meterMeterGet(meterId);
-    if (response.meter) return response.meter;
-    else
+    if (response.meter) {
+      // ensure id is set since it is minOccur 0 in the xsd, and the client guarantees it is set
+      const meter = Object.assign({ id: meterId }, response.meter);
+      return meter;
+    } else
       throw new Error(`No meter found:\n ${JSON.stringify(response, null, 2)}`);
   }
 
