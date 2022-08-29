@@ -52,6 +52,7 @@ export class PortfolioManagerCli {
   }
   // #endregion meter
 
+
   // #region meter association
   protected _meterAssociationCommand?: Command;
   public get meterAssociationCommand() {
@@ -67,6 +68,7 @@ export class PortfolioManagerCli {
       );
   }
   // #endregion meter association
+
 
   // #region meter association get
   protected _meterAssociationGetCommand?: Command;
@@ -109,6 +111,48 @@ export class PortfolioManagerCli {
       .action((cmdOpts) => this.meterAssociationGetCommandAction(cmdOpts));
   }
   // #endregion meter association get
+
+
+  // #region meter association list
+  protected _meterAssociationListCommand?: Command;
+  public get meterAssociationListCommand() {
+    if (!this._meterAssociationListCommand)
+      this._meterAssociationListCommand =
+        this.meterAssociationListCommandConfigure();
+    return this._meterAssociationGetCommand;
+  }
+
+  meterAssociationListExamples = [
+    "# customizing the output",
+    `${this.name} meter asscociation list --propertyIds <propertyId...> --indent 2`,
+    "",
+    "# using with JQ to map the output to shell scripting friendlier output",
+    `${this.name} meter asscociation list --propertyIds <propertyId...> | jq -r '[.[] | .id] | @sh'`,
+  ];
+  async meterAssociationListCommandAction(cmdOpts: any) {
+    console.error("meter association list", cmdOpts);
+    const meterAssociation =
+      await this.getPortfolioManagerClient().getMetersPropertiesAssociation(cmdOpts.propertyIds || []);
+    const indent = cmdOpts.indent ? parseInt(cmdOpts.indent) || 2 : undefined;
+    console.log(JSON.stringify(meterAssociation, null, indent));
+  }
+  meterAssociationListCommandConfigure() {
+    return this.meterAssociationCommand
+      .command("list")
+      .description("list meter associations for multiple properties")
+      .addHelpText(
+        "after",
+        formatExamplesHelpText(this.meterAssociationGetExamples)
+      )
+      .requiredOption(
+        "--propertyIds <propertyId...>",
+        "properties to fetch associated meters for"
+      )
+      .option("--indent <spaces>", "Indented output")
+      .action((cmdOpts) => this.meterAssociationListCommandAction(cmdOpts));
+  }
+  // #endregion meter association get
+
 
   // #region meter consumption
   protected _meterConsumptionCommand?: Command;
@@ -542,6 +586,7 @@ export class PortfolioManagerCli {
     // to each here to register them with the cli. We should only need to register 
     // leaf commands. The should register their parents automatically. 
     this.meterAssociationGetCommand
+    this.meterAssociationListCommand
     this.meterConsumptionCommand
     this.meterListEntitiesCommand
     this.meterListLinksCommand

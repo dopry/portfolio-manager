@@ -109,11 +109,15 @@ export class PortfolioManager {
       );
       const page = getConsumptionRecordFromMeterData(response.meterData);
       meterData.push(...page);
-      // console.log("getMeterConsumption", response.meterData.links)
+      // console.error("getMeterConsumption", response.meterData.links)
 
-      const links = (response.meterData.links) ? response.meterData.links.link : undefined
-      const nextLink = (links && links.length > 0) ? links[0]["@_link"] : undefined;
-      const nextPageStr: string = nextLink && nextLink.split("=").pop() || "NaN Please"
+      const links = response.meterData.links
+        ? response.meterData.links.link
+        : undefined;
+      const nextLink =
+        links && links.length > 0 ? links[0]["@_link"] : undefined;
+      const nextPageStr: string =
+        (nextLink && nextLink.split("=").pop()) || "NaN Please";
       nextPage = parseInt(nextPageStr) || undefined;
     } while (nextPage);
     return meterData;
@@ -124,10 +128,7 @@ export class PortfolioManager {
     propertyId: number,
     myAccessOnly?: boolean
   ): Promise<ILink[]> {
-    const response = await this.api.meterMeterListGet(
-      propertyId,
-      myAccessOnly
-    );
+    const response = await this.api.meterMeterListGet(propertyId, myAccessOnly);
     if (!response.response.links?.link)
       throw new Error(
         `No meters found:\n ${JSON.stringify(response, null, 2)}`
@@ -151,39 +152,80 @@ export class PortfolioManager {
   async getAssociatedMeters(
     propertyId: number
   ): Promise<IClientMeterPropertyAssociation> {
-    const response = await this.api.meterPropertyAssociationGet(
-      propertyId
-    );
-    // console.log('response', response.meterPropertyAssociationList)
+    const response = await this.api.meterPropertyAssociationGet(propertyId);
+    //  console.error('response', {propertyId, response})
     if (!response.meterPropertyAssociationList)
-    throw new Error(
-      `No associated meters found:\n ${JSON.stringify(response, null, 2)}`
-    );
+      throw new Error(
+        `No associated meters found(${propertyId}):\n ${JSON.stringify(
+          response,
+          null,
+          2
+        )}`
+      );
 
-    const energyMeterAssociation = response.meterPropertyAssociationList.energyMeterAssociation && {
-      meters: response.meterPropertyAssociationList.energyMeterAssociation.meters.meterId,
-      propertyRepresentation: response.meterPropertyAssociationList.energyMeterAssociation.propertyRepresentation,
-    } || undefined;
+    const energyMeterAssociation =
+      (response.meterPropertyAssociationList.energyMeterAssociation && {
+        meters:
+          response.meterPropertyAssociationList.energyMeterAssociation.meters
+            .meterId,
+        propertyRepresentation:
+          response.meterPropertyAssociationList.energyMeterAssociation
+            .propertyRepresentation,
+      }) ||
+      undefined;
 
-    const waterMeterAssociation = response.meterPropertyAssociationList.waterMeterAssociation && {
-      meters: response.meterPropertyAssociationList.waterMeterAssociation.meters.meterId,
-      propertyRepresentation: response.meterPropertyAssociationList.waterMeterAssociation.propertyRepresentation,
-    } || undefined;
+    const waterMeterAssociation =
+      (response.meterPropertyAssociationList.waterMeterAssociation && {
+        meters:
+          response.meterPropertyAssociationList.waterMeterAssociation.meters
+            .meterId,
+        propertyRepresentation:
+          response.meterPropertyAssociationList.waterMeterAssociation
+            .propertyRepresentation,
+      }) ||
+      undefined;
 
-    const wasteMeterAssociation = response.meterPropertyAssociationList.wasteMeterAssociation && {
-      meters: response.meterPropertyAssociationList.wasteMeterAssociation.meters.meterId,
-      propertyRepresentation: response.meterPropertyAssociationList.wasteMeterAssociation.propertyRepresentation,
-    } || undefined;
+    const wasteMeterAssociation =
+      (response.meterPropertyAssociationList.wasteMeterAssociation && {
+        meters:
+          response.meterPropertyAssociationList.wasteMeterAssociation.meters
+            .meterId,
+        propertyRepresentation:
+          response.meterPropertyAssociationList.wasteMeterAssociation
+            .propertyRepresentation,
+      }) ||
+      undefined;
 
     const association = {
       propertyId,
       energyMeterAssociation,
       waterMeterAssociation,
       wasteMeterAssociation,
-    }
+    };
 
-    // console.log('getAssociatedMeters', {association});
+    // console.error('getAssociatedMeters', {association});
     return association;
+  }
+
+  async getMetersPropertiesAssociation(
+    propertyIds: number[]
+  ): Promise<IClientMeterPropertyAssociation[]> {
+    const associationPromises = propertyIds.map(async (propertyId) =>
+      this.getAssociatedMeters(propertyId)
+    );
+    const associationSettlements = await Promise.allSettled(
+      associationPromises
+    );
+    const associations: IClientMeterPropertyAssociation[] = [];
+    associationSettlements.forEach((settlement) => {
+      settlement.status === "fulfilled"
+        ? associations.push(settlement.value)
+        : console.error(
+            "Error getting meter property association",
+            settlement.reason
+          );
+    });
+    return associations;
   }
 
   async getProperty(propertyId: number): Promise<IClientProperty> {
