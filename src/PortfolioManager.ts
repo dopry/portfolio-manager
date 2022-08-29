@@ -154,7 +154,7 @@ export class PortfolioManager {
     const response = await this.api.meterPropertyAssociationGet(
       propertyId
     );
-    console.log('response', response.meterPropertyAssociationList)
+    // console.log('response', response.meterPropertyAssociationList)
     if (!response.meterPropertyAssociationList)
     throw new Error(
       `No associated meters found:\n ${JSON.stringify(response, null, 2)}`
@@ -182,7 +182,7 @@ export class PortfolioManager {
       wasteMeterAssociation,
     }
 
-    console.log('getAssociatedMeters', {association});
+    // console.log('getAssociatedMeters', {association});
     return association;
   }
 
