@@ -133,16 +133,21 @@ export class PortfolioManager {
     myAccessOnly?: boolean
   ): Promise<ILink[]> {
     const response = await this.api.meterMeterListGet(propertyId, myAccessOnly);
-    if (!response.response.links?.link)
-      throw new Error(
-        `No meters found:\n ${JSON.stringify(response, null, 2)}`
-      );
+    // console.error("getMeterLinks", {json: JSON.stringify(response), set: !response.response.links?.link  });
+
+    if (response.response["@_status"] != "Ok") {
+      throw new Error("Request Error, response: " + JSON.stringify(response, null, 2));
+    }
+
+    if (!response.response.links || !response.response.links.hasOwnProperty("link")) 
+      return [];
 
     return response.response.links.link;
   }
 
   async getMeters(propertyId: number): Promise<IMeter[]> {
     const links = await this.getMeterLinks(propertyId);
+    // console.error("getMeters", { links: JSON.stringify(links) })
     const meters = await Promise.all(
       links.map(async (link) => {
         const idStr = link["@_id"] || link["@_link"].split("/").pop() || "";
