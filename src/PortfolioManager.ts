@@ -99,7 +99,7 @@ export class PortfolioManager {
         `No meter consumption found:\n ${JSON.stringify(response, null, 2)}`
       );
     const meterData: (IMeterDelivery | IMeterConsumption)[] = [];
-    let nextPage: number | undefined = undefined;
+    let nextPage: number | typeof NaN | undefined = undefined;
     do {
       const response = await this.api.meterConsumptionDataGet(
         meterId,
@@ -107,19 +107,23 @@ export class PortfolioManager {
         startDate,
         endDate
       );
+      // console.error("getMeterConsumption", {meterId, nextPage});
       const page = getConsumptionRecordFromMeterData(response.meterData);
+      // console.error({page: nextPage, length: page.length})
       meterData.push(...page);
-      // console.error("getMeterConsumption", response.meterData.links)
+      // console.error("getMeterConsumption", { links: response.meterData.links.link })
 
       const links = response.meterData.links
         ? response.meterData.links.link
         : undefined;
       const nextLink =
-        links && links.length > 0 ? links[0]["@_link"] : undefined;
-      const nextPageStr: string =
-        (nextLink && nextLink.split("=").pop()) || "NaN Please";
-      nextPage = parseInt(nextPageStr) || undefined;
-    } while (nextPage);
+        links && links.length > 0 ? links.find(link => link["@_linkDescription"] == "next page") : undefined
+      
+      const nextLinkUrl = (nextLink) ? nextLink["@_link"] : undefined;
+      const nextPageStr = (nextLinkUrl && nextLinkUrl.split("=").pop()) || "NaN";
+      nextPage = parseInt(nextPageStr);
+    } while (!isNaN(nextPage));
+    // console.error("getMeterConsumption", {length: meterData.length})
     return meterData;
     // there are more pages of results for this query
   }

@@ -587,7 +587,7 @@ export class PortfolioManagerCli {
     // leaf commands. The should register their parents automatically. 
     this.meterAssociationGetCommand
     this.meterAssociationListCommand
-    this.meterConsumptionCommand
+    this.meterConsumptionGetCommand
     this.meterListEntitiesCommand
     this.meterListLinksCommand
     this.propertyListEntitiesCommand
