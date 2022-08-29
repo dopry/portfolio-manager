@@ -3,16 +3,17 @@ import {
   IAccount,
   IClientConsumption,
   IClientMeter,
+  IClientMeterPropertyAssociation,
   IClientProperty,
   ILink,
   IMeter,
   IMeterConsumption,
   IMeterData,
   IMeterDelivery,
-  IMeterPropertyAssociationList,
   isIDeliveryMeterData,
   isIMeteredMeterData,
 } from "./types";
+import { IClientMeterAssociation } from "./types/client/IClientMeterPropertyAssociation";
 
 /**
  * A developer friendly Facade for interacting with Energy Star Portfolio Manager.
@@ -149,17 +150,40 @@ export class PortfolioManager {
 
   async getAssociatedMeters(
     propertyId: number
-  ): Promise<IMeterPropertyAssociationList> {
+  ): Promise<IClientMeterPropertyAssociation> {
     const response = await this.api.meterPropertyAssociationGet(
       propertyId
     );
-    // console.log('getAssociatedMeters', {response});
+    console.log('response', response.meterPropertyAssociationList)
     if (!response.meterPropertyAssociationList)
-      throw new Error(
-        `No associated meters found:\n ${JSON.stringify(response, null, 2)}`
-      );
+    throw new Error(
+      `No associated meters found:\n ${JSON.stringify(response, null, 2)}`
+    );
 
-    return response.meterPropertyAssociationList;
+    const energyMeterAssociation = response.meterPropertyAssociationList.energyMeterAssociation && {
+      meters: response.meterPropertyAssociationList.energyMeterAssociation.meters.meterId,
+      propertyRepresentation: response.meterPropertyAssociationList.energyMeterAssociation.propertyRepresentation,
+    } || undefined;
+
+    const waterMeterAssociation = response.meterPropertyAssociationList.waterMeterAssociation && {
+      meters: response.meterPropertyAssociationList.waterMeterAssociation.meters.meterId,
+      propertyRepresentation: response.meterPropertyAssociationList.waterMeterAssociation.propertyRepresentation,
+    } || undefined;
+
+    const wasteMeterAssociation = response.meterPropertyAssociationList.wasteMeterAssociation && {
+      meters: response.meterPropertyAssociationList.wasteMeterAssociation.meters.meterId,
+      propertyRepresentation: response.meterPropertyAssociationList.wasteMeterAssociation.propertyRepresentation,
+    } || undefined;
+
+    const association = {
+      propertyId,
+      energyMeterAssociation,
+      waterMeterAssociation,
+      wasteMeterAssociation,
+    }
+
+    console.log('getAssociatedMeters', {association});
+    return association;
   }
 
   async getProperty(propertyId: number): Promise<IClientProperty> {
