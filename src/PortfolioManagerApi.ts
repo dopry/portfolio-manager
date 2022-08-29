@@ -43,13 +43,16 @@ export class PortfolioManagerApi {
     isArray: (name, jpath, isLeafNode, isAttribute): boolean => {
       // ensure response.links.link is always an array even when there
       // is only one link which results in  object by default
-      // console.log(jpath)
+      // console.error(jpath)
       return (
            jpath === "response.links.link" 
         || jpath === "meterData.links.link"
         || jpath === "meterPropertyAssociationList.waterMeterAssociation.meters.meterId"
         || jpath === "meterPropertyAssociationList.energyMeterAssociation.meters.meterId"
         || jpath === "meterPropertyAssociationList.wasteMeterAssociation.meters.meterId"
+        || jpath === "meterData.meterDelivery"
+        || jpath === "meterData.meterConsumption"
+
       );
     },
   };

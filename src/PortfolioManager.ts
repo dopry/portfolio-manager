@@ -109,7 +109,7 @@ export class PortfolioManager {
       );
       // console.error("getMeterConsumption", {meterId, nextPage});
       const page = getConsumptionRecordFromMeterData(response.meterData);
-      // console.error({page: nextPage, length: page.length})
+      //  console.error({ nextPage, page, length: page.length})
       meterData.push(...page);
       // console.error("getMeterConsumption", { links: response.meterData.links.link })
 
