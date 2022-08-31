@@ -199,18 +199,18 @@ export class PortfolioManagerApi {
   async meterConsumptionDataGet(
     meterId: number,
     page?: number,
-    startDate?: Date,
-    endDate?: Date
+    startDate?: string,
+    endDate?: string
   ): Promise<IMeterConsumptionDataGetResponse> {
     const args: string[] = [];
     if (page) {
       args.push(`page=${page}`);
     }
     if (startDate) {
-      args.push(`startDate=${startDate.toISOString()}`);
+      args.push(`startDate=${startDate}`);
     }
     if (endDate) {
-      args.push(`endDate=${endDate.toISOString()}`);
+      args.push(`endDate=${endDate}`);
     }
     const url = `/meter/${meterId}/consumptionData?${args.join("&")}`;
     return this.get<IMeterConsumptionDataGetResponse>(url);

@@ -234,8 +234,9 @@ export class PortfolioManagerCli {
           `${field} is not a valid field, options: ${this.meterConsumptionGetFieldsOptionsStr}`
         );
     });
+    const {start = undefined, end = undefined} = cmdOpts;
     const client = this.getPortfolioManagerClient();
-    const meterConsumption = await client.getMeterConsumption(cmdOpts.meterId);
+    const meterConsumption = await client.getMeterConsumption(cmdOpts.meterId, start, end);
     const mapped = meterConsumption.map((consumption: Record<string, any>) => {
       return cmdOpts.fields.reduce(
         (acc: Record<string, any>, field: string) => {
@@ -264,6 +265,8 @@ export class PortfolioManagerCli {
         this.meterConsumptionGetFieldsDefault
       )
       .option("--indent <spaces>", "Indented output")
+      .option("--start [date]", "Start Date for consumption records")
+      .option("--end [date]", "End Date for consumption records")
       .action((cmdOpts) => this.meterConsumptionGetCommandAction(cmdOpts));
   }
   // #endregion meter consumption get

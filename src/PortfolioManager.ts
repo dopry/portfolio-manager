@@ -70,8 +70,8 @@ export class PortfolioManager {
 
   async getMeterConsumption(
     meterId: number,
-    startDate?: Date,
-    endDate?: Date
+    startDate?: string,
+    endDate?: string
   ): Promise<IClientConsumption[]> {
     const getConsumptionRecordFromMeterData = (
       meterData: IMeterData
