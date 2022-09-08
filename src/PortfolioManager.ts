@@ -85,7 +85,9 @@ export class PortfolioManager {
       if (isIDeliveryMeterData(meterData)) {
         return meterData.meterDelivery;
       }
-      throw new Error("Unable to determine meter consumption type to return");
+      console.error(`Unable to determine meter consumption type returning an empty array`, {meterId, startDate, endDate, meterData});
+      // return an empty array since it 
+      return [];
     };
 
     const response = await this.api.meterConsumptionDataGet(
