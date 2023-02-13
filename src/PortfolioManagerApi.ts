@@ -20,6 +20,8 @@ import {
   IPropertyPropertyPostResponse,
 } from "./types";
 import { btoa } from "./functions";
+import { isNumber, isString } from "type-guards";
+import { isDate } from "util/types";
 
 /**
  * Gateway to the the Portfolio Manager API.
@@ -29,7 +31,7 @@ import { btoa } from "./functions";
  * provide typed methods for each endpoint and construct the request. It should not be concerned
  * with the response or error handling. If you want a higher level of abstraction, you should use
  * the PortfolioManager Facade instead.
- * 
+ *
  *
  * Responsbilities:
  * - Typeing API calls
@@ -43,29 +45,33 @@ export class PortfolioManagerApi {
     isArray: (name, jpath, isLeafNode, isAttribute): boolean => {
       // ensure response.links.link is always an array even when there
       // is only one link which results in  object by default
-      // console.error(jpath)
+      // console.log(jpath);
       return (
-           jpath === "response.links.link" 
-        || jpath === "meterData.links.link"
-        || jpath === "meterPropertyAssociationList.waterMeterAssociation.meters.meterId"
-        || jpath === "meterPropertyAssociationList.energyMeterAssociation.meters.meterId"
-        || jpath === "meterPropertyAssociationList.wasteMeterAssociation.meters.meterId"
-        || jpath === "meterData.meterDelivery"
-        || jpath === "meterData.meterConsumption"
-
+        jpath === "response.links.link" ||
+        jpath === "meterData.links.link" ||
+        jpath ===
+          "meterPropertyAssociationList.waterMeterAssociation.meters.meterId" ||
+        jpath ===
+          "meterPropertyAssociationList.energyMeterAssociation.meters.meterId" ||
+        jpath ===
+          "meterPropertyAssociationList.wasteMeterAssociation.meters.meterId" ||
+        jpath === "meterData.meterDelivery" ||
+        jpath === "meterData.meterConsumption"
       );
     },
   };
   xmlBuilderOptions: Partial<XmlBuilderOptions> = {
     ignoreAttributes: false,
     tagValueProcessor: (name, value) => {
-      // console.log('XMLBuilder.tagValueProcessor', { name, value })
       switch (name) {
         case "firstBillDate":
-          const date = new Date(value);
-          return toXmlDateString(date);
+          if (isString(value) || isDate(value) || isNumber(value)) {
+            const date = new Date(value);
+            return toXmlDateString(date);
+          }
+          return value as string;
         default:
-          return value;
+          return value as string;
       }
     },
   };
@@ -125,10 +131,15 @@ export class PortfolioManagerApi {
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/test/api/account/account/post
-  async accountAccountPost(account: IAccount): Promise<IAccountAccountPostResponse> {
-    return this.post<{ account: IAccount }, IAccountAccountPostResponse>("account", {
-      account,
-    });
+  async accountAccountPost(
+    account: IAccount
+  ): Promise<IAccountAccountPostResponse> {
+    return this.post<{ account: IAccount }, IAccountAccountPostResponse>(
+      "account",
+      {
+        account,
+      }
+    );
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/test/api/meter/meter/get
@@ -137,7 +148,9 @@ export class PortfolioManagerApi {
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/property/property/get
-  async propertyPropertyGet(propertyId: number): Promise<IPropertyPropertyGetResponse> {
+  async propertyPropertyGet(
+    propertyId: number
+  ): Promise<IPropertyPropertyGetResponse> {
     return this.get<IPropertyPropertyGetResponse>(`property/${propertyId}`);
   }
 
@@ -153,7 +166,9 @@ export class PortfolioManagerApi {
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/property/propertyList/get
-  async propertyPropertyListGet(accountId: number): Promise<IPropertyPropertyListGetResponse> {
+  async propertyPropertyListGet(
+    accountId: number
+  ): Promise<IPropertyPropertyListGetResponse> {
     return this.get<IPropertyPropertyListGetResponse>(
       `account/${accountId}/property/list`
     );

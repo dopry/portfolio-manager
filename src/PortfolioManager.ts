@@ -1,3 +1,4 @@
+import { isString } from "type-guards";
 import { PortfolioManagerApi } from "./PortfolioManagerApi";
 import {
   IAccount,
@@ -11,7 +12,9 @@ import {
   IMeterData,
   IMeterDelivery,
   isIDeliveryMeterData,
+  isIEmptyResponse,
   isIMeteredMeterData,
+  isIPopoulatedResponse,
 } from "./types";
 import { IClientMeterAssociation } from "./types/client/IClientMeterPropertyAssociation";
 
@@ -85,8 +88,11 @@ export class PortfolioManager {
       if (isIDeliveryMeterData(meterData)) {
         return meterData.meterDelivery;
       }
-      console.error(`Unable to determine meter consumption type returning an empty array`, {meterId, startDate, endDate, meterData});
-      // return an empty array since it 
+      console.error(
+        `Unable to determine meter consumption type returning an empty array`,
+        { meterId, startDate, endDate, meterData }
+      );
+      // return an empty array since it
       return [];
     };
 
@@ -119,10 +125,13 @@ export class PortfolioManager {
         ? response.meterData.links.link
         : undefined;
       const nextLink =
-        links && links.length > 0 ? links.find(link => link["@_linkDescription"] == "next page") : undefined
-      
-      const nextLinkUrl = (nextLink) ? nextLink["@_link"] : undefined;
-      const nextPageStr = (nextLinkUrl && nextLinkUrl.split("=").pop()) || "NaN";
+        links && links.length > 0
+          ? links.find((link) => link["@_linkDescription"] == "next page")
+          : undefined;
+
+      const nextLinkUrl = nextLink ? nextLink["@_link"] : undefined;
+      const nextPageStr =
+        (nextLinkUrl && nextLinkUrl.split("=").pop()) || "NaN";
       nextPage = parseInt(nextPageStr);
     } while (!isNaN(nextPage));
     // console.error("getMeterConsumption", {length: meterData.length})
@@ -138,13 +147,21 @@ export class PortfolioManager {
     // console.error("getMeterLinks", {json: JSON.stringify(response), set: !response.response.links?.link  });
 
     if (response.response["@_status"] != "Ok") {
-      throw new Error("Request Error, response: " + JSON.stringify(response, null, 2));
+      throw new Error(
+        "Request Error, response: " + JSON.stringify(response, null, 2)
+      );
     }
 
-    if (!response.response.links || !response.response.links.hasOwnProperty("link")) 
+    if (isIEmptyResponse(response.response)) {
+      // test for an empty response first, since in the past I've seen the response.response.links.link
+      // appear as [ function ] even though respone.links was ''.
       return [];
-
-    return response.response.links.link;
+    }
+    if (isIPopoulatedResponse(response.response)) {
+      return response.response.links.link;
+    }
+    // just some defensive coding in csae the response is not empty or populated
+    return [];
   }
 
   async getMeters(propertyId: number): Promise<IMeter[]> {
@@ -255,16 +272,40 @@ export class PortfolioManager {
   async getPropertyLinks(accountId?: number): Promise<ILink[]> {
     if (!accountId) accountId = await this.getAccountId();
     const response = await this.api.propertyPropertyListGet(accountId);
-    if (response.response.links.link) return response.response.links.link;
-    else
-      throw new Error(
-        `No properties found:\n ${JSON.stringify(response, null, 2)}`
-      );
+    // console.log("getPropertyLinks", { response });
+
+    // need to check reponses.links exists since it sometimes returns a string that has a link property that i a function
+    // and not a link object
+    console.log("getPropertyLinks", {
+      links: response.response.links,
+      typeofLinks: typeof response.response.links,
+      link: response.response.links.link,
+      typeOfLink: typeof response.response.links.link,
+      stringLink: "".link,
+    });
+    if (!isString(response.response.links) && response.response.links.link) {
+      return response.response.links.link;
+    } else
+      console.log("getPropertyLinks not found", {
+        links: response.response.links.link,
+      });
+    throw new Error(
+      `No properties found:\n ${JSON.stringify(response, null, 2)}`
+    );
   }
 
   async getProperties(accountId?: number): Promise<IClientProperty[]> {
     if (!accountId) accountId = await this.getAccountId();
     const links = await this.getPropertyLinks(accountId);
+    if (!links) return [];
+    if (!Array.isArray(links)) return [];
+    if (links.length == 0) return [];
+    if (links.length == 1 && typeof links[0] == "function") {
+      console.log("getProperties", { links });
+      return [];
+    }
+
+    // console.log({ links });
     const properties = await Promise.all(
       links.map(async (link) => {
         const idStr = link["@_id"] || link["@_link"].split("/").pop() || "";
