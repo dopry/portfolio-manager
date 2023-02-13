@@ -2,8 +2,11 @@ import { expect } from "chai";
 import {
   IAccount,
   IAddress,
+  ILink,
   IMeter,
   IOrganization,
+  isIEmptyResponse,
+  isIPopoulatedResponse,
   isIResponse,
 } from "./types/xml";
 import { PortfolioManagerApi } from "./PortfolioManagerApi";
@@ -62,7 +65,9 @@ describe("EpaPortfolioManagerClient", () => {
     expect(postAccountResponse.response["@_status"]).to.equal("Ok");
     expect(postAccountResponse.response.id).to.be.a("number");
     expect(postAccountResponse.response.links).to.be.an("object");
-    expect(postAccountResponse.response.links.link[0]).to.deep.equal({
+    const link = postAccountResponse.response.links.link as ILink[];
+    expect(link).to.be.an("array");
+    expect(link[0]).to.deep.equal({
       "@_linkDescription": "This is the GET url for this Account.",
       "@_link": "/account",
       "@_httpMethod": "GET",
@@ -116,11 +121,20 @@ describe("EpaPortfolioManagerClient", () => {
     ).to.equal("Test Partner Deacription");
     // expect(getAccountResponse.account.includeTestPropertiesInGraphics).to.equal(false);
     expect(getAccountResponse.account.languagePreference).to.equal("en_US");
-
     // } catch (e) {
     //   console.log(e);
     //   throw e
     // }
+  });
+
+  it("can query an account without properties", async () => {
+    const { account } = await client.accountAccountGet();
+    const listPropertyResponse = await client.propertyPropertyListGet(
+      account.id || 0
+    );
+    expect(listPropertyResponse.response["@_status"]).to.equal("Ok");
+    expect(listPropertyResponse.response.links).to.be.an("string");
+    expect(isIEmptyResponse(listPropertyResponse.response)).to.equal(true);
   });
 
   it("can create a test property", async () => {
@@ -142,19 +156,20 @@ describe("EpaPortfolioManagerClient", () => {
       property,
       account.id || 0
     );
+    if (!isIPopoulatedResponse(postPropertyResponse.response)) {
+      throw new Error("Expected isIPopoulatedResponse");
+    }
     expect(postPropertyResponse.response["@_status"]).to.equal("Ok");
     expect(postPropertyResponse.response.id).to.be.a("number");
     expect(postPropertyResponse.response.links).to.be.an("object");
-    expect(postPropertyResponse.response.links.link).to.be.an("array");
-    expect(
-      postPropertyResponse.response.links.link[0]["@_linkDescription"]
-    ).to.equal("This is the GET url for this Property.");
-    expect(postPropertyResponse.response.links.link[0]["@_link"]).to.match(
-      /^\/property\/\d+$/
+    const link = postPropertyResponse.response.links.link as ILink[];
+    expect(link).to.be.an("array");
+
+    expect(link[0]["@_linkDescription"]).to.equal(
+      "This is the GET url for this Property."
     );
-    expect(
-      postPropertyResponse.response.links.link[0]["@_httpMethod"]
-    ).to.equal("GET");
+    expect(link[0]["@_link"]).to.match(/^\/property\/\d+$/);
+    expect(link[0]["@_httpMethod"]).to.equal("GET");
 
     const getPropertyResponse = await client.propertyPropertyGet(
       postPropertyResponse.response.id
@@ -176,7 +191,7 @@ describe("EpaPortfolioManagerClient", () => {
       account.id
     );
     expect(getPropertyResponse.property.audit?.createdDate).to.match(
-      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}-04:00$/
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}-0\d:00$/
     );
     expect(getPropertyResponse.property.audit?.lastUpdatedBy).to.equal(
       USERNAME
@@ -185,7 +200,7 @@ describe("EpaPortfolioManagerClient", () => {
       account.id
     );
     expect(getPropertyResponse.property.audit?.lastUpdatedDate).to.match(
-      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}-04:00$/
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}-0\d:00$/
     );
     expect(getPropertyResponse.property.constructionStatus).to.equal("Test");
     expect(getPropertyResponse.property.grossFloorArea).to.be.an("object");
@@ -212,6 +227,10 @@ describe("EpaPortfolioManagerClient", () => {
       property,
       account.id || 0
     );
+    if (!isIPopoulatedResponse(postPropertyResponse2.response)) {
+      throw new Error("Expected isIPopoulatedResponse");
+    }
+
     const propertyIds = [
       postPropertyResponse.response.id.toString(),
       postPropertyResponse2.response.id.toString(),
@@ -228,35 +247,30 @@ describe("EpaPortfolioManagerClient", () => {
     expect(listResponse["@_status"]).to.equal("Ok");
     expect(listResponse.links).to.be.an("object");
     expect(listResponse.links.link).to.be.an("array");
-    if (isIResponse(listResponse)) {
-      expect(listResponse.links.link[0]).to.be.an("object");
-      expect(listResponse.links.link[0]["@_hint"]).to.equal("Test Property");
-      expect(listResponse.links.link[0]["@_httpMethod"]).to.equal("GET");
-      expect(propertyIds).to.contain(listResponse.links.link[0]["@_id"]);
-      expect(listResponse.links.link[0]["@_link"]).to.match(
-        /^\/property\/\d+$/
-      );
-      expect(listResponse.links.link[0]["@_linkDescription"]).to.equal(
-        "This is the GET url for this Property."
-      );
-
-      const remainingIds = propertyIds.filter(
-        (id) => id.toString() !== listResponse.links.link[0]["@_id"]
-      );
-
-      expect(listResponse.links.link[1]).to.be.an("object");
-      expect(listResponse.links.link[1]["@_hint"]).to.equal("Test Property");
-      expect(listResponse.links.link[1]["@_httpMethod"]).to.equal("GET");
-      expect(remainingIds).to.contain(listResponse.links.link[1]["@_id"]);
-      expect(listResponse.links.link[1]["@_link"]).to.match(
-        /^\/property\/\d+$/
-      );
-      expect(listResponse.links.link[1]["@_linkDescription"]).to.equal(
-        "This is the GET url for this Property."
-      );
-    } else {
-      throw new Error("Expected IResponse");
+    if (!isIPopoulatedResponse(listResponse)) {
+      throw new Error("Expected isIPopoulatedResponse");
     }
+    expect(listResponse.links.link[0]).to.be.an("object");
+    expect(listResponse.links.link[0]["@_hint"]).to.equal("Test Property");
+    expect(listResponse.links.link[0]["@_httpMethod"]).to.equal("GET");
+    expect(propertyIds).to.contain(listResponse.links.link[0]["@_id"]);
+    expect(listResponse.links.link[0]["@_link"]).to.match(/^\/property\/\d+$/);
+    expect(listResponse.links.link[0]["@_linkDescription"]).to.equal(
+      "This is the GET url for this Property."
+    );
+
+    const remainingIds = propertyIds.filter(
+      (id) => id.toString() !== listResponse.links.link[0]["@_id"]
+    );
+
+    expect(listResponse.links.link[1]).to.be.an("object");
+    expect(listResponse.links.link[1]["@_hint"]).to.equal("Test Property");
+    expect(listResponse.links.link[1]["@_httpMethod"]).to.equal("GET");
+    expect(remainingIds).to.contain(listResponse.links.link[1]["@_id"]);
+    expect(listResponse.links.link[1]["@_link"]).to.match(/^\/property\/\d+$/);
+    expect(listResponse.links.link[1]["@_linkDescription"]).to.equal(
+      "This is the GET url for this Property."
+    );
   });
 
   it("can create a meter", async () => {
@@ -265,8 +279,9 @@ describe("EpaPortfolioManagerClient", () => {
       account.id || 0
     );
     const listResponse = getPropertyListResponse.response;
+    const propertyLink = listResponse.links.link as ILink[];
 
-    let propertyIdStr = listResponse.links.link[0]["@_id"] || null;
+    let propertyIdStr = propertyLink[0]["@_id"] || null;
     if (!propertyIdStr) {
       throw new Error("Expected IResponseMultiple or IResponse");
     }
@@ -281,8 +296,10 @@ describe("EpaPortfolioManagerClient", () => {
       inUse: true,
     };
     const postMeterResponse = await client.meterMeterPost(propertyId, meter);
-    // console.log(JSON.stringify(postMeterResponse, null, 2));
     expect(postMeterResponse.response["@_status"]).to.equal("Ok");
+    if (!isIPopoulatedResponse(postMeterResponse.response)) {
+      throw new Error("Expected isIPopoulatedResponse");
+    }
     expect(postMeterResponse.response.id).to.be.a("number");
     expect(postMeterResponse.response.links).to.be.an("object");
     expect(postMeterResponse.response.links.link).to.be.an("array");
@@ -291,9 +308,11 @@ describe("EpaPortfolioManagerClient", () => {
     const getPropertyMeterListResponse = await client.meterMeterListGet(
       propertyId
     );
-    expect(
-      getPropertyMeterListResponse.response.links.link[0]["@_id"]
-    ).to.equal(postMeterResponse.response.id.toString());
+    const meterLink = getPropertyMeterListResponse.response.links
+      .link as ILink[];
+    expect(meterLink[0]["@_id"]).to.equal(
+      postMeterResponse.response.id.toString()
+    );
 
     const meter2: IMeter = {
       name: "Test Meter 2",
@@ -302,25 +321,23 @@ describe("EpaPortfolioManagerClient", () => {
       firstBillDate: new Date(2019, 0, 1),
       inUse: true,
     };
-    const postMeterResponse2 = await client.meterMeterPost(
-      propertyId,
-      meter2
-    );
-    // console.log(JSON.stringify(postMeterResponse, null, 2));
+    const postMeterResponse2 = await client.meterMeterPost(propertyId, meter2);
     expect(postMeterResponse2.response["@_status"]).to.equal("Ok");
+    if (!isIPopoulatedResponse(postMeterResponse2.response)) {
+      throw new Error("Expected isIPopoulatedResponse");
+    }
+
     expect(postMeterResponse2.response.id).to.be.a("number");
     expect(postMeterResponse2.response.links).to.be.an("object");
     expect(postMeterResponse2.response.links.link).to.be.an("array");
-    // expect(postMeterResponse.response).to.equal({});
-
     const getPropertyMeterListResponse2 = await client.meterMeterListGet(
       propertyId
     );
-    expect(
-      getPropertyMeterListResponse2.response.links.link[1]["@_id"]
-    ).to.equal(postMeterResponse2.response.id.toString());
-    expect(
-      getPropertyMeterListResponse2.response.links.link[1]["@_hint"]
-    ).to.equal("Test Meter 2");
+    const meterListLink = getPropertyMeterListResponse2.response.links
+      .link as ILink[];
+    expect(meterListLink[1]["@_id"]).to.equal(
+      postMeterResponse2.response.id.toString()
+    );
+    expect(meterListLink[1]["@_hint"]).to.equal("Test Meter 2");
   });
 });
