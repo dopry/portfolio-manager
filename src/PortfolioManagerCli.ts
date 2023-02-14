@@ -2,6 +2,7 @@ import { Command, Option } from "commander";
 import { PortfolioManager } from "./PortfolioManager";
 import { PortfolioManagerApi } from "./PortfolioManagerApi";
 import { formatExamplesHelpText } from "./functions/formatExamplesHelpText";
+import { METRICS } from "./types";
 
 export class PortfolioManagerCli {
   name = "portfolio-manager";
@@ -22,8 +23,8 @@ export class PortfolioManagerCli {
           "--pm-endpoint <endpoint>",
           "Portfolio Manager Endpoint, prod: https://portfoliomanager.energystar.gov/ws/, test: https://portfoliomanager.energystar.gov/wstest/"
         )
-        .default("https://portfoliomanager.energystar.gov/ws/")
-        .env("PM_ENDPOINT")
+          .default("https://portfoliomanager.energystar.gov/ws/")
+          .env("PM_ENDPOINT")
       )
       .addOption(
         new Option("--pm-username <username>", "Portfolio Manager username")
@@ -52,7 +53,6 @@ export class PortfolioManagerCli {
   }
   // #endregion meter
 
-
   // #region meter association
   protected _meterAssociationCommand?: Command;
   public get meterAssociationCommand() {
@@ -68,7 +68,6 @@ export class PortfolioManagerCli {
       );
   }
   // #endregion meter association
-
 
   // #region meter association get
   protected _meterAssociationGetCommand?: Command;
@@ -112,7 +111,6 @@ export class PortfolioManagerCli {
   }
   // #endregion meter association get
 
-
   // #region meter association list
   protected _meterAssociationListCommand?: Command;
   public get meterAssociationListCommand() {
@@ -132,7 +130,9 @@ export class PortfolioManagerCli {
   async meterAssociationListCommandAction(cmdOpts: any) {
     console.error("meter association list", cmdOpts);
     const meterAssociation =
-      await this.getPortfolioManagerClient().getMetersPropertiesAssociation(cmdOpts.propertyIds || []);
+      await this.getPortfolioManagerClient().getMetersPropertiesAssociation(
+        cmdOpts.propertyIds || []
+      );
     const indent = cmdOpts.indent ? parseInt(cmdOpts.indent) || 2 : undefined;
     console.log(JSON.stringify(meterAssociation, null, indent));
   }
@@ -152,7 +152,6 @@ export class PortfolioManagerCli {
       .action((cmdOpts) => this.meterAssociationListCommandAction(cmdOpts));
   }
   // #endregion meter association get
-
 
   // #region meter consumption
   protected _meterConsumptionCommand?: Command;
@@ -234,9 +233,13 @@ export class PortfolioManagerCli {
           `${field} is not a valid field, options: ${this.meterConsumptionGetFieldsOptionsStr}`
         );
     });
-    const {start = undefined, end = undefined} = cmdOpts;
+    const { start = undefined, end = undefined } = cmdOpts;
     const client = this.getPortfolioManagerClient();
-    const meterConsumption = await client.getMeterConsumption(cmdOpts.meterId, start, end);
+    const meterConsumption = await client.getMeterConsumption(
+      cmdOpts.meterId,
+      start,
+      end
+    );
     const mapped = meterConsumption.map((consumption: Record<string, any>) => {
       return cmdOpts.fields.reduce(
         (acc: Record<string, any>, field: string) => {
@@ -584,23 +587,108 @@ export class PortfolioManagerCli {
 
   // #endregion
 
+  protected _propertyMetricsCommand?: Command;
+  get propertyMetricsCommand(): Command {
+    if (!this._propertyMetricsCommand)
+      this._propertyMetricsCommand = this.propertyMetricsCommandConfigure();
+    return this._propertyMetricsCommand;
+  }
+
+  propertyMetricsCommandConfigure() {
+    return this.propertyCommand.command("metrics");
+  }
+
+  // #region property metrics monthly
+  protected _propertyMetricsMonthlyCommand?: Command;
+  get propertyMetricsMonthlyCommand(): Command {
+    if (!this._propertyMetricsMonthlyCommand)
+      this._propertyMetricsMonthlyCommand =
+        this.propertyMetricsMonthlyCommandConfigure();
+    return this._propertyMetricsMonthlyCommand;
+  }
+  propertyMetricsMonthlyExamples = [
+    "# customizing the output",
+    `${this.name} property metrics monthly  --propertyId <propertyId> --fields name year month value --indent 2`,
+  ];
+  propertyMetricsMonthlyFields = ["propertyId", "name", "uom", "year", "month", "value"];
+  propertyMetricsMonthlyFieldsDefault = this.propertyMetricsMonthlyFields
+
+  async propertyMetricsMonthlyCommandAction(cmdOpts: any): Promise<void> {
+    // write help text we don't want in output pipes to stderr
+    console.error("list property metrics monthly", cmdOpts);
+    const {propertyId, include_null, metrics = undefined} = cmdOpts;
+
+    const exclude_null = !include_null;
+    const items =
+       await this.getPortfolioManagerClient().getPropertyMonthlyMetrics(propertyId, 2021, 12, metrics, exclude_null)
+
+       const mapped = Object.values(items).map(
+        (item: Record<string, any>) => {
+          return cmdOpts.fields.reduce(
+            (acc: Record<string, any>, field: string) => {
+              acc[field] = item[field];
+              return acc;
+            },
+            {}
+          );
+        }
+      );
+      const indent = cmdOpts.indent ? parseInt(cmdOpts.indent) || 2 : undefined;
+      console.log(JSON.stringify(mapped, null, indent));
+  }
+
+  propertyMetricsMonthlyCommandConfigure() {
+    const MONTHLY_METRICS = METRICS.filter(m => m[14]).map(m => [m[0]])
+    return this.propertyMetricsCommand
+      .command("monthly")
+      .description("Get Monthly Metrics for a Property")
+      .addHelpText(
+        "after",
+        formatExamplesHelpText(this.propertyMetricsMonthlyExamples)
+      )
+      .requiredOption(
+        "--propertyId <propertyId>",
+        "property to fetch metrics for"
+      )
+      .option("--year <year>", "year to fetch metrics for")
+      .option("--month <month>", "month to fetch metrics for")
+      .option("--metrics [metrics...]", `metrics to include: ${MONTHLY_METRICS.join(', ')}`)
+      .option("--include_null", "include null values")
+      .option("--indent <spaces>", "Indented output")
+      .option(
+        "--fields [fields...]",
+        `Fields to include. available fields: ${this.propertyMetricsMonthlyFields.join(
+          ","
+        )}`,
+        this.propertyMetricsMonthlyFieldsDefault
+      )
+      .action((cmdOpts) => this.propertyMetricsMonthlyCommandAction(cmdOpts));
+  }
+
+  // #endregion
   constructor() {
-    // since commands are constructed lazily in their getters, we need to to refer 
-    // to each here to register them with the cli. We should only need to register 
-    // leaf commands. The should register their parents automatically. 
-    this.meterAssociationGetCommand
-    this.meterAssociationListCommand
-    this.meterConsumptionGetCommand
-    this.meterListEntitiesCommand
-    this.meterListLinksCommand
-    this.propertyListEntitiesCommand
-    this.propertyListLinksCommand
+    // since commands are constructed lazily in their getters, we need to to refer
+    // to each here to register them with the cli. We should only need to register
+    // leaf commands. The should register their parents automatically.
+    this.meterAssociationGetCommand;
+    this.meterAssociationListCommand;
+    this.meterConsumptionGetCommand;
+    this.meterListEntitiesCommand;
+    this.meterListLinksCommand;
+    this.propertyListEntitiesCommand;
+    this.propertyListLinksCommand;
+    this.propertyMetricsCommand;
+    this.propertyMetricsMonthlyCommand;
   }
 
   getPortfolioManagerClient(): PortfolioManager {
     const opts = this.cli.opts();
     const { pmEndpoint, pmUsername, pmPassword } = opts;
-    const apiClient = new PortfolioManagerApi(pmEndpoint, pmUsername, pmPassword);
+    const apiClient = new PortfolioManagerApi(
+      pmEndpoint,
+      pmUsername,
+      pmPassword
+    );
     const client = new PortfolioManager(apiClient);
     return client;
   }

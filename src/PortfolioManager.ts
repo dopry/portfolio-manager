@@ -5,6 +5,7 @@ import {
   IClientConsumption,
   IClientMeter,
   IClientMeterPropertyAssociation,
+  IClientMetric,
   IClientProperty,
   ILink,
   IMeter,
@@ -15,6 +16,7 @@ import {
   isIEmptyResponse,
   isIMeteredMeterData,
   isIPopoulatedResponse,
+  isIPropertyMonthlyMetric,
 } from "./types";
 import { IClientMeterAssociation } from "./types/client/IClientMeterPropertyAssociation";
 
@@ -301,5 +303,58 @@ export class PortfolioManager {
       })
     );
     return properties;
+  }
+
+  async getPropertyMonthlyMetrics(
+    propertyId: number,
+    year: number,
+    month: number,
+    metrics: string[] = [
+      "siteElectricityUseMonthly",
+      "siteNaturalGasUseMonthly",
+      "siteEnergyUseFuelOil1Monthly",
+      "siteEnergyUseFuelOil2Monthly",
+      "siteEnergyUseFuelOil4Monthly",
+      "siteEnergyUseFuelOil5And6Monthly",
+      "siteElectricityUseOnsiteRenewablesMonthly",
+    ],
+    exclude_null = true
+  ): Promise<IClientMetric[]> {
+    const response = await this.api.propertyMetricsMonthlyGet(
+      propertyId,
+      year,
+      month,
+      metrics
+    );
+    if (!response.propertyMetrics) {
+      throw new Error(
+        `No property monthly metrics found:\n ${JSON.stringify(
+          response,
+          null,
+          2
+        )}`
+      );
+    }
+    // console.log(JSON.stringify(response, null, 2))
+    // to make this more usable with our field selection options, we will flatten the metrics, then select the fields.
+    return response.propertyMetrics.metric.reduce<IClientMetric[]>(
+      (acc, series) => {
+        const name = series["@_name"];
+        const uom = series["@_uom"];
+        if (!isIPropertyMonthlyMetric(series)) return acc;
+        return series.monthlyMetric?.reduce<IClientMetric[]>((acc, monthly) => {
+          const value = monthly["value"].hasOwnProperty("@_xsi:nil")
+            ? null
+            : monthly["value"];
+          if (exclude_null && !value) return acc;
+          const month = parseInt(monthly["@_month"]);
+          const year = parseInt(monthly["@_year"]);
+          const metric = { propertyId, name, uom, month, year, value };
+          acc.push(metric);
+          return acc;
+        }, acc);
+      },
+      []
+    );
   }
 }

@@ -8,5 +8,3 @@ export * from "./propertyUse";
 export * from "./response";
 export * from "./util";
 export * from "./association";
-
-import { IProperty } from "./property";
