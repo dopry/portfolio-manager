@@ -9,23 +9,24 @@ import fetch from "node-fetch";
 import { RequestInit, BodyInit } from "node-fetch";
 import {
   IAccountAccountGetResponse,
-  IMeterMeterGetResponse,
-  IMeterConsumptionDataGetResponse,
-  IPropertyPropertyListGetResponse,
-  IMeterPropertyAssociationGetResponse,
-  IMeterMeterListGetResponse,
-  IPropertyPropertyGetResponse,
   IAccountAccountPostResponse,
+  IMeterConsumptionDataGetResponse,
+  IMeterMeterGetResponse,
+  IMeterMeterListGetResponse,
   IMeterMeterPostResponse,
+  IMeterPropertyAssociationGetResponse,
+  IPropertyDesignMetricsGetResponse,
+  IPropertyMetricsGetResponse,
+  IPropertyMetricsMonthlyGetResponse,
+  IPropertyPropertyGetResponse,
+  IPropertyPropertyListGetResponse,
   IPropertyPropertyPostResponse,
+  MeasurementSystem,
 } from "./types";
 import { btoa } from "./functions";
 import { isNumber, isString } from "type-guards";
 import { isDate } from "util/types";
-import {
-  IPropertyDesignMetricsGetResponse,
-  MeasurementSystem,
-} from "./types/api";
+import { deepmerge } from "deepmerge-ts";
 
 /**
  * Gateway to the the Portfolio Manager API.
@@ -52,6 +53,7 @@ export class PortfolioManagerApi {
       // console.log(jpath);
       return (
         jpath === "response.links.link" ||
+        jpath === "propertyMetrics.metric" ||
         jpath === "meterData.links.link" ||
         jpath ===
           "meterPropertyAssociationList.waterMeterAssociation.meters.meterId" ||
@@ -96,7 +98,7 @@ export class PortfolioManagerApi {
         "Basic " + btoa(`${this.username}:${this.password}`);
     }
     const defaults = { method: "GET", headers } as RequestInit;
-    const init: RequestInit = Object.assign({}, defaults, options);
+    const init: RequestInit = deepmerge({}, defaults, options);
     const url = this.endpoint + path;
     // console.log('req', { url, init })
     const response = await fetch(url, init);
@@ -125,8 +127,8 @@ export class PortfolioManagerApi {
     return await this.fetch<RESP>(path, init);
   }
 
-  async get<RESP>(path: string): Promise<RESP> {
-    return this.fetch<RESP>(path);
+  async get<RESP>(path: string, options: RequestInit = {}): Promise<RESP> {
+    return this.fetch<RESP>(path, options);
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/test/api/account/account/get
@@ -245,6 +247,75 @@ export class PortfolioManagerApi {
     measurementSystem: MeasurementSystem = "EPA"
   ): Promise<IPropertyDesignMetricsGetResponse> {
     const url = `/property/${propertyId}/design/metrics?measurementSystem=${measurementSystem}`;
+
     return this.get<IPropertyDesignMetricsGetResponse>(url);
   }
+
+  /**
+   * GET	/property/(propertyId)/metrics
+   * Returns the values for a specified set of metrics and units for a specific property and period ending date. The property must already be shared with you.
+   * see: https://portfoliomanager.energystar.gov/webservices/home/api/reporting/propertyMetrics/get
+   */
+  async propertyMetricsGet(
+    propertyId: number,
+    year: number,
+    month: number,
+    metrics: string[],
+    measurementSystem: MeasurementSystem = "EPA"
+  ): Promise<IPropertyMetricsGetResponse> {
+    const args = [
+      `year=${year}`,
+      `month=${month}`,
+      `measurementSystem=${measurementSystem}`,
+    ];
+    const options: RequestInit = {
+      headers: {
+        "PM-Metrics": metrics.join(","),
+      },
+    };
+    const url = `/property/${propertyId}/metrics?${args.join("&")}`;
+    return this.get<IPropertyMetricsGetResponse>(url, options);
+  }
+
+  /**
+   * GET	/property/(propertyId)/metrics/monthly
+   * Returns a list of monthly metric values for a specific property and period ending date based on the specified set of metrics and measurement system.
+   * see: https://portfoliomanager.energystar.gov/webservices/home/api/reporting/propertyMetricsMonthly/get
+   */
+  async propertyMetricsMonthlyGet(
+    propertyId: number,
+    year: number,
+    month: number,
+    metrics: string[],
+    measurementSystem: MeasurementSystem = "EPA"
+  ): Promise<IPropertyMetricsMonthlyGetResponse> {
+    const args = [
+      `year=${year}`,
+      `month=${month}`,
+      `measurementSystem=${measurementSystem}`,
+    ];
+    const options: RequestInit = {
+      headers: {
+        "PM-Metrics": metrics.join(","),
+      },
+    };
+    const url = `/property/${propertyId}/metrics/monthly?${args.join("&")}`;
+    return this.get<IPropertyMetricsMonthlyGetResponse>(url, options);
+  }
+
+  /**
+   * GET	/property/(propertyId)/reasonsForNoScore
+   * Returns a list of alert information that explains why a specific property cannot receive an ENERGY STAR score for a specific period ending date.
+   * see: https://portfoliomanager.energystar.gov/webservices/home/api/reporting/reasonsForNoScore/get
+   */
+  /**
+   * GET	/property/(propertyId)/reasonsForNoWaterScore
+   * Returns a list of alert information that explains why a specific property cannot receive an ENERGY STAR water score for a specific period ending date.
+   * see: https://portfoliomanager.energystar.gov/webservices/home/api/reporting/reasonsForNoWaterScore/get
+   */
+  /**
+   * GET	/property/(propertyId)/useDetails/metrics
+   * Returns the time-weighted use detail values for a specific property, period ending date, and measurement system. The property must already be shared with you.
+   * see: https://portfoliomanager.energystar.gov/webservices/home/api/reporting/useDetailsMetrics/get
+   */
 }
