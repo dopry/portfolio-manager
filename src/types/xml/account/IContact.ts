@@ -1,5 +1,4 @@
-import { IAddress } from "./IAddress";
-
+import { IAddress } from "../common";
 
 export interface IContact {
   firstName: string; // max 100 characters

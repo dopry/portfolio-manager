@@ -7,7 +7,6 @@ import {
   IOrganization,
   isIEmptyResponse,
   isIPopoulatedResponse,
-  isIResponse,
 } from "./types/xml";
 import { PortfolioManagerApi } from "./PortfolioManagerApi";
 import { IProperty } from "./types";

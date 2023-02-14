@@ -4,7 +4,7 @@ import {
   XmlBuilderOptions,
   X2jOptions,
 } from "fast-xml-parser";
-import { IAccount, IProperty, IMeter, toXmlDateString } from "./types/xml";
+import { IAccount, IMeter, IProperty, toXmlDateString } from "./types/xml";
 import fetch from "node-fetch";
 import { RequestInit, BodyInit } from "node-fetch";
 import {
