@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSpy v2005 rel. 3 U (http://www.altova.com) by SRA International (SRA International) -->
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="18.0">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="19.0">
 	<!--
         INCLUDES
     -->
@@ -72,6 +72,7 @@
 					<xs:restriction base="xs:string">
 						<xs:enumeration value="en_US"/>
 						<xs:enumeration value="fr_CA"/>
+						<xs:enumeration value="es_US"/>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:element>

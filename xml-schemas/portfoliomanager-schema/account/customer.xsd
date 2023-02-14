@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="18.0">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="19.0">
 	<xs:include schemaLocation="../authorization/authorization.xsd"/>
 	<xs:element name="customer">
 		<xs:annotation>
@@ -39,6 +39,7 @@
 						<xs:restriction base="xs:string">
 							<xs:enumeration value="en_US"/>
 							<xs:enumeration value="fr_CA"/>
+							<xs:enumeration value="es_US"/>
 						</xs:restriction>
 					</xs:simpleType>
 				</xs:element>
