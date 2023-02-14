@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="19.0">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
 <!--
     INCLUDES
 -->
@@ -147,6 +147,7 @@
         <xs:enumeration value="Data Center"/>
         <xs:enumeration value="Distribution Center"/>
         <xs:enumeration value="Drinking Water Treatment &amp; Distribution"/>
+        <xs:enumeration value="Electric Vehicle Charging Station"/>
         <xs:enumeration value="Enclosed Mall"/>
         <xs:enumeration value="Energy/Power Station"/>
         <xs:enumeration value="Fast Food Restaurant"/>

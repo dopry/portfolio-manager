@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="19.0">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
 	<xs:element name="meterPropertyAssociationList" type="meterPropertyAssociationListType">
 		<xs:annotation>
 			<xs:documentation>Indicates the association you want to create for a set of meters and a specific property.</xs:documentation>
