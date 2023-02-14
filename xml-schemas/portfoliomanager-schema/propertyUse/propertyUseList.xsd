@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
     <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
-               attributeFormDefault="unqualified" version="19.0">
+               attributeFormDefault="unqualified" version="20.0">
 
     <xs:include schemaLocation="refrigeratedWarehouse.xsd"/>
     <xs:include schemaLocation="retail.xsd"/>
@@ -39,5 +39,6 @@
     <xs:include schemaLocation="iceCurlingRink.xsd"/>
     <xs:include schemaLocation="selfStorage.xsd"/>
     <xs:include schemaLocation="otherPropertyUses.xsd"/>
+    <xs:include schemaLocation="evChargingStation.xsd"/>
 
 </xs:schema>

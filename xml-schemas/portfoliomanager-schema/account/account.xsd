@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSpy v2005 rel. 3 U (http://www.altova.com) by SRA International (SRA International) -->
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="19.0">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
 	<!--
         INCLUDES
     -->
