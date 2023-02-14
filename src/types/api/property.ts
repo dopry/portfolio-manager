@@ -12,3 +12,7 @@ export interface IPropertyPropertyPostResponse extends IParsedXml {
 export interface IPropertyPropertyListGetResponse extends IParsedXml {
   response: IResponse;
 }
+
+export interface IPropertyDesignMetricsGetResponse extends IParsedXml {
+  response: IResponse;
+}

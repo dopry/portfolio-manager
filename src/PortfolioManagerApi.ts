@@ -22,6 +22,10 @@ import {
 import { btoa } from "./functions";
 import { isNumber, isString } from "type-guards";
 import { isDate } from "util/types";
+import {
+  IPropertyDesignMetricsGetResponse,
+  MeasurementSystem,
+} from "./types/api";
 
 /**
  * Gateway to the the Portfolio Manager API.
@@ -229,5 +233,18 @@ export class PortfolioManagerApi {
     }
     const url = `/meter/${meterId}/consumptionData?${args.join("&")}`;
     return this.get<IMeterConsumptionDataGetResponse>(url);
+  }
+
+  /**
+   * GET	/property/(propertyId)/design/metrics
+   * Returns a list of metric values for an existing property design. The property must already be shared with you.
+   * see: https://portfoliomanager.energystar.gov/webservices/home/api/reporting/designMetrics/get
+   */
+  async propertyDesignMetricsGet(
+    propertyId: number,
+    measurementSystem: MeasurementSystem = "EPA"
+  ): Promise<IPropertyDesignMetricsGetResponse> {
+    const url = `/property/${propertyId}/design/metrics?measurementSystem=${measurementSystem}`;
+    return this.get<IPropertyDesignMetricsGetResponse>(url);
   }
 }
