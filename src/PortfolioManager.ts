@@ -272,39 +272,26 @@ export class PortfolioManager {
   async getPropertyLinks(accountId?: number): Promise<ILink[]> {
     if (!accountId) accountId = await this.getAccountId();
     const response = await this.api.propertyPropertyListGet(accountId);
-    // console.log("getPropertyLinks", { response });
 
     // need to check reponses.links exists since it sometimes returns a string that has a link property that i a function
     // and not a link object
-    console.log("getPropertyLinks", {
-      links: response.response.links,
-      typeofLinks: typeof response.response.links,
-      link: response.response.links.link,
-      typeOfLink: typeof response.response.links.link,
-      stringLink: "".link,
-    });
-    if (!isString(response.response.links) && response.response.links.link) {
-      return response.response.links.link;
-    } else
+    if (!isIPopoulatedResponse(response.response)) {
       console.log("getPropertyLinks not found", {
         links: response.response.links.link,
       });
-    throw new Error(
-      `No properties found:\n ${JSON.stringify(response, null, 2)}`
-    );
+      throw new Error(
+        `No properties found:\n ${JSON.stringify(response, null, 2)}`
+      );
+    }
+    return response.response.links.link;
   }
 
   async getProperties(accountId?: number): Promise<IClientProperty[]> {
     if (!accountId) accountId = await this.getAccountId();
     const links = await this.getPropertyLinks(accountId);
-    if (!links) return [];
-    if (!Array.isArray(links)) return [];
-    if (links.length == 0) return [];
-    if (links.length == 1 && typeof links[0] == "function") {
-      console.log("getProperties", { links });
+    if (!isIPopoulatedResponse(links)) {
       return [];
     }
-
     // console.log({ links });
     const properties = await Promise.all(
       links.map(async (link) => {
