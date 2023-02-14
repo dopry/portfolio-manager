@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="18.0">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="19.0">
     <!-- Response -->
     <xs:include schemaLocation="response/response.xsd"/>
     <xs:include schemaLocation="response/hierarchy.xsd"/>
@@ -36,4 +36,5 @@
     <xs:include schemaLocation="property/professionalDesignation.xsd"/>
     <xs:include schemaLocation="property/licenseList.xsd"/>
     <xs:include schemaLocation="meter/individual.xsd"/>
+    <xs:include schemaLocation="hey/hey.xsd"/>
 </xs:schema>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- edited with XMLSpy v2008 rel. 2 sp2 (http://www.altova.com) by Quoc Le (SYSTEMS RESEARCH & APPLICATION) -->
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="18.0">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="19.0">
 	<xs:element name="alerts" type="alertsType">
 		<xs:annotation>
 			<xs:documentation>All alerts that explain why the property cannot receive an ENERGY STAR score for the period ending date provided.</xs:documentation>

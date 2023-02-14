@@ -1,0 +1,35 @@
+### Diff only shows changes to existing files, it does't show new files.
+
++++ portfoliomanager-schemas-19.0/account/account.xsd	2023-02-10 14:55:40.287141000 -0500
++						<xs:enumeration value="es_US"/>
++++ portfoliomanager-schemas-19.0/account/customer.xsd	2023-02-10 14:55:40.318424600 -0500
++							<xs:enumeration value="es_US"/>
++++ portfoliomanager-schemas-19.0/main.xsd	2023-02-10 14:55:42.086561600 -0500
++    <xs:include schemaLocation="hey/hey.xsd"/>
++++ portfoliomanager-schemas-19.0/property/federalAgency.xsd	2023-02-10 14:55:40.944301600 -0500
+-				<xs:element name="agency" minOccurs="0" maxOccurs="unbounded"/>
++				<xs:element name="agency" type="AgencyType" minOccurs="0" maxOccurs="unbounded"/>
++++ portfoliomanager-schemas-19.0/propertyUse/characteristics.xsd	2023-02-10 14:55:41.164365400 -0500
++
++	<xs:element name="numberOfCookingEquipmentUnits" type="useIntegerType">
++		<xs:annotation>
++			<xs:documentation>Number of cooking equipment units in a convenience store.</xs:documentation>
++		</xs:annotation>
++	</xs:element>
++
++	<xs:element name="numberOfWarmingHeatingEquipmentUnits" type="useIntegerType">
++		<xs:annotation>
++			<xs:documentation>Number of warming/heating equipment units in a convenience store.</xs:documentation>
++		</xs:annotation>
++	</xs:element>
++++ portfoliomanager-schemas-19.0/propertyUse/convenienceStoreWithGasStation.xsd	2023-02-10 14:55:41.226877800 -0500
++                        <xs:element ref="numberOfFTEWorkers" minOccurs="0"/>
++                        <xs:element ref="numberOfCookingEquipmentUnits" minOccurs="0"/>
++                        <xs:element ref="numberOfWarmingHeatingEquipmentUnits" minOccurs="0"/>
++++ portfoliomanager-schemas-19.0/propertyUse/convenienceStoreWithoutGasStation.xsd	2023-02-10 14:55:41.258156900 -0500
++                        <xs:element ref="numberOfFTEWorkers" minOccurs="0"/>
++                        <xs:element ref="numberOfCookingEquipmentUnits" minOccurs="0"/>
++                        <xs:element ref="numberOfWarmingHeatingEquipmentUnits" minOccurs="0"/>
++++ portfoliomanager-schemas-19.0/propertyUse/useDetailsRevisions.xsd	2023-02-10 14:55:41.929625200 -0500
++            <xs:element ref="numberOfCookingEquipmentUnits"/>
++            <xs:element ref="numberOfWarmingHeatingEquipmentUnits"/>

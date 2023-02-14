@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="18.0">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="19.0">
 	<!--
         INCLUDES
     -->
@@ -43,7 +43,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-	
 	<xs:complexType name="errorsType">
 		<xs:annotation>
 			<xs:documentation>A list of errors that caused this request to fail.</xs:documentation>

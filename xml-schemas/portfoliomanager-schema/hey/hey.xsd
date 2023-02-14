@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:include schemaLocation="../property/design.xsd"/>
+  <xs:include schemaLocation="../common/grossFloorArea.xsd"/>
+  <xs:include schemaLocation="../meter/meterConsumptionData.xsd"/>
+
+  <xs:element name="hey" type="heyType"/>
+
+  <xs:complexType name="heyType">
+    <xs:sequence>
+      <xs:element name="propertyInfo">
+        <xs:complexType>
+          <xs:all>
+            <xs:element name="postalCode">
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:minLength value="1"/>
+                  <xs:maxLength value="5"/>
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:element>
+            <xs:element name="numberOfOccupants" type="xs:int"/>
+            <xs:element name="grossFloorArea" type="grossFloorAreaType"/>
+          </xs:all>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="meter" maxOccurs="10">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="type" type="allEnergyMetersType"/>
+            <xs:element name="unitOfMeasure" type="designUnitOfMeasure"/>
+            <xs:element name="meterData">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="meterConsumption" type="meterConsumptionType" maxOccurs="120"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
+
