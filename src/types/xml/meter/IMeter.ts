@@ -1,5 +1,5 @@
-import { IAudit } from "./IAudit";
-import { ShareLevel } from "./ShareLevel";
+import { IAudit } from "../common/audit";
+import { ShareLevel } from "../authorization/ShareLevel";
 
 export type MeterUnitsOfMeasure =
   | "ccf (hundred cubic feet)"
@@ -93,10 +93,8 @@ export interface IMeter {
   audit?: IAudit;
 }
 
-
-
 // xml: wasteMeterType
-export type WasteMeterType = 
+export type WasteMeterType =
   | "Composted - Cardboard/Corrugated Containers"
   | "Composted - Compostable - Mixed/Other"
   | "Composted - Food/Food Scraps"
@@ -169,7 +167,7 @@ export type WasteMeterType =
   | "Recycled - Paper - Mixed"
   | "Recycled - Plastics - Mixed"
   | "Recycled - Plastics - Wrap/Film"
-  | "Recycled - Textiles/Clothing"
+  | "Recycled - Textiles/Clothing";
 
 export type WasteMeterUnitOfMeasure =
   | "pounds"
@@ -180,22 +178,22 @@ export type WasteMeterUnitOfMeasure =
   | "cm (Cubic meters)"
   | "Gallons (US)"
   | "Gallons (UK)"
-  | "Liters"
+  | "Liters";
 
 // xml: typeOfWasteMeter
 export interface IWasteMeter {
-    id?: number; // The id of the waste meter.
-    name: string; // 1-100 characters. The name of the waste meter.
-    type: WasteMeterType; // The type of meter (i.e. electric, natural gas, PDU, Indoor, etc.).
-    unitOfMeasure: WasteMeterUnitOfMeasure; // The units that measure the energy for the meter (Kbtu, KWh, Mbtu, MWh, ccf, gallons, etc.).
-    dataEntryMethod: // The format of meter data entries.
-      | "regular" // Indicates that you know the weight or volume of the waste/material.
-      | "regular container" // Indicates that you know the size of the bin/dumpster.
-      | "intermittent" // Indicates that the waste/material is collected intermittently or one-time only.
-    containerSize?: number; // The size of the container.
-    firstBillDate?: Date; //The date of the first bill.
-    inUse: boolean; // Is this meter in use?
-    inactiveDate?: Date; // If the meter is no longer in use, this is the date that it went inactive.
-    accessLevel?: ShareLevel; // Current share level for the user calling the webservice.
-    audit?: IAudit;
+  id?: number; // The id of the waste meter.
+  name: string; // 1-100 characters. The name of the waste meter.
+  type: WasteMeterType; // The type of meter (i.e. electric, natural gas, PDU, Indoor, etc.).
+  unitOfMeasure: WasteMeterUnitOfMeasure; // The units that measure the energy for the meter (Kbtu, KWh, Mbtu, MWh, ccf, gallons, etc.).
+  dataEntryMethod: // The format of meter data entries.
+  | "regular" // Indicates that you know the weight or volume of the waste/material.
+    | "regular container" // Indicates that you know the size of the bin/dumpster.
+    | "intermittent"; // Indicates that the waste/material is collected intermittently or one-time only.
+  containerSize?: number; // The size of the container.
+  firstBillDate?: Date; //The date of the first bill.
+  inUse: boolean; // Is this meter in use?
+  inactiveDate?: Date; // If the meter is no longer in use, this is the date that it went inactive.
+  accessLevel?: ShareLevel; // Current share level for the user calling the webservice.
+  audit?: IAudit;
 }

@@ -1,4 +1,4 @@
-import { ILink } from "./ILink";
+import { ILink } from "../common/links";
 
 export interface IError {
   errorNumber: string; // The number of the error.

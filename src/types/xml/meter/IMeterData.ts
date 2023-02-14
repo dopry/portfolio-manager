@@ -1,4 +1,4 @@
-import { ILink } from "./ILink";
+import { ILink } from "../common/links";
 import { IMeterConsumption } from "./IMeterConsumption";
 import { IMeterDelivery } from "./IMeterDelivery";
 

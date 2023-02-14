@@ -1,4 +1,4 @@
-import { IAudit } from "./IAudit";
+import { IAudit } from "../common/audit";
 
 type GenerationPlantType = "" | number;
 type OptionalCost = "" | number;
@@ -25,16 +25,16 @@ export interface IMeterConsumption {
   audit: IAudit;
 }
 
-export function isIMeterConsumption(
-  obj: unknown
-): obj is IMeterConsumption {
-  return obj !== undefined
-    && obj !== null
-    && typeof obj === "object"
-    && obj.hasOwnProperty("id")
-    && obj.hasOwnProperty("startDate")
-    && obj.hasOwnProperty("endDate")
-    && obj.hasOwnProperty("usage");
+export function isIMeterConsumption(obj: unknown): obj is IMeterConsumption {
+  return (
+    obj !== undefined &&
+    obj !== null &&
+    typeof obj === "object" &&
+    obj.hasOwnProperty("id") &&
+    obj.hasOwnProperty("startDate") &&
+    obj.hasOwnProperty("endDate") &&
+    obj.hasOwnProperty("usage")
+  );
 }
 
 export interface GreenPowerType {

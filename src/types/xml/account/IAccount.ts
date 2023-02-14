@@ -1,7 +1,7 @@
 import { IContact } from "./IContact";
 import { IOrganization } from "./IOrganization";
-import { LanguagePreference } from "./LanguagePreference";
 
+export type LanguagePreference = "en_US" | "fr_CA" | "es_US";
 
 export interface IAccount {
   id?: number; // The ID to the account.  This is ignored if specified in a XML request.  This is provided by Portfolio Manager only in a XML response.

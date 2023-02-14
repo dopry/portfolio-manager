@@ -1,4 +1,4 @@
-import { IAudit } from "./IAudit";
+import { IAudit } from "../common/audit";
 
 export interface IMeterDelivery {
   id: number;
@@ -7,9 +7,7 @@ export interface IMeterDelivery {
   audit: IAudit;
 }
 
-export function isIMeterDelivery(
-  obj: unknown
-): obj is IMeterDelivery {
+export function isIMeterDelivery(obj: unknown): obj is IMeterDelivery {
   return (
     obj !== undefined &&
     obj !== null &&
