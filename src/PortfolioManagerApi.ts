@@ -182,7 +182,7 @@ export class PortfolioManagerApi {
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/meter/consumptionData/post
-  async meterMeterConsumptionDataPost(
+  async meterConsumptionDataPost(
     meterId: number,
     meterConsumption: IMeterDataPost
   ): Promise<IMeterData> {
