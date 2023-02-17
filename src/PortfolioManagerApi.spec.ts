@@ -7,7 +7,7 @@ import {
   IOrganization,
   isIEmptyResponse,
   isIPopoulatedResponse,
-  isIResponse,
+  isIPropertyNonMonthlyMetric,
 } from "./types/xml";
 import { PortfolioManagerApi } from "./PortfolioManagerApi";
 import { IProperty } from "./types";
@@ -15,6 +15,7 @@ import { IProperty } from "./types";
 const BASE_URL = "https://portfoliomanager.energystar.gov/wstest/";
 const STAMP = new Date()
   .toISOString()
+  // @ts-ignore
   .replaceAll(":", "_")
   .replaceAll(".", "_");
 const USERNAME = "test" + STAMP;
@@ -273,6 +274,8 @@ describe("EpaPortfolioManagerClient", () => {
     );
   });
 
+  it.skip("can create a property design metric", async () => {});
+
   it("can create a meter", async () => {
     const { account } = await client.accountAccountGet();
     const getPropertyListResponse = await client.propertyPropertyListGet(
@@ -339,5 +342,38 @@ describe("EpaPortfolioManagerClient", () => {
       postMeterResponse2.response.id.toString()
     );
     expect(meterListLink[1]["@_hint"]).to.equal("Test Meter 2");
+  });
+
+  it.skip("can create a meter consumption record", async () => {});
+  it.skip("can create a meter delivery record", async () => {});
+
+  it("can query property design metrics", async () => {
+    const { account } = await client.accountAccountGet();
+    const getPropertyListResponse = await client.propertyPropertyListGet(
+      account.id || 0
+    );
+    if (!isIPopoulatedResponse(getPropertyListResponse.response)) {
+      throw new Error("Expected isIPopoulatedResponse");
+    }
+    // console.log({ getPropertyListResponse });
+    const propertyId = parseInt(
+      getPropertyListResponse.response.links.link[0]["@_id"] || "0"
+    );
+
+    const designMetricsResponse = await client.propertyDesignMetricsGet(
+      propertyId
+    );
+
+    expect(designMetricsResponse.propertyMetrics).to.be.an("object");
+    expect(designMetricsResponse.propertyMetrics["@_propertyId"]).to.equal(
+      propertyId.toString()
+    );
+    expect(designMetricsResponse.propertyMetrics.metric).to.be.an("array");
+    const metric = designMetricsResponse.propertyMetrics.metric[0];
+    if (!isIPropertyNonMonthlyMetric(metric)) {
+      throw new Error("Expected isIPropertyNonMonthlyMetric");
+    }
+    expect(metric["@_name"]).to.be.a("string");
+    expect(metric["@_dataType"]).to.be.a("string");
   });
 });
