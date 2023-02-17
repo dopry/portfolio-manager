@@ -4,6 +4,8 @@ export interface IMeterDelivery {
   id: number;
   deliveryDate: Date;
   quantity: number;
+  cost?: number;
+  "@_estimatedValue"?: boolean;
   audit: IAudit;
 }
 
