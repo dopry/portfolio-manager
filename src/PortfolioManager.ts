@@ -291,9 +291,6 @@ export class PortfolioManager {
   async getProperties(accountId?: number): Promise<IClientProperty[]> {
     if (!accountId) accountId = await this.getAccountId();
     const links = await this.getPropertyLinks(accountId);
-    if (!isIPopoulatedResponse(links)) {
-      return [];
-    }
     // console.log({ links });
     const properties = await Promise.all(
       links.map(async (link) => {
