@@ -11,6 +11,9 @@ export interface IMeteredMeterData
   meterConsumption: IMeterConsumption[];
 }
 
+
+export interface IMeterDataPost extends Omit<IMeterData, "links"> {}
+
 export interface IMeterData {
   meterConsumption?: IMeterConsumption[];
   meterDelivery?: IMeterDelivery[];
