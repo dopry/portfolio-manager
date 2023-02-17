@@ -3,12 +3,11 @@
 export * from "./types";
 export * from "./PortfolioManagerApi";
 export * from "./PortfolioManager";
-export * from "./PortfolioManagerCli";
 
-import { PortfolioManagerCli } from "./PortfolioManagerCli";
+import { PortfolioManagerCommand } from "./cli/PortfolioManagerCommand";
 
 async function main() {
-  const cli = new PortfolioManagerCli();
+  const cli = new PortfolioManagerCommand();
   cli.parse(process.argv);
 }
 
