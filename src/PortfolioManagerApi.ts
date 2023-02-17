@@ -4,7 +4,7 @@ import {
   XmlBuilderOptions,
   X2jOptions,
 } from "fast-xml-parser";
-import { IAccount, IMeter, IProperty, toXmlDateString } from "./types/xml";
+import { IAccount, IMeter, IMeterData, IMeterDataPost, IProperty, toXmlDateString } from "./types/xml";
 import fetch from "node-fetch";
 import { RequestInit, BodyInit } from "node-fetch";
 import {
@@ -181,6 +181,16 @@ export class PortfolioManagerApi {
     );
   }
 
+  // https://portfoliomanager.energystar.gov/webservices/home/api/meter/consumptionData/post
+  async meterMeterConsumptionDataPost(
+    meterId: number,
+    meterConsumption: IMeterDataPost
+  ): Promise<IMeterData> {
+    return this.post<
+      IMeterDataPost,
+      IMeterData
+    >(`meter/${meterId}/consumptionData`,  meterConsumption);
+  }
   // https://portfoliomanager.energystar.gov/webservices/home/api/meter/meter/post
   async meterMeterPost(
     propertyId: number,
