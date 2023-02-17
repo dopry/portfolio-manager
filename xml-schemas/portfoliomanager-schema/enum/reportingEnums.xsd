@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="20.0">
+	<xs:simpleType name="reportingIntervalType">
+		<xs:annotation>
+			<xs:documentation>The interval of the timeframe (monthly, quarterly, or annual). Only applies to certain timeframes.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="MONTHLY"/>
+			<xs:enumeration value="QUARTERLY"/>
+			<xs:enumeration value="YEARLY"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="reportType">
+		<xs:annotation>
+			<xs:documentation>The type of report.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="CUSTOM">
+				<xs:annotation>
+					<xs:documentation>Custom report.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="ENERGY_STAR">
+				<xs:annotation>
+					<xs:documentation>ENERGY STAR reports that are pre-defined (i.e., Water Performance, Energy Performance, etc.). This type is currently not support yet.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="DATA_RESPONSE">
+				<xs:annotation>
+					<xs:documentation>Data response. This type is currently not support yet.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="DATA_REQUEST">
+				<xs:annotation>
+					<xs:documentation>Data request. This type is currently not support yet.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="reportStatusType">
+		<xs:annotation>
+			<xs:documentation>The report status.
+            </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="INITIALIZED">
+				<xs:annotation>
+					<xs:documentation>Indicates that the report was initially created or its configuration (i.e., timeframe, properties, metrics, etc.) has been updated.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="SUBMITTED">
+				<xs:annotation>
+					<xs:documentation>Indicates that the report has been submitted for generation and is waiting to be generated.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="IN_PROCESS">
+				<xs:annotation>
+					<xs:documentation>Indicates that the report is currently being generated.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="FAILED">
+				<xs:annotation>
+					<xs:documentation>Indicates that the report encountered an unknown error during the generation step.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="GENERATED">
+				<xs:annotation>
+					<xs:documentation>Indicates that report has completed generation and is available for download.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="READY_FOR_DOWNLOAD">
+				<xs:annotation>
+					<xs:documentation>This status is currently not support yet.</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>

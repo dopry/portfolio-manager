@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
+
+	<xs:complexType name="irrigationAreaType">
+		<xs:annotation>
+			<xs:documentation>Irrigated area is the amount of outdoor vegetated area that is supplied water regularly, measured in square feet, square meters, or acres.</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="irrigationAreaTypeBase">
+				<xs:sequence minOccurs="0">
+					<xs:element name="value" type="decimalTwoPrecisionOrEmptyString"/>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="irrigationAreaTypeBase">
+		<xs:attribute name="default" type="xs:boolean" use="optional">
+			<xs:annotation>
+				<xs:documentation>Specifies whether to use the default value for Irrigated Area. Only applicable for Multi-Family Housing.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="units" type="irrigationAreaUnitsType" use="required">
+			<xs:annotation>
+				<xs:documentation>The units of the Irrigated Area (Square Foot, Square Meter, or Acres).</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:simpleType name="decimalTwoPrecisionOrEmptyString">
+		<xs:union memberTypes="decimalTwoPrecision emptyString"/>
+	</xs:simpleType>
+	<xs:simpleType name="emptyString">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value=""/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="decimalTwoPrecision">
+		<xs:restriction base="xs:decimal">
+			<xs:fractionDigits value="2"/>
+			<xs:minInclusive value="0"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="irrigationAreaUnitsType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Square Feet"/>
+			<xs:enumeration value="Square Meters"/>
+			<xs:enumeration value="Acres"/>
+			<xs:enumeration value=""/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>
