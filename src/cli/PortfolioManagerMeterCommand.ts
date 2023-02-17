@@ -4,10 +4,10 @@ import { PortfolioManagerMeterConsumptionCommand } from "./PortfolioManagerMeter
 import { PortfolioManagerMeterListCommand } from "./PortfolioManagerMeterListCommand";
 
 export class PortfolioManagerMeterCommand extends PortfolioManagerBaseCommand {
-    constructor() {
-        super('meter')
-        this.addCommand(new PortfolioManagerMeterAssociationCommand())
-        this.addCommand(new PortfolioManagerMeterConsumptionCommand())
-        this.addCommand(new PortfolioManagerMeterListCommand())
-    }
+  constructor() {
+    super("meter");
+    this.addCommand(new PortfolioManagerMeterAssociationCommand());
+    this.addCommand(new PortfolioManagerMeterConsumptionCommand());
+    this.addCommand(new PortfolioManagerMeterListCommand());
+  }
 }

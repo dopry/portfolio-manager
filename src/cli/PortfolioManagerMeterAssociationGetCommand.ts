@@ -5,12 +5,12 @@ export class PortfolioManagerMeterAssociationGetCommand extends PortfolioManager
 
   protected get examples() {
     return [
-        "# customizing the output",
-        `${this.getFullCommand()} --propertyId <propertyId> --indent 2`,
-        "",
-        "# using with JQ to map the output to shell scripting friendlier output",
-        `portfolio-manager meter asscociation get --propertyId <propertyId> | jq -r '[.[] | .id] | @sh'`,
-      ]
+      "# customizing the output",
+      `${this.getFullCommand()} --propertyId <propertyId> --indent 2`,
+      "",
+      "# using with JQ to map the output to shell scripting friendlier output",
+      `portfolio-manager meter asscociation get --propertyId <propertyId> | jq -r '[.[] | .id] | @sh'`,
+    ];
   }
 
   constructor() {

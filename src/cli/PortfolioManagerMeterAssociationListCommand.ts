@@ -15,9 +15,9 @@ export class PortfolioManagerMeterAssociationListCommand extends PortfolioManage
   constructor() {
     super("list");
     this.requiredOption(
-        "--propertyIds <propertyId...>",
-        "properties to fetch associated meters for"
-      )
+      "--propertyIds <propertyId...>",
+      "properties to fetch associated meters for"
+    );
   }
 
   protected async _action(): Promise<void> {

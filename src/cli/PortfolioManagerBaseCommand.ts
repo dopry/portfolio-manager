@@ -40,8 +40,8 @@ export class PortfolioManagerBaseCommand extends Command {
     // is usable in example text.
     this.addHelpText("after", () => {
       const examples = this.examples;
-      if (examples.length > 0) return formatExamplesHelpText(examples)
-      return ''
+      if (examples.length > 0) return formatExamplesHelpText(examples);
+      return "";
     });
     this.action(() => this._action());
   }
@@ -69,12 +69,19 @@ export class PortfolioManagerBaseCommand extends Command {
   }
 
   protected getFullCommand(): string {
-    return this._getCommandAndParents().reverse().map(c => c.name()).join(" ");
+    return this._getCommandAndParents()
+      .reverse()
+      .map((c) => c.name())
+      .join(" ");
   }
 
   protected _getCommandAndParents(): Command[] {
     const result: Command[] = [];
-    for (let command: Command | null = this; command; command = command.parent) {
+    for (
+      let command: Command | null = this;
+      command;
+      command = command.parent
+    ) {
       result.push(command);
     }
     return result;

@@ -4,6 +4,6 @@ import { PortfolioManagerMeterConsumptionGetCommand } from "./PortfolioManagerMe
 export class PortfolioManagerMeterConsumptionCommand extends PortfolioManagerBaseCommand {
   constructor() {
     super("consumption");
-    this.addCommand(new PortfolioManagerMeterConsumptionGetCommand())
+    this.addCommand(new PortfolioManagerMeterConsumptionGetCommand());
   }
 }

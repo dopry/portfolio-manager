@@ -4,7 +4,15 @@ import {
   XmlBuilderOptions,
   X2jOptions,
 } from "fast-xml-parser";
-import { IAccount, IMeter, IMeterConsumption, IMeterData, IMeterDataPost, IProperty, toXmlDateString } from "./types/xml";
+import {
+  IAccount,
+  IMeter,
+  IMeterConsumption,
+  IMeterData,
+  IMeterDataPost,
+  IProperty,
+  toXmlDateString,
+} from "./types/xml";
 import fetch from "node-fetch";
 import { RequestInit, BodyInit } from "node-fetch";
 import {
@@ -187,15 +195,21 @@ export class PortfolioManagerApi {
     meterId: number,
     meterConsumption: IMeterDataPost
   ): Promise<IMeterData> {
-    return this.post<
-      IMeterDataPost,
-      IMeterData
-    >(`meter/${meterId}/consumptionData`,  meterConsumption);
+    return this.post<IMeterDataPost, IMeterData>(
+      `meter/${meterId}/consumptionData`,
+      meterConsumption
+    );
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/meter/consumptionData/put
-  async meterConsumptionDataPut(consumptionDataId: number, meterConsumption: IMeterConsumption ) {
-    return this.put<IMeterConsumption, IMeterConsumptionDataPutResponse>(`consumptionData/${consumptionDataId}`, meterConsumption);
+  async meterConsumptionDataPut(
+    consumptionDataId: number,
+    meterConsumption: IMeterConsumption
+  ) {
+    return this.put<IMeterConsumption, IMeterConsumptionDataPutResponse>(
+      `consumptionData/${consumptionDataId}`,
+      meterConsumption
+    );
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/meter/meter/post
@@ -219,11 +233,15 @@ export class PortfolioManagerApi {
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/meter/propertyAssociation/post
-  async meterPropertyAssociationSinglePost(propertyId: number,
-    meterId: number): Promise<IMeterPropertyAssociationPostResponse> {
-      return this.post<undefined, IMeterPropertyAssociationPostResponse>(`/association/property/${propertyId}/meter/${meterId}`, undefined)
+  async meterPropertyAssociationSinglePost(
+    propertyId: number,
+    meterId: number
+  ): Promise<IMeterPropertyAssociationPostResponse> {
+    return this.post<undefined, IMeterPropertyAssociationPostResponse>(
+      `/association/property/${propertyId}/meter/${meterId}`,
+      undefined
+    );
   }
-
 
   // https://portfoliomanager.energystar.gov/webservices/home/test/api/meter/meterList/get
   async meterMeterListGet(

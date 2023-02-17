@@ -1,4 +1,3 @@
-import { isString } from "type-guards";
 import { PortfolioManagerApi } from "./PortfolioManagerApi";
 import {
   IAccount,
@@ -18,7 +17,6 @@ import {
   isIPopoulatedResponse,
   isIPropertyMonthlyMetric,
 } from "./types";
-import { IClientMeterAssociation } from "./types/client/IClientMeterPropertyAssociation";
 
 /**
  * A developer friendly Facade for interacting with Energy Star Portfolio Manager.
