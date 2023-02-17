@@ -1,16 +1,18 @@
 # Unofficial Energy Star Portfolio Manager SDK and CLI Tool
 
+**1.x is unstable and will have breaking changes as the architecture stabilizes. 2.x will signal the beginning of proper semantic releases.**
+
 Portfolio Manager is an important benchmarking tool to support measure and verification of energy efficiency projects. It support a number of federal incentive programs, federal decision making, and Energy Star building certifications. It is primarily used by [large companies](https://www.energystar.gov/buildings/facility-owners-and-managers/existing-buildings/save-energy/expert-help/find-spp/most_active#).
 
-A core aim of this project is to make Portfolio Manager more accessible to smaller consulants, engineering firms, property managers, utilities like rural coops, and building owners. 
+A core aim of this project is to make Portfolio Manager more accessible to smaller consulants, engineering firms, property managers, utilities like rural coops, and building owners.
 
-The CLI tool enables automation of data flows using shell scripts popular with general IT personell and systems administrators. 
+The CLI tool enables automation of data flows using shell scripts popular with general IT personell and systems administrators.
 
-The Node.JS SDK make the platform more accessible to javascript developers and is a popular technology among start ups and web developers. 
+The Node.JS SDK make the platform more accessible to javascript developers and is a popular technology among start ups and web developers.
 
 ## Contributing
 
-I'm actively looking for contributors and sponsors to further develop this project. My goal is to build open-source tooling that supports the operations of companies working in the energy efficiency space. 
+I'm actively looking for contributors and sponsors to further develop this project. My goal is to build open-source tooling that supports the operations of companies working in the energy efficiency space.
 
 
 ## CLI
@@ -22,24 +24,24 @@ npm install portfolio-manager
 # none of the create features for the CLI are implemented yet, so the
 
 export PM_USERNAME="UserName"
-# I strongly recomment you set the password in the environment rather than passing it on the 
-# cli. This will preven your password from being in `ps` lists on multiuser machines. 
+# I strongly recomment you set the password in the environment rather than passing it on the
+# cli. This will preven your password from being in `ps` lists on multiuser machines.
 # It's still not super secure as it will be in /proc/env so you should only use the cli tool
-# on secured machines at this juncture. I'd love help from someone who knows the best way to 
+# on secured machines at this juncture. I'd love help from someone who knows the best way to
 # securely pass a password to commander.js.
 export PM_PASSWORD="Password"
 
 # export PM_ENDPOINT="https://portfoliomanager.energystar.gov/wstest/"
 # you can set the endpoint to the testing environment, unfortunately there is no
 # data there by default and there are no create functions implemented in the cli
-# yet. So there isn't much you can do with it. 
+# yet. So there isn't much you can do with it.
 
 npx run portfolio-manager --help
 ```
 
 
 ## SDK
-There isn't a docs framework yet, prioritize reading the source code over any documentation here. 
+There isn't a docs framework yet, prioritize reading the source code over any documentation here.
 
 The interfaces are not yet complete, I'm actively looking for contributors and sponsors to help complete the project.
 
@@ -108,9 +110,9 @@ class PortfolioManagerApi {
 
 
 ## Sponsors
-[![Ross Energy Consulting](http://www.rossenergyllc.com/blog/wp-content/uploads/2015/05/Ross-Energy-Logo-web.png)](https://www.rossenergyllc.com/) 
+[![Ross Energy Consulting](http://www.rossenergyllc.com/blog/wp-content/uploads/2015/05/Ross-Energy-Logo-web.png)](https://www.rossenergyllc.com/)
 
-Ross Energy Consulting initially sponsored the work on this project to support their [Strategic Energy Management](https://www.rossenergyllc.com/services/sem/) service. 
+Ross Energy Consulting initially sponsored the work on this project to support their [Strategic Energy Management](https://www.rossenergyllc.com/services/sem/) service.
 
 >Ross Energy is dedicated to helping our clients achieve energy security for their buildings and communities. We will help your building become more comfortable and efficient, as well as more resilient to extreme weather events. Our staff has experience in over fifty million square feet of buildings, including clients such as the United States Environmental Protection Agency (EPA), Department of Defense (DoD), the Guggenheim Museum and well over 50 real estate developers and property management firms.
 We proudly focus our services on the greater New York, New Jersey and Pennsylvania Tri-state area, and we are actively growing. Our expertise lies in multifamily and commercial properties.
