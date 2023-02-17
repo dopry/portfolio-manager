@@ -6,6 +6,10 @@ export interface IMeterConsumptionDataGetResponse extends IParsedXml {
     meterData: IMeterData
 }
 
+export interface IMeterConsumptionDataPutResponse extends IParsedXml {
+    response: IResponse
+}
+
 export interface IMeterMeterGetResponse extends IParsedXml {
     meter: IMeter;
 }
