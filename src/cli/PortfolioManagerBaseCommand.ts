@@ -87,5 +87,10 @@ export class PortfolioManagerBaseCommand extends Command {
     return result;
   }
 
-  protected async _action(): Promise<void> {}
+  protected async _action(): Promise<void> {
+    // show help text as default action for all commands
+    // ensure 'group' commands provide a user guidance on
+    // available sub commands
+    this.help();
+  }
 }
