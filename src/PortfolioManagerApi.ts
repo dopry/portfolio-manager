@@ -15,6 +15,7 @@ import {
   IMeterMeterListGetResponse,
   IMeterMeterPostResponse,
   IMeterPropertyAssociationGetResponse,
+  IMeterPropertyAssociationPostResponse,
   IPropertyDesignMetricsGetResponse,
   IPropertyMetricsGetResponse,
   IPropertyMetricsMonthlyGetResponse,
@@ -199,6 +200,14 @@ export class PortfolioManagerApi {
       `/association/property/${propertyId}/meter`
     );
   }
+
+  // https://portfoliomanager.energystar.gov/webservices/home/api/meter/propertyAssociation/post
+  async meterPropertyAssociationSinglePost(propertyId: number,
+    meterId: number): Promise<IMeterPropertyAssociationPostResponse> {
+      return this.post<undefined, IMeterPropertyAssociationPostResponse>(`/association/property/${propertyId}/meter/${meterId}`, undefined)
+  }
+
+
   // https://portfoliomanager.energystar.gov/webservices/home/test/api/meter/meterList/get
   async meterMeterListGet(
     propertyId: number,
