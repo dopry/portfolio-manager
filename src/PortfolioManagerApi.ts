@@ -20,6 +20,7 @@ import {
   IAccountAccountPostResponse,
   IMeterConsumptionDataGetResponse,
   IMeterConsumptionDataPutResponse,
+  IMeterIdentifierListGetResponse,
   IMeterMeterGetResponse,
   IMeterMeterListGetResponse,
   IMeterMeterPostResponse,
@@ -209,6 +210,15 @@ export class PortfolioManagerApi {
     return this.put<IMeterConsumption, IMeterConsumptionDataPutResponse>(
       `consumptionData/${consumptionDataId}`,
       meterConsumption
+    );
+  }
+
+  // https://portfoliomanager.energystar.gov/webservices/home/test/api/meter/identifierList/get
+  async meterIdentifierListGet(
+    meterId: number
+  ): Promise<IMeterIdentifierListGetResponse> {
+    return this.get<IMeterIdentifierListGetResponse>(
+      `meter/${meterId}/identifier/list`
     );
   }
 
