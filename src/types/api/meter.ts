@@ -4,6 +4,7 @@ import {
   IMeterPropertyAssociationList,
   IResponse,
 } from "../xml";
+import { IAdditionalIdentifiers } from "../xml/property/AdditionalIdentifier";
 import { IParsedXml } from "./IParsedXML";
 
 export interface IMeterConsumptionDataGetResponse extends IParsedXml {
@@ -14,6 +15,9 @@ export interface IMeterConsumptionDataPutResponse extends IParsedXml {
   response: IResponse;
 }
 
+export interface IMeterIdentifierListGetResponse extends IParsedXml {
+    additionalIdentifiers: IAdditionalIdentifiers;
+}
 export interface IMeterMeterGetResponse extends IParsedXml {
   meter: IMeter;
 }
