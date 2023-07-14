@@ -11,6 +11,7 @@ import {
   IMeterData,
   IMeterDataPost,
   IProperty,
+  IResponse,
   toXmlDateString,
 } from "./types/xml";
 import fetch from "node-fetch";
@@ -18,6 +19,7 @@ import { RequestInit, BodyInit } from "node-fetch";
 import {
   IAccountAccountGetResponse,
   IAccountAccountPostResponse,
+  ICreateSamplePropertiesPostResponse,
   IMeterConsumptionDataGetResponse,
   IMeterConsumptionDataPutResponse,
   IMeterIdentifierListGetResponse,
@@ -113,9 +115,16 @@ export class PortfolioManagerApi {
     const url = this.endpoint + path;
     // console.log('req', { url, init })
     const response = await fetch(url, init);
+    // raise exception on 400-599 status codes
+    if (response.status >= 400 && response.status < 600) {
+      throw new Error(response.statusText);
+    }
+
     const xmlResp = await response.text();
     const parser = new XMLParser(this.xmlParserOptions);
     const parsed = parser.parse(xmlResp) as RESP;
+
+
     // console.log("response", {response, xmlResp, parsed});
     return parsed;
   }
@@ -289,6 +298,17 @@ export class PortfolioManagerApi {
     }
     const url = `/meter/${meterId}/consumptionData?${args.join("&")}`;
     return this.get<IMeterConsumptionDataGetResponse>(url);
+  }
+
+  // https://portfoliomanager.energystar.gov/webservices/home/test/api/property/sample-testing/post
+  async propertyCreateSamplePropertiesPOST(
+    countryCode: "US" | "CA" = "US",
+    createCount: number = 10
+  ): Promise<ICreateSamplePropertiesPostResponse> {
+    return this.post<undefined, ICreateSamplePropertiesPostResponse>(
+      `property/createSampleProperties?countryCode=${countryCode}&createCount=${createCount}`,
+      undefined
+    );
   }
 
   /**
