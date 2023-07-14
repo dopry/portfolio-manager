@@ -1,7 +1,10 @@
 import { PortfolioManagerApi, isPortfolioManagerApiError } from "./PortfolioManagerApi";
 import {
+  AddressCountry,
+  AddressState,
   IAccount,
   IAdditionalIdentifier,
+  IAddress,
   IClientConsumption,
   IClientMeter,
   IClientMeterPropertyAssociation,
@@ -12,7 +15,9 @@ import {
   IMeterConsumption,
   IMeterData,
   IMeterDelivery,
-  IResponse,
+  IOrganization,
+  LanguagePreference,
+  PrimaryBusiness,
   isIDeliveryMeterData,
   isIEmptyResponse,
   isIMeteredMeterData,
@@ -36,6 +41,92 @@ import {
 export class PortfolioManager {
   protected _accountPromise: Promise<IAccount> | undefined;
   constructor(protected api: PortfolioManagerApi) {}
+
+  /**
+   *
+   * @param username
+   * @param password
+   * @param contactEmail
+   * @param contactAddressCountry
+   * @param contactAddressState
+   * @param contactFirstName
+   * @param contactLastName
+   * @param contactAddressAddress1
+   * @param contactAddressCity
+   * @param contactAddressPostalCode
+   * @param contactJobTitle
+   * @param contactPhone
+   * @param organizationName
+   * @param organizationPrimaryBusiness
+   * @param organizationEnergyStarPartner
+   * @param webserviceUser
+   * @param searchable
+   * @param includeTestPropertiesInGraphics
+   * @param languagePreference
+   * @returns the created account id.
+   */
+  async createAccount(
+    username: string,
+    password: string,
+    contactEmail: string,
+    contactAddressCountry: AddressCountry ,
+    contactAddressState: AddressState,
+    contactFirstName: string = "",
+    contactLastName: string = "",
+    contactAddressAddress1: string = "",
+    contactAddressCity: string = "",
+    contactAddressPostalCode: string = "",
+    contactJobTitle: string = "",
+    contactPhone: string = "",
+    organizationName: string = "",
+    organizationPrimaryBusiness: PrimaryBusiness = "Data Center",
+    organizationEnergyStarPartner: boolean = false,
+    webserviceUser: boolean = false,
+    searchable: boolean = false,
+    includeTestPropertiesInGraphics: boolean = false,
+    languagePreference: LanguagePreference = "en_US"
+
+  ): Promise<number> {
+    const address: IAddress = {
+      "@_address1": contactAddressAddress1,
+      "@_city": contactAddressCity,
+      "@_postalCode": contactAddressPostalCode,
+      "@_country": contactAddressCountry,
+      "@_state": contactAddressState,
+    };
+    const contact = {
+      firstName: contactFirstName,
+      lastName: contactLastName,
+      email: contactEmail,
+      address: address,
+      jobTitle: contactJobTitle,
+      phone: contactPhone,
+    }
+
+    const organization: IOrganization = {
+      primaryBusiness: organizationPrimaryBusiness,
+      energyStarPartner: organizationEnergyStarPartner,
+      "@_name": organizationName
+    }
+
+    const account: IAccount = {
+      username,
+      password,
+      contact,
+      organization,
+      webserviceUser,
+      searchable,
+      includeTestPropertiesInGraphics,
+      languagePreference,
+    };
+    const response = await this.api.accountAccountPost(account);
+    if (response.response["@_status"] != "Ok" || !response.response.id) {
+      throw new Error(
+        "Failed to create account, response: " + JSON.stringify(response, null, 2)
+      );
+    }
+    return response.response.id
+  }
 
   async getAccount(): Promise<IAccount> {
     const _getAccount = async (): Promise<IAccount> => {
