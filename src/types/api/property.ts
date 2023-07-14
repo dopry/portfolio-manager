@@ -27,3 +27,7 @@ export interface IPropertyMetricsMonthlyGetResponse extends IParsedXml {
   // TODO: improve typings on returned data.
   propertyMetrics: PropertyMetrics;
 }
+
+export interface ICreateSamplePropertiesPostResponse extends IParsedXml {
+  response: IResponse;
+}
