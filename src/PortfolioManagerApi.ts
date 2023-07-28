@@ -15,7 +15,7 @@ import {
   toXmlDateString,
 } from "./types/xml";
 import fetch from "node-fetch";
-import { RequestInit, BodyInit } from "node-fetch";
+import { RequestInit, BodyInit, Response } from "node-fetch";
 import {
   IAccountAccountGetResponse,
   IAccountAccountPostResponse,
@@ -40,6 +40,16 @@ import { btoa } from "./functions";
 import { isNumber, isString } from "type-guards";
 import { isDate } from "util/types";
 import { deepmerge } from "deepmerge-ts";
+
+export class PortfolioManagerApiError extends Error {
+  constructor(public response: Response) {
+    super(response.statusText);
+  }
+}
+
+export function isPortfolioManagerApiError(obj: any): obj is PortfolioManagerApiError {
+  return obj instanceof PortfolioManagerApiError;
+}
 
 /**
  * Gateway to the the Portfolio Manager API.
@@ -75,7 +85,8 @@ export class PortfolioManagerApi {
         jpath ===
           "meterPropertyAssociationList.wasteMeterAssociation.meters.meterId" ||
         jpath === "meterData.meterDelivery" ||
-        jpath === "meterData.meterConsumption"
+        jpath === "meterData.meterConsumption" ||
+        jpath === "additionalIdentifiers.additionalIdentifier"
       );
     },
   };
@@ -117,7 +128,7 @@ export class PortfolioManagerApi {
     const response = await fetch(url, init);
     // raise exception on 400-599 status codes
     if (response.status >= 400 && response.status < 600) {
-      throw new Error(response.statusText);
+      throw new PortfolioManagerApiError(response);
     }
 
     const xmlResp = await response.text();
