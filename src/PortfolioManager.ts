@@ -1,4 +1,4 @@
-import { PortfolioManagerApi } from "./PortfolioManagerApi";
+import { PortfolioManagerApi, isPortfolioManagerApiError } from "./PortfolioManagerApi";
 import {
   IAccount,
   IClientConsumption,
@@ -17,6 +17,7 @@ import {
   isIPopoulatedResponse,
   isIPropertyMonthlyMetric,
 } from "./types";
+import { IAdditionalIdentifier } from "./types/xml/property/AdditionalIdentifier";
 
 /**
  * A developer friendly Facade for interacting with Energy Star Portfolio Manager.
@@ -69,6 +70,23 @@ export class PortfolioManager {
       return meter;
     } else
       throw new Error(`No meter found:\n ${JSON.stringify(response, null, 2)}`);
+  }
+
+  async getMeterAdditionalIdentifiers(meterId: number): Promise<IAdditionalIdentifier[]> {
+    try {
+      const response = await this.api.meterIdentifierListGet(meterId);
+      return response.additionalIdentifiers.additionalIdentifier || []
+    }
+    catch (error) {
+      if (!isPortfolioManagerApiError(error)) {
+        throw error
+      }
+      if (error.response.status == 404) {
+        // meter not found, throw a more meaningful error.
+        throw new Error(`Meter not found: ${meterId}`)
+      }
+      throw error
+    }
   }
 
   async getMeterConsumption(
