@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="20.0">
+	<xs:include schemaLocation="../property/professionalDesignation.xsd"/>
+	<xs:include schemaLocation="../common/audit.xsd"/>
+	<xs:element name="verification">
+		<xs:complexType>
+			<xs:annotation>
+				<xs:documentation>
+					Represents verifier info of the property.
+				</xs:documentation>
+			</xs:annotation>
+			<xs:all>
+				<xs:element name="periodEndingDate" type="xs:gYearMonth" minOccurs="1" maxOccurs="1">
+					<xs:annotation>
+						<xs:documentation>Period Ending Date.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="verificationDate" type="xs:date" minOccurs="1" maxOccurs="1">
+					<xs:annotation>
+						<xs:documentation>Date of verification by the verifier.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="name" minOccurs="1" maxOccurs="1">
+					<xs:annotation>
+						<xs:documentation>Verifier name</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="200"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="title" minOccurs="1" maxOccurs="1">
+					<xs:annotation>
+						<xs:documentation>Verifier title</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="100"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="organization" minOccurs="1" maxOccurs="1">
+					<xs:annotation>
+						<xs:documentation>Verifier organization</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="100"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="phone" minOccurs="1" maxOccurs="1">
+					<xs:annotation>
+						<xs:documentation>Verifier phone</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="30"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="email" minOccurs="1" maxOccurs="1">
+					<xs:annotation>
+						<xs:documentation>Verifier email</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="100"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="postalCode" minOccurs="1" maxOccurs="1">
+					<xs:annotation>
+						<xs:documentation>Verifier postal code</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="20"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element ref="professionalDesignationList" minOccurs="0"/>
+				<xs:element name="audit" type="logType" minOccurs="0"/>
+			</xs:all>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
+

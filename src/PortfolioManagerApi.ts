@@ -4,22 +4,52 @@ import {
   XmlBuilderOptions,
   X2jOptions,
 } from "fast-xml-parser";
-import { IAccount, IProperty, IMeter, toXmlDateString } from "./types/xml";
+import {
+  IAccount,
+  IMeter,
+  IMeterConsumption,
+  IMeterData,
+  IMeterDataPost,
+  IProperty,
+  IResponse,
+  toXmlDateString,
+} from "./types/xml";
 import fetch from "node-fetch";
-import { RequestInit, BodyInit } from "node-fetch";
+import { RequestInit, BodyInit, Response } from "node-fetch";
 import {
   IAccountAccountGetResponse,
-  IMeterMeterGetResponse,
-  IMeterConsumptionDataGetResponse,
-  IPropertyPropertyListGetResponse,
-  IMeterPropertyAssociationGetResponse,
-  IMeterMeterListGetResponse,
-  IPropertyPropertyGetResponse,
   IAccountAccountPostResponse,
+  ICreateSamplePropertiesPostResponse,
+  IMeterConsumptionDataGetResponse,
+  IMeterConsumptionDataPutResponse,
+  IMeterIdentifierListGetResponse,
+  IMeterMeterGetResponse,
+  IMeterMeterListGetResponse,
   IMeterMeterPostResponse,
+  IMeterPropertyAssociationGetResponse,
+  IMeterPropertyAssociationPostResponse,
+  IPropertyDesignMetricsGetResponse,
+  IPropertyMetricsGetResponse,
+  IPropertyMetricsMonthlyGetResponse,
+  IPropertyPropertyGetResponse,
+  IPropertyPropertyListGetResponse,
   IPropertyPropertyPostResponse,
+  MeasurementSystem,
 } from "./types";
 import { btoa } from "./functions";
+import { isNumber, isString } from "type-guards";
+import { isDate } from "util/types";
+import { deepmerge } from "deepmerge-ts";
+
+export class PortfolioManagerApiError extends Error {
+  constructor(public response: Response) {
+    super(response.statusText);
+  }
+}
+
+export function isPortfolioManagerApiError(obj: any): obj is PortfolioManagerApiError {
+  return obj instanceof PortfolioManagerApiError;
+}
 
 /**
  * Gateway to the the Portfolio Manager API.
@@ -29,7 +59,7 @@ import { btoa } from "./functions";
  * provide typed methods for each endpoint and construct the request. It should not be concerned
  * with the response or error handling. If you want a higher level of abstraction, you should use
  * the PortfolioManager Facade instead.
- * 
+ *
  *
  * Responsbilities:
  * - Typeing API calls
@@ -43,21 +73,35 @@ export class PortfolioManagerApi {
     isArray: (name, jpath, isLeafNode, isAttribute): boolean => {
       // ensure response.links.link is always an array even when there
       // is only one link which results in  object by default
+      // console.log(jpath);
       return (
-        jpath === "response.links.link" || jpath === "meterData.links.link"
+        jpath === "response.links.link" ||
+        jpath === "propertyMetrics.metric" ||
+        jpath === "meterData.links.link" ||
+        jpath ===
+          "meterPropertyAssociationList.waterMeterAssociation.meters.meterId" ||
+        jpath ===
+          "meterPropertyAssociationList.energyMeterAssociation.meters.meterId" ||
+        jpath ===
+          "meterPropertyAssociationList.wasteMeterAssociation.meters.meterId" ||
+        jpath === "meterData.meterDelivery" ||
+        jpath === "meterData.meterConsumption" ||
+        jpath === "additionalIdentifiers.additionalIdentifier"
       );
     },
   };
   xmlBuilderOptions: Partial<XmlBuilderOptions> = {
     ignoreAttributes: false,
     tagValueProcessor: (name, value) => {
-      // console.log('XMLBuilder.tagValueProcessor', { name, value })
       switch (name) {
         case "firstBillDate":
-          const date = new Date(value);
-          return toXmlDateString(date);
+          if (isString(value) || isDate(value) || isNumber(value)) {
+            const date = new Date(value);
+            return toXmlDateString(date);
+          }
+          return value as string;
         default:
-          return value;
+          return value as string;
       }
     },
   };
@@ -78,13 +122,20 @@ export class PortfolioManagerApi {
         "Basic " + btoa(`${this.username}:${this.password}`);
     }
     const defaults = { method: "GET", headers } as RequestInit;
-    const init: RequestInit = Object.assign({}, defaults, options);
+    const init: RequestInit = deepmerge({}, defaults, options);
     const url = this.endpoint + path;
     // console.log('req', { url, init })
     const response = await fetch(url, init);
+    // raise exception on 400-599 status codes
+    if (response.status >= 400 && response.status < 600) {
+      throw new PortfolioManagerApiError(response);
+    }
+
     const xmlResp = await response.text();
     const parser = new XMLParser(this.xmlParserOptions);
     const parsed = parser.parse(xmlResp) as RESP;
+
+
     // console.log("response", {response, xmlResp, parsed});
     return parsed;
   }
@@ -107,8 +158,8 @@ export class PortfolioManagerApi {
     return await this.fetch<RESP>(path, init);
   }
 
-  async get<RESP>(path: string): Promise<RESP> {
-    return this.fetch<RESP>(path);
+  async get<RESP>(path: string, options: RequestInit = {}): Promise<RESP> {
+    return this.fetch<RESP>(path, options);
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/test/api/account/account/get
@@ -117,10 +168,15 @@ export class PortfolioManagerApi {
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/test/api/account/account/post
-  async accountAccountPost(account: IAccount): Promise<IAccountAccountPostResponse> {
-    return this.post<{ account: IAccount }, IAccountAccountPostResponse>("account", {
-      account,
-    });
+  async accountAccountPost(
+    account: IAccount
+  ): Promise<IAccountAccountPostResponse> {
+    return this.post<{ account: IAccount }, IAccountAccountPostResponse>(
+      "account",
+      {
+        account,
+      }
+    );
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/test/api/meter/meter/get
@@ -129,7 +185,9 @@ export class PortfolioManagerApi {
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/property/property/get
-  async propertyPropertyGet(propertyId: number): Promise<IPropertyPropertyGetResponse> {
+  async propertyPropertyGet(
+    propertyId: number
+  ): Promise<IPropertyPropertyGetResponse> {
     return this.get<IPropertyPropertyGetResponse>(`property/${propertyId}`);
   }
 
@@ -145,9 +203,42 @@ export class PortfolioManagerApi {
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/property/propertyList/get
-  async propertyPropertyListGet(accountId: number): Promise<IPropertyPropertyListGetResponse> {
+  async propertyPropertyListGet(
+    accountId: number
+  ): Promise<IPropertyPropertyListGetResponse> {
     return this.get<IPropertyPropertyListGetResponse>(
       `account/${accountId}/property/list`
+    );
+  }
+
+  // https://portfoliomanager.energystar.gov/webservices/home/api/meter/consumptionData/post
+  async meterConsumptionDataPost(
+    meterId: number,
+    meterConsumption: IMeterDataPost
+  ): Promise<IMeterData> {
+    return this.post<IMeterDataPost, IMeterData>(
+      `meter/${meterId}/consumptionData`,
+      meterConsumption
+    );
+  }
+
+  // https://portfoliomanager.energystar.gov/webservices/home/api/meter/consumptionData/put
+  async meterConsumptionDataPut(
+    consumptionDataId: number,
+    meterConsumption: IMeterConsumption
+  ) {
+    return this.put<IMeterConsumption, IMeterConsumptionDataPutResponse>(
+      `consumptionData/${consumptionDataId}`,
+      meterConsumption
+    );
+  }
+
+  // https://portfoliomanager.energystar.gov/webservices/home/test/api/meter/identifierList/get
+  async meterIdentifierListGet(
+    meterId: number
+  ): Promise<IMeterIdentifierListGetResponse> {
+    return this.get<IMeterIdentifierListGetResponse>(
+      `meter/${meterId}/identifier/list`
     );
   }
 
@@ -170,6 +261,18 @@ export class PortfolioManagerApi {
       `/association/property/${propertyId}/meter`
     );
   }
+
+  // https://portfoliomanager.energystar.gov/webservices/home/api/meter/propertyAssociation/post
+  async meterPropertyAssociationSinglePost(
+    propertyId: number,
+    meterId: number
+  ): Promise<IMeterPropertyAssociationPostResponse> {
+    return this.post<undefined, IMeterPropertyAssociationPostResponse>(
+      `/association/property/${propertyId}/meter/${meterId}`,
+      undefined
+    );
+  }
+
   // https://portfoliomanager.energystar.gov/webservices/home/test/api/meter/meterList/get
   async meterMeterListGet(
     propertyId: number,
@@ -191,20 +294,113 @@ export class PortfolioManagerApi {
   async meterConsumptionDataGet(
     meterId: number,
     page?: number,
-    startDate?: Date,
-    endDate?: Date
+    startDate?: string,
+    endDate?: string
   ): Promise<IMeterConsumptionDataGetResponse> {
     const args: string[] = [];
     if (page) {
       args.push(`page=${page}`);
     }
     if (startDate) {
-      args.push(`startDate=${startDate.toISOString()}`);
+      args.push(`startDate=${startDate}`);
     }
     if (endDate) {
-      args.push(`endDate=${endDate.toISOString()}`);
+      args.push(`endDate=${endDate}`);
     }
     const url = `/meter/${meterId}/consumptionData?${args.join("&")}`;
     return this.get<IMeterConsumptionDataGetResponse>(url);
   }
+
+  // https://portfoliomanager.energystar.gov/webservices/home/test/api/property/sample-testing/post
+  async propertyCreateSamplePropertiesPOST(
+    countryCode: "US" | "CA" = "US",
+    createCount: number = 10
+  ): Promise<ICreateSamplePropertiesPostResponse> {
+    return this.post<undefined, ICreateSamplePropertiesPostResponse>(
+      `property/createSampleProperties?countryCode=${countryCode}&createCount=${createCount}`,
+      undefined
+    );
+  }
+
+  /**
+   * GET	/property/(propertyId)/design/metrics
+   * Returns a list of metric values for an existing property design. The property must already be shared with you.
+   * see: https://portfoliomanager.energystar.gov/webservices/home/api/reporting/designMetrics/get
+   */
+  async propertyDesignMetricsGet(
+    propertyId: number,
+    measurementSystem: MeasurementSystem = "EPA"
+  ): Promise<IPropertyDesignMetricsGetResponse> {
+    const url = `/property/${propertyId}/design/metrics?measurementSystem=${measurementSystem}`;
+
+    return this.get<IPropertyDesignMetricsGetResponse>(url);
+  }
+
+  /**
+   * GET	/property/(propertyId)/metrics
+   * Returns the values for a specified set of metrics and units for a specific property and period ending date. The property must already be shared with you.
+   * see: https://portfoliomanager.energystar.gov/webservices/home/api/reporting/propertyMetrics/get
+   */
+  async propertyMetricsGet(
+    propertyId: number,
+    year: number,
+    month: number,
+    metrics: string[],
+    measurementSystem: MeasurementSystem = "EPA"
+  ): Promise<IPropertyMetricsGetResponse> {
+    const args = [
+      `year=${year}`,
+      `month=${month}`,
+      `measurementSystem=${measurementSystem}`,
+    ];
+    const options: RequestInit = {
+      headers: {
+        "PM-Metrics": metrics.join(","),
+      },
+    };
+    const url = `/property/${propertyId}/metrics?${args.join("&")}`;
+    return this.get<IPropertyMetricsGetResponse>(url, options);
+  }
+
+  /**
+   * GET	/property/(propertyId)/metrics/monthly
+   * Returns a list of monthly metric values for a specific property and period ending date based on the specified set of metrics and measurement system.
+   * see: https://portfoliomanager.energystar.gov/webservices/home/api/reporting/propertyMetricsMonthly/get
+   */
+  async propertyMetricsMonthlyGet(
+    propertyId: number,
+    year: number,
+    month: number,
+    metrics: string[],
+    measurementSystem: MeasurementSystem = "EPA"
+  ): Promise<IPropertyMetricsMonthlyGetResponse> {
+    const args = [
+      `year=${year}`,
+      `month=${month}`,
+      `measurementSystem=${measurementSystem}`,
+    ];
+    const options: RequestInit = {
+      headers: {
+        "PM-Metrics": metrics.join(","),
+      },
+    };
+    const url = `/property/${propertyId}/metrics/monthly?${args.join("&")}`;
+    return this.get<IPropertyMetricsMonthlyGetResponse>(url, options);
+  }
+
+  /**
+   * GET	/property/(propertyId)/reasonsForNoScore
+   * Returns a list of alert information that explains why a specific property cannot receive an ENERGY STAR score for a specific period ending date.
+   * see: https://portfoliomanager.energystar.gov/webservices/home/api/reporting/reasonsForNoScore/get
+   */
+  /**
+   * GET	/property/(propertyId)/reasonsForNoWaterScore
+   * Returns a list of alert information that explains why a specific property cannot receive an ENERGY STAR water score for a specific period ending date.
+   * see: https://portfoliomanager.energystar.gov/webservices/home/api/reporting/reasonsForNoWaterScore/get
+   */
+  /**
+   * GET	/property/(propertyId)/useDetails/metrics
+   * Returns the time-weighted use detail values for a specific property, period ending date, and measurement system. The property must already be shared with you.
+   * see: https://portfoliomanager.energystar.gov/webservices/home/api/reporting/useDetailsMetrics/get
+   */
 }

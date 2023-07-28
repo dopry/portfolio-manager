@@ -1,6 +1,6 @@
 {
   "name": "portfolio-manager",
-  "version": "1.0.0-next.1",
+  "version": "1.1.0-next.25",
   "description": "Unofficial CLI Tool and SDK for Energy Star Portfolio Manager",
   "engines": {
     "node": ">=12"
@@ -12,13 +12,16 @@
   "main": "dist/cjs/index.js",
   "module": "dist/mjs/index.js",
   "scripts": {
-    "build": "rm -fr dist/* && tsc -p tsconfig.mjs.json && tsc -p tsconfig.cjs.json && bash fixup.sh",
+    "build": "run-s clean build:mjs build:cjs fixup",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build:mjs": "tsc -p tsconfig.mjs.json",
+    "clean": "rm -fr dist/*",
     "fixup": "bash fixup.sh",
-    "pretest": "npm run build",
+    "pretest": "run-s build",
     "test": "mocha ./dist/cjs/*.spec.js",
-    "pretest:cjs": "npm run build",
+    "pretest:cjs": "run-s build",
     "test:cjs": "mocha ./dist/cjs/*.spec.js",
-    "pretest:mjs": "npm run build",
+    "pretest:mjs": "run-s  build",
     "test:mjs": "mocha ./dist/mjs/*.spec.js",
     "semantic-release": "semantic-release",
     "src-bin": "npx ts-node ./src/index.ts",
@@ -44,11 +47,15 @@
     "should": "^13.2.3",
     "source-map-support": "^0.5.21",
     "ts-node": "^10.8.2",
-    "typescript": "^4.7.4"
+    "typescript": "^4.9.5"
   },
   "dependencies": {
     "commander": "^9.4.0",
-    "fast-xml-parser": "^4.0.9"
+    "deepmerge-ts": "^4.3.0",
+    "fast-xml-parser": "^4.1.1",
+    "npm-run-all": "^4.1.5",
+    "run-p": "^0.0.0",
+    "type-guards": "^0.15.0"
   },
   "release": {
     "branches": [

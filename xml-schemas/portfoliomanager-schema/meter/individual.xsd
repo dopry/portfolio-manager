@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="20.0">
+	<xs:include schemaLocation="../common/audit.xsd"/>
+	<xs:element name="individualMeter">
+		<xs:complexType>
+			<xs:annotation>
+				<xs:documentation>
+					Individual meter details.
+				</xs:documentation>
+			</xs:annotation>
+			<xs:all>
+				<xs:element name="id" type="xs:long" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>The id of the individual meter.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="meterId" type="xs:long" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>The id of the aggregated/parent meter.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="customId" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Custom Id of the individual meter</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="200"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="customIdName" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Custom Id Name of the individual meter</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="200"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="serviceAddress" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Service address of the individual meter</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1"/>
+							<xs:maxLength value="400"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="inUse" type="xs:boolean" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Is this individual meter in use?</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="inactiveDate" type="xs:date" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>If the individual meter is no longer in use, this is the date that it went inactive.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="audit" type="logType" minOccurs="0"/>
+			</xs:all>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
+

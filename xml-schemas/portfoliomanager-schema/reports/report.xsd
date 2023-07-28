@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="20.0">
+	<xs:include schemaLocation="../enum/reportingEnums.xsd"/>
+	<xs:include schemaLocation="../enum/meterCategoryType.xsd"/>
+	<xs:include schemaLocation="../common/ped.xsd"/>
+	<xs:complexType name="timeframeType">
+		<xs:choice>
+			<xs:element name="currentPeriod">
+				<xs:annotation>
+					<xs:documentation>Returns metrics for the most recent year in which each of your properties has a full year of data for the selected meter type (energy/water/waste). This can be a different year for each property.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="meterType" type="meterCategoryType"/>
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="baselinePeriod">
+				<xs:annotation>
+					<xs:documentation>Returns metrics for the baseline period that you set on the "Goals" tab for each individual property. You can have different baselines for different meter types (energy/water/waste).</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="meterType" type="meterCategoryType"/>
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="currentVsBaseline">
+				<xs:annotation>
+					<xs:documentation>Returns metrics for each property's current year and its baseline year.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="meterType" type="meterCategoryType"/>
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="singlePeriod">
+				<xs:annotation>
+					<xs:documentation>Returns metrics for a specific year that you specify.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="periodEndingDate" type="ped"/>
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="compareCurrentPeriod">
+				<xs:annotation>
+					<xs:documentation>Returns metrics for each property's current year and another year which you specify.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="meterType" type="meterCategoryType"/>
+						<xs:element name="periodEndingDate" type="ped"/>
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="compareBaselinePeriod">
+				<xs:annotation>
+					<xs:documentation>Returns metrics for each property's baseline period and another year which you specify.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="meterType" type="meterCategoryType"/>
+						<xs:element name="periodEndingDate" type="ped"/>
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="twoPeriods">
+				<xs:annotation>
+					<xs:documentation>Returns metrics for each property in two specific years that you select.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="periodEndingDateOne" type="ped"/>
+						<xs:element name="periodEndingDateTwo" type="ped"/>
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="dateRange">
+				<xs:annotation>
+					<xs:documentation>Returns metrics for each property on a monthly, quarterly, or annual interval between a start and end date that you specify.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:all>
+						<xs:element name="fromPeriodEndingDate" type="ped"/>
+						<xs:element name="toPeriodEndingDate" type="ped"/>
+						<xs:element name="interval" type="reportingIntervalType"/>
+					</xs:all>
+				</xs:complexType>
+			</xs:element>
+		</xs:choice>
+	</xs:complexType>
+	<xs:complexType name="report">
+		<xs:all>
+			<xs:element name="id" type="xs:long" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The unique identifier of the report.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="type" type="reportType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The type of report.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="timeframe" type="timeframeType">
+				<xs:annotation>
+					<xs:documentation>The timeframe the report will be run against.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="templateId" type="xs:long" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The id of the template.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="templateName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The name of the template.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="properties" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The list of properties that the report will be run for.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="id" type="xs:long" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>The unique identifier for each property.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="reportGenerationStatus" type="reportStatusType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The current generation status of the report.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:all>
+	</xs:complexType>
+	<xs:element name="report" type="report"/>
+</xs:schema>

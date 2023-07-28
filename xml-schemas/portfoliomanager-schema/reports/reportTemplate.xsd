@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="20.0">
+	<xs:include schemaLocation="../common/audit.xsd"/>
+	<xs:element name="templateType">
+		<xs:annotation>
+			<xs:documentation>The type of template. This is ignored in a POST/PUT.</xs:documentation>
+		</xs:annotation>
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:enumeration value="CUSTOM">
+					<xs:annotation>
+						<xs:documentation>Custom template.</xs:documentation>
+					</xs:annotation>
+				</xs:enumeration>
+				<xs:enumeration value="ENERGY_STAR">
+					<xs:annotation>
+						<xs:documentation>ENERGY STAR templates that are pre-defined (i.e., Water Performance, Energy Performance, etc.). This type is currently not support yet.</xs:documentation>
+					</xs:annotation>
+				</xs:enumeration>
+				<xs:enumeration value="DATA_REQUEST">
+					<xs:annotation>
+						<xs:documentation>Data request. This type is currently not support yet.</xs:documentation>
+					</xs:annotation>
+				</xs:enumeration>
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:element>
+	<xs:complexType name="reportTemplateType">
+		<xs:all>
+			<xs:element name="id" type="xs:long" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The unique identifier of the template.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="name">
+				<xs:annotation>
+					<xs:documentation>The name of the template.</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1"/>
+						<xs:maxLength value="100"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element ref="templateType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The type of the template. This is ignore in a POST/PUT.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="metrics" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The list of metrics configured  to the template.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="id" type="xs:long" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>The unique identifier to the individual metric configured for the custom report.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="reportId" type="xs:long" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The unique identifier to the corresponding report.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="audit" type="logType" minOccurs="0"/>
+		</xs:all>
+	</xs:complexType>
+	<xs:element name="reportTemplate" type="reportTemplateType"/>
+</xs:schema>

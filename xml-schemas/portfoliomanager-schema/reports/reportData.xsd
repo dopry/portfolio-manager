@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified" version="20.0">
+	<xs:include schemaLocation="../property/propertyMetrics.xsd"/>
+	<xs:element name="reportData" type="reportDataType">
+		<xs:annotation>
+			<xs:documentation>All metrics provided in the report template</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="reportDataType">
+		<xs:sequence>
+			<xs:element name="reportId" type="xs:long" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The id of the report.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="templateName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the template.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="dateGenerated" type="xs:dateTime">
+				<xs:annotation>
+					<xs:documentation>The timestamp when the report was generated</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="numberOfProperties" type="xs:integer">
+				<xs:annotation>
+					<xs:documentation>The total count of the properties in the report</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="summary" type="summaryType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The summary element is only populated for the Partner of Year report and for a report that compares  two years of data. Properties are only counted if they have metrics for Gross Floor Area, Site Energy,Source Energy, Weather Normalized Site Energy, Weather normalized Source Energy, Total GHG Emissions and the property is not a child property or a 'Part of Building'.
+          </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="informationAndMetrics" type="informationAndMetricsType">
+				<xs:annotation>
+					<xs:documentation>All metrics provided in the report template excluding monthly metrics. This corresponds to the "Information and Metrics" tab in the Excel report download.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="comparisons" type="comparisonsType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Only applicable when comparing two periods of data. This corresponds to the "Comparisons" tab in the Excel report download.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="monthlyUsage" type="monthlyUsageType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Only applicable when monthly metrics are selected. This corresponds to the "Monthly Usage" tab in the Excel report download.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="summaryType">
+		<xs:sequence>
+			<xs:element name="numberOfPropertiesInPortfolio" type="xs:integer">
+				<xs:annotation>
+					<xs:documentation>The total count of the properties in the portfolio of the user who requested the report, including shares and child properties</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="numberOfPropertiesInSummary" type="xs:integer">
+				<xs:annotation>
+					<xs:documentation>The total count of the properties in the summary. This may be different than the number of properties in the report. </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="summaryMetrics" type="summaryMetricsType">
+				<xs:annotation>
+					<xs:documentation>The list of summary metrics </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="properties">
+				<xs:annotation>
+					<xs:documentation>The list of property ids used in the summary metrics calculation</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="id" type="xs:long" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="summaryMetricsType">
+		<xs:sequence>
+			<xs:sequence>
+				<xs:element name="summaryMetric" type="summaryMetric" minOccurs="0" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>The list of summary metrics</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="summaryMetric">
+		<xs:sequence>
+			<xs:element name="metric" type="reportMetricValuesWs" maxOccurs="2"/>
+			<xs:element name="percentChange" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The percentage of change calculated from the difference between two periods for the aggregate or average portfolio value</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="properties" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The property ids to run the report against.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="id" type="xs:long" minOccurs="0" maxOccurs="unbounded"/>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="name" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The name of the metric.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="id" type="xs:long">
+			<xs:annotation>
+				<xs:documentation>The id of the metric.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="uom" type="xs:string">
+			<xs:annotation>
+				<xs:documentation>The unit of measure of the metric.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="autoGenerated" type="xs:boolean">
+			<xs:annotation>
+				<xs:documentation>Additional metrics provided by the system</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="informationAndMetricsType">
+		<xs:sequence>
+			<xs:element name="propertyMetrics" type="propertyMetricsType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="comparisonsType">
+		<xs:sequence>
+			<xs:element name="periodOne" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Indicates whether the comparison period is based on a CURRENT, BASELINE, or a specific period ending date. A specific period ending date is in the format of MM-YYYY.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="periodTwo" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Indicates whether the comparison period is based on a CURRENT, BASELINE, or a specific period ending date. A specific period ending date is in the format of MM-YYYY.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="propertyMetrics" type="propertyMetricsType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="monthlyUsageType">
+		<xs:sequence>
+			<xs:element name="periodOne" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Indicates whether the comparison period is based on a CURRENT, BASELINE, or a specific period ending date. A specific period ending date is in the format of MM-YYYY.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="periodTwo" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Indicates whether the comparison period is based on a CURRENT, BASELINE, or a specific period ending date. A specific period ending date is in the format of MM-YYYY.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="propertyMetrics" type="propertyMetricsType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
+	<xs:include schemaLocation="../enum/reportingEnums.xsd"/>
+	<xs:element name="reportStatus">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="status" type="reportStatusType">
+					<xs:annotation>
+						<xs:documentation>The status of the report.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="description" type="xs:string" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>This field is not currently being used.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="generationStartDate" type="xs:dateTime" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>The date and timestamp of when the report generation started (in EST).</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="generationEndDate" type="xs:dateTime" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>The date and timestamp of when the report generation completed (in EST).</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="submittedDate" type="xs:dateTime" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>The date and timestamp of when the report was submitted to be generated (in EST).</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
+
