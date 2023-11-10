@@ -1,6 +1,7 @@
 import { PortfolioManagerApi, isPortfolioManagerApiError } from "./PortfolioManagerApi";
 import {
   IAccount,
+  IAdditionalIdentifier,
   IClientConsumption,
   IClientMeter,
   IClientMeterPropertyAssociation,
@@ -11,13 +12,13 @@ import {
   IMeterConsumption,
   IMeterData,
   IMeterDelivery,
+  IResponse,
   isIDeliveryMeterData,
   isIEmptyResponse,
   isIMeteredMeterData,
   isIPopoulatedResponse,
   isIPropertyMonthlyMetric,
 } from "./types";
-import { IAdditionalIdentifier } from "./types/xml/property/AdditionalIdentifier";
 
 /**
  * A developer friendly Facade for interacting with Energy Star Portfolio Manager.
@@ -70,6 +71,66 @@ export class PortfolioManager {
       return meter;
     } else
       throw new Error(`No meter found:\n ${JSON.stringify(response, null, 2)}`);
+  }
+
+  async getMeterAdditionalIdentifier(
+    meterId: number,
+    additionalIdentifierId: number
+  ): Promise<IAdditionalIdentifier> {
+    try {
+      const response = await this.api.meterIdentifierGet(meterId, additionalIdentifierId);
+      return response.additionalIdentifier
+    } catch (error) {
+      if (!isPortfolioManagerApiError(error)) {
+        throw error
+      }
+      if (error.response.status == 404) {
+        // meter not found, throw a more meaningful error.
+        throw new Error(`Meter or additionalIdentifier not found: ${meterId}`)
+      }
+      throw error
+    }
+  }
+
+  async createMeterAdditionalIdentifier(meterId: number, additionalIdentifier: IAdditionalIdentifier): Promise<ILink[]> {
+    try {
+      const response = await this.api.meterIdentifierPost(meterId, additionalIdentifier);
+      if (isIPopoulatedResponse(response.response)) {
+        return response.response.links.link
+      }
+      throw new Error(`Unable to create additionalIdentifier: ${meterId}`)
+
+    } catch (error) {
+      if (!isPortfolioManagerApiError(error)) {
+        throw error
+      }
+      if (error.response.status == 404) {
+        // meter not found, throw a more meaningful error.
+        throw new Error(`Meter not found: ${meterId}`)
+      }
+      throw error
+    }
+  }
+
+  async updateMeterAdditionalIdentifier(meterId: number, identifierId: number, additionalIdentifier: IAdditionalIdentifier): Promise<ILink[]> {
+    try {
+      const response = await this.api.meterIdentifierPut(meterId, identifierId, additionalIdentifier);
+      if (isIPopoulatedResponse(response.response)) {
+        return response.response.links.link
+      }
+      throw new Error(`Unable to update additionalIdentifier: ${meterId}`)
+
+    } catch (error) {
+      if (!isPortfolioManagerApiError(error)) {
+        throw error
+      }
+      if (error.response.status == 404) {
+        // meter not found, throw a more meaningful error.
+        throw new Error(`Meter not found: ${meterId}`)
+      }
+      throw error
+    }
+
   }
 
   async getMeterAdditionalIdentifiers(meterId: number): Promise<IAdditionalIdentifier[]> {
