@@ -24,7 +24,7 @@ export interface IAdditionIdentifierType {
 //   '@_id': '2391167'
 // }
 export interface IAdditionalIdentifier {
-    '@_id': string;
+    '@_id'?: string;
     additionalIdentifierType: IAdditionIdentifierType;
     description: string;
     value: string;

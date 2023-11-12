@@ -19,10 +19,14 @@ import { RequestInit, BodyInit, Response } from "node-fetch";
 import {
   IAccountAccountGetResponse,
   IAccountAccountPostResponse,
+  IAdditionalIdentifier,
   ICreateSamplePropertiesPostResponse,
   IMeterConsumptionDataGetResponse,
   IMeterConsumptionDataPutResponse,
+  IMeterIdentifierGetResponse,
   IMeterIdentifierListGetResponse,
+  IMeterIdentifierPostResponse,
+  IMeterIdentifierPutResponse,
   IMeterMeterGetResponse,
   IMeterMeterListGetResponse,
   IMeterMeterPostResponse,
@@ -47,7 +51,9 @@ export class PortfolioManagerApiError extends Error {
   }
 }
 
-export function isPortfolioManagerApiError(obj: any): obj is PortfolioManagerApiError {
+export function isPortfolioManagerApiError(
+  obj: any
+): obj is PortfolioManagerApiError {
   return obj instanceof PortfolioManagerApiError;
 }
 
@@ -128,13 +134,13 @@ export class PortfolioManagerApi {
     const response = await fetch(url, init);
     // raise exception on 400-599 status codes
     if (response.status >= 400 && response.status < 600) {
+      console.log("response", response.status, response.statusText, (await response.text()), options, path);
       throw new PortfolioManagerApiError(response);
     }
 
     const xmlResp = await response.text();
     const parser = new XMLParser(this.xmlParserOptions);
     const parsed = parser.parse(xmlResp) as RESP;
-
 
     // console.log("response", {response, xmlResp, parsed});
     return parsed;
@@ -231,6 +237,38 @@ export class PortfolioManagerApi {
       `consumptionData/${consumptionDataId}`,
       meterConsumption
     );
+  }
+
+  // https://portfoliomanager.energystar.gov/webservices/home/api/meter/identifier/get
+  async meterIdentifierGet(meterId: number, identifierId: number) {
+    return this.get<IMeterIdentifierGetResponse>(
+      `meter/${meterId}/identifier/${identifierId}`
+    );
+  }
+
+  // https://portfoliomanager.energystar.gov/webservices/home/api/meter/identifier/post
+  async meterIdentifierPost(
+    meterId: number,
+    identifier: IAdditionalIdentifier
+  ) {
+    return this.post<{ additionalIdentifier: IAdditionalIdentifier }, IMeterIdentifierPostResponse>(
+      `meter/${meterId}/identifier`,
+      { additionalIdentifier: identifier }
+    );
+  }
+
+  // https://portfoliomanager.energystar.gov/webservices/home/api/meter/identifier/put
+  async meterIdentifierPut(
+    meterId: number,
+    identifierId: number,
+    identifier: IAdditionalIdentifier
+  ) {
+    return this.put<
+      { additionalIdentifier: IAdditionalIdentifier },
+      IMeterIdentifierPutResponse
+    >(`meter/${meterId}/identifier/${identifierId}`, {
+      additionalIdentifier: identifier,
+    });
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/test/api/meter/identifierList/get
