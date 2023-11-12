@@ -1,6 +1,6 @@
 {
   "name": "portfolio-manager",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Unofficial CLI Tool and SDK for Energy Star Portfolio Manager",
   "engines": {
     "node": ">=12"
