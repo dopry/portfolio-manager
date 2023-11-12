@@ -7,6 +7,7 @@ import {
   IClientMeterPropertyAssociation,
   IClientMetric,
   IClientProperty,
+  ICreateSamplePropertiesPostResponse,
   ILink,
   IMeter,
   IMeterConsumption,
@@ -36,6 +37,22 @@ import {
 export class PortfolioManager {
   protected _accountPromise: Promise<IAccount> | undefined;
   constructor(protected api: PortfolioManagerApi) {}
+
+  async createSampleProperties(
+    countryCode: "US" | "CA",
+    createCount: number
+  ): Promise<ICreateSamplePropertiesPostResponse> {
+    const response = await this.api.propertyCreateSamplePropertiesPOST(
+      countryCode,
+      createCount
+    );
+    if (response.response["@_status"] != "Ok") {
+      throw new Error(
+        "Request Error, response: " + JSON.stringify(response, null, 2)
+      );
+    }
+    return response;
+  }
 
   async getAccount(): Promise<IAccount> {
     const _getAccount = async (): Promise<IAccount> => {
