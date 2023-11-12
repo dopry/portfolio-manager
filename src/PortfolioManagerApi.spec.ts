@@ -347,6 +347,101 @@ describe("EpaPortfolioManagerClient", () => {
   it.skip("can create a meter consumption record", async () => {});
   it.skip("can create a meter delivery record", async () => {});
 
+  it("can create manage custom meter identifiers", async () => {
+    const { account } = await client.accountAccountGet();
+    const getPropertyListResponse = await client.propertyPropertyListGet(
+      account.id || 0
+    );
+    const listResponse = getPropertyListResponse.response;
+    const propertyLink = listResponse.links.link as ILink[];
+
+    let propertyIdStr = propertyLink[0]["@_id"] || null;
+    if (!propertyIdStr) {
+      throw new Error("Expected IResponseMultiple or IResponse");
+    }
+
+    const propertyId = parseInt(propertyIdStr);
+
+    const meter: IMeter = {
+      name: "Test Meter",
+      unitOfMeasure: "kWh (thousand Watt-hours)",
+      type: "Electric",
+      firstBillDate: new Date(2019, 0, 1),
+      inUse: true,
+    };
+    const postMeterResponse = await client.meterMeterPost(propertyId, meter);
+    const meterId = postMeterResponse.response.id;
+    if (!meterId) {
+      throw new Error("Expected meterId");
+    }
+
+    const additionalIdentifier = {
+      additionalIdentifierType: {
+        "@_id": "1",
+        "@_standardApproved": "false",
+        "@_name": "Custom ID 1",
+        "@_description": "Custom ID 1",
+      },
+      description: "RossEnergy",
+      value:
+        "?spacetype={spacetype}&fuelsource={fuelsource}&baseload={baseload}&heating={heating}&cooling={cooling}",
+    };
+    const postMeterIdentifierResponse = await client.meterIdentifierPost(
+      meterId,
+      additionalIdentifier
+    );
+    expect(postMeterIdentifierResponse.response["@_status"]).to.equal("Ok");
+    if (!isIPopoulatedResponse(postMeterIdentifierResponse.response)) {
+      throw new Error("Expected isIPopoulatedResponse");
+    }
+    expect(postMeterIdentifierResponse.response.id).to.be.a("number");
+    expect(postMeterIdentifierResponse.response.links).to.be.an("object");
+    expect(postMeterIdentifierResponse.response.links.link).to.be.an("array");
+    // expect(postMeterResponse.response).to.equal({});
+
+    const getPropertyMeterIdentifierListResponse =
+      await client.meterIdentifierListGet(meterId);
+    const meterIdentifierLink =
+      getPropertyMeterIdentifierListResponse.additionalIdentifiers
+        .additionalIdentifier;
+    expect(meterIdentifierLink[0]["@_id"]).to.equal(
+      postMeterIdentifierResponse.response.id.toString()
+    );
+
+    const meterIdentifierGetResponse = await client.meterIdentifierGet(
+      propertyId,
+      postMeterIdentifierResponse.response.id
+    );
+    const gotIdentifier = meterIdentifierGetResponse.additionalIdentifier;
+    expect(gotIdentifier).to.be.an("object");
+    expect(gotIdentifier.additionalIdentifierType).to.be.an("object");
+    expect(gotIdentifier.additionalIdentifierType["@_id"]).to.equal("1");
+    expect(
+      gotIdentifier.additionalIdentifierType["@_standardApproved"]
+    ).to.equal("false");
+    expect(gotIdentifier.additionalIdentifierType["@_name"]).to.equal(
+      "Custom ID 1"
+    );
+    expect(gotIdentifier.additionalIdentifierType["@_description"]).to.equal(
+      "Custom ID 1"
+    );
+    expect(gotIdentifier.description).to.equal("RossEnergy");
+
+    gotIdentifier.value = "New Value";
+    const putId = parseInt(gotIdentifier["@_id"] || '')
+    if (!putId) {
+      throw new Error("Expected putId");
+    }
+    const putMeterIdentifierResponse = await client.meterIdentifierPut(
+      meterId, putId, gotIdentifier
+    );
+
+    const get2Response = await client.meterIdentifierGet(meterId, putId);
+    const got2Identifier = get2Response.additionalIdentifier;
+    expect(got2Identifier).to.be.an("object");
+    expect(got2Identifier.value).to.eq("New Value");
+  }).timeout(10000);
+
   it("can query property design metrics", async () => {
     const { account } = await client.accountAccountGet();
     const getPropertyListResponse = await client.propertyPropertyListGet(
