@@ -126,6 +126,7 @@ export type PrimaryFunction =
   | "Zoo";
 
 export interface IProperty {
+  id: number; // The ID to the property.  This is ignored if specified in a XML request.  This is provided by Portfolio Manager only in a XML response.
   name: string; // The name of the property. 1-80 characters
   constructionStatus: ConstructionStatus; // The construction status (either existing, design or test project).
   primaryFunction: PrimaryFunction; // The primary function of the building.

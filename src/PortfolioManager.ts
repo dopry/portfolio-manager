@@ -1,4 +1,7 @@
-import { PortfolioManagerApi, isPortfolioManagerApiError } from "./PortfolioManagerApi";
+import {
+  PortfolioManagerApi,
+  isPortfolioManagerApiError,
+} from "./PortfolioManagerApi";
 import {
   IAccount,
   IAdditionalIdentifier,
@@ -12,14 +15,18 @@ import {
   IMeterConsumption,
   IMeterData,
   IMeterDelivery,
-  IResponse,
+  IProperty,
   isIDeliveryMeterData,
   isIEmptyResponse,
   isIMeteredMeterData,
-  isIPopoulatedResponse,
+  isIPopulatedResponse,
   isIPropertyMonthlyMetric,
 } from "./types";
 
+
+async function sleep(seconds: number) {
+  return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+}
 /**
  * A developer friendly Facade for interacting with Energy Star Portfolio Manager.
  *
@@ -35,23 +42,33 @@ import {
  */
 export class PortfolioManager {
   protected _accountPromise: Promise<IAccount> | undefined;
-  constructor(protected api: PortfolioManagerApi) {}
 
-  async getAccount(): Promise<IAccount> {
-    const _getAccount = async (): Promise<IAccount> => {
-      const response = await this.api.accountAccountGet();
-      if (response.account) return response.account;
-      else {
-        this._accountPromise = undefined;
-        throw new Error(
-          `No account found:\n ${JSON.stringify(response, null, 2)}`
-        );
-      }
-    };
-    if (!this._accountPromise) {
-      this._accountPromise = _getAccount();
+  constructor(protected api: PortfolioManagerApi) { }
+
+  protected async _getAccount(): Promise<IAccount> {
+    const response = await this.api.accountAccountGet();
+    if (response.account) {
+      return response.account;
+    }
+    throw new Error(`No account found:\n ${JSON.stringify(response, null, 2)}`);
+  }
+
+  async getAccount(cached = true): Promise<IAccount> {
+    if (!this._accountPromise || !cached) {
+        const promise = this._getAccount();
+        promise.catch((e) => {
+          this._accountPromise = undefined;
+          throw e;
+        });
+        this._accountPromise = promise;
     }
     return this._accountPromise;
+  }
+
+  async createAccount(account: Omit<IAccount, "id">): Promise<IAccount> {
+    // account not found, create it.
+    const response = await this.api.accountAccountPost(account);
+    return await this.getAccount(false);
   }
 
   async getAccountId(): Promise<number> {
@@ -78,76 +95,136 @@ export class PortfolioManager {
     additionalIdentifierId: number
   ): Promise<IAdditionalIdentifier> {
     try {
-      const response = await this.api.meterIdentifierGet(meterId, additionalIdentifierId);
-      return response.additionalIdentifier
+      const response = await this.api.meterIdentifierGet(
+        meterId,
+        additionalIdentifierId
+      );
+      return response.additionalIdentifier;
     } catch (error) {
       if (!isPortfolioManagerApiError(error)) {
-        throw error
+        throw error;
       }
       if (error.response.status == 404) {
         // meter not found, throw a more meaningful error.
-        throw new Error(`Meter or additionalIdentifier not found: ${meterId}`)
+        throw new Error(`Meter or additionalIdentifier not found: ${meterId}`);
       }
-      throw error
+      throw error;
     }
   }
 
-  async createMeterAdditionalIdentifier(meterId: number, additionalIdentifier: IAdditionalIdentifier): Promise<ILink[]> {
+  async postMeterAdditionalIdentifier(
+    meterId: number,
+    additionalIdentifier: Omit<IAdditionalIdentifier, "@_id">
+  ): Promise<ILink[]> {
     try {
-      const response = await this.api.meterIdentifierPost(meterId, additionalIdentifier);
-      if (isIPopoulatedResponse(response.response)) {
-        return response.response.links.link
+      const response = await this.api.meterIdentifierPost(
+        meterId,
+        additionalIdentifier
+      );
+      if (isIPopulatedResponse(response.response)) {
+        return response.response.links.link;
       }
-      throw new Error(`Unable to create additionalIdentifier: ${meterId}`)
-
+      throw new Error(`Unable to create additionalIdentifier: ${meterId}`);
     } catch (error) {
       if (!isPortfolioManagerApiError(error)) {
-        throw error
+        throw error;
       }
       if (error.response.status == 404) {
         // meter not found, throw a more meaningful error.
-        throw new Error(`Meter not found: ${meterId}`)
+        throw new Error(`Meter not found: ${meterId}`);
       }
-      throw error
+      throw error;
     }
   }
 
-  async updateMeterAdditionalIdentifier(meterId: number, identifierId: number, additionalIdentifier: IAdditionalIdentifier): Promise<ILink[]> {
+  async putMeterAdditionalIdentifier(
+    meterId: number,
+    identifierId: number,
+    additionalIdentifier: IAdditionalIdentifier
+  ): Promise<ILink[]> {
     try {
-      const response = await this.api.meterIdentifierPut(meterId, identifierId, additionalIdentifier);
-      if (isIPopoulatedResponse(response.response)) {
-        return response.response.links.link
+      const response = await this.api.meterIdentifierPut(
+        meterId,
+        identifierId,
+        additionalIdentifier
+      );
+      if (isIPopulatedResponse(response.response)) {
+        return response.response.links.link;
       }
-      throw new Error(`Unable to update additionalIdentifier: ${meterId}`)
-
+      throw new Error(`Unable to update additionalIdentifier: ${meterId}`);
     } catch (error) {
       if (!isPortfolioManagerApiError(error)) {
-        throw error
+        throw error;
       }
       if (error.response.status == 404) {
         // meter not found, throw a more meaningful error.
-        throw new Error(`Meter not found: ${meterId}`)
+        throw new Error(`Meter not found: ${meterId}`);
       }
-      throw error
+      throw error;
     }
-
   }
 
-  async getMeterAdditionalIdentifiers(meterId: number): Promise<IAdditionalIdentifier[]> {
+  async getMeterAdditionalIdentifiers(
+    meterId: number
+  ): Promise<IAdditionalIdentifier[]> {
     try {
       const response = await this.api.meterIdentifierListGet(meterId);
-      return response.additionalIdentifiers.additionalIdentifier || []
-    }
-    catch (error) {
+      return response.additionalIdentifiers.additionalIdentifier || [];
+    } catch (error) {
       if (!isPortfolioManagerApiError(error)) {
-        throw error
+        throw error;
       }
       if (error.response.status == 404) {
         // meter not found, throw a more meaningful error.
-        throw new Error(`Meter not found: ${meterId}`)
+        throw new Error(`Meter not found: ${meterId}`);
       }
-      throw error
+      throw error;
     }
+  }
+
+  async upsertMeterAdditionalIdentifier(
+    meterId: number,
+    name: string,
+    value: string
+  ): Promise<IAdditionalIdentifier[]> {
+    const identifiers = await this.getMeterAdditionalIdentifiers(meterId);
+    const identifier = identifiers.find(
+      (identifier) => identifier.description == name
+    );
+    // upsert the identifier if it exists.
+    if (identifier) {
+      const id = parseInt(identifier["@_id"]);
+      // update the identifier
+      await this.putMeterAdditionalIdentifier(meterId, id, {
+        ...identifier,
+        value,
+      });
+    } else {
+      // insert
+      // 1. find the next available custom id slot
+      const availableIdentifierTypes = ["1", "2", "3"].filter(
+        (id) =>
+          !identifiers.find(
+            (identifier) => identifier.additionalIdentifierType["@_id"] == id
+          )
+      );
+      if (availableIdentifierTypes.length == 0) {
+        throw new Error(`No available Custom ID slots for meter: ${meterId}`);
+      }
+      const typeId = availableIdentifierTypes[0];
+      // 2. create the new identifier
+      await this.postMeterAdditionalIdentifier(meterId, {
+        additionalIdentifierType: {
+          "@_id": typeId,
+          "@_standardApproved": "false",
+          "@_name": "Custom ID " + typeId,
+          "@_description": "Custom ID " + typeId,
+        },
+        description: name,
+        value,
+      });
+    }
+    return this.getMeterAdditionalIdentifiers(meterId);
   }
 
   async getMeterConsumption(
@@ -236,11 +313,19 @@ export class PortfolioManager {
       // appear as [ function ] even though respone.links was ''.
       return [];
     }
-    if (isIPopoulatedResponse(response.response)) {
+    if (isIPopulatedResponse(response.response)) {
       return response.response.links.link;
     }
     // just some defensive coding in csae the response is not empty or populated
     return [];
+  }
+
+  async createMeter(propertyId: number, meter: Omit<IMeter, "id">) {
+    const response = await this.api.meterMeterPost(propertyId, meter);
+    if (isIPopulatedResponse(response.response)) {
+      return this.getMeter(response.response.id);
+    }
+    throw new Error("Failed to create meter: " + JSON.stringify(response));
   }
 
   async getMeters(propertyId: number): Promise<IMeter[]> {
@@ -335,6 +420,16 @@ export class PortfolioManager {
     return associations;
   }
 
+  async createProperty(property: Omit<IProperty, "id">): Promise<IProperty> {
+    const account = await this.getAccount();
+    const response = await this.api.propertyPropertyPost(property, account.id);
+    if (isIPopulatedResponse(response.response)) {
+      const propertyId = response.response.id;
+      return await this.getProperty(propertyId);
+    } else {
+      throw new Error("Failed to create property: " + JSON.stringify(response));
+    }
+  }
   async getProperty(propertyId: number): Promise<IClientProperty> {
     const response = await this.api.propertyPropertyGet(propertyId);
     if (response.property) {
@@ -354,10 +449,10 @@ export class PortfolioManager {
 
     // need to check reponses.links exists since it sometimes returns a string that has a link property that i a function
     // and not a link object
-    if (!isIPopoulatedResponse(response.response)) {
-      console.log("getPropertyLinks not found", {
-        links: response.response.links.link,
-      });
+    if (!isIPopulatedResponse(response.response)) {
+      // console.log("getPropertyLinks not found", {
+      //   links: response.response.links.link,
+      // });
       throw new Error(
         `No properties found:\n ${JSON.stringify(response, null, 2)}`
       );

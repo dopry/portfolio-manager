@@ -17,10 +17,10 @@ export type Warnings = IError[];
 export type Status = "Ok" | "Error";
 
 export function isIResponse(obj: any): obj is IResponse {
-  return isIEmptyResponse(obj) || isIPopoulatedResponse(obj);
+  return isIEmptyResponse(obj) || isIPopulatedResponse(obj);
 }
 
-export function isIPopoulatedResponse(obj: any): obj is IPopoulatedResponse {
+export function isIPopulatedResponse(obj: any): obj is IPopoulatedResponse {
   return (
     obj &&
     obj.hasOwnProperty("links") &&
