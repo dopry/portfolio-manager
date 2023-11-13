@@ -6,6 +6,8 @@ import {
 } from "fast-xml-parser";
 import {
   IAccount,
+  IAddress,
+  IContact,
   IMeter,
   IMeterConsumption,
   IMeterData,
@@ -27,6 +29,7 @@ import {
   IMeterIdentifierListGetResponse,
   IMeterIdentifierPostResponse,
   IMeterIdentifierPutResponse,
+  IMeterIdentifierTypesListGetResponse,
   IMeterMeterGetResponse,
   IMeterMeterListGetResponse,
   IMeterMeterPostResponse,
@@ -134,7 +137,14 @@ export class PortfolioManagerApi {
     const response = await fetch(url, init);
     // raise exception on 400-599 status codes
     if (response.status >= 400 && response.status < 600) {
-      console.log("response", response.status, response.statusText, (await response.text()), options, path);
+      // console.log(
+      //   "response",
+      //   response.status,
+      //   response.statusText,
+      //   await response.text(),
+      //   options,
+      //   path
+      // );
       throw new PortfolioManagerApiError(response);
     }
 
@@ -171,18 +181,19 @@ export class PortfolioManagerApi {
   // https://portfoliomanager.energystar.gov/webservices/home/test/api/account/account/get
   async accountAccountGet(): Promise<IAccountAccountGetResponse> {
     return this.get<IAccountAccountGetResponse>("account");
+
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/test/api/account/account/post
   async accountAccountPost(
-    account: IAccount
+    account: Omit<IAccount, "id">
   ): Promise<IAccountAccountPostResponse> {
-    return this.post<{ account: IAccount }, IAccountAccountPostResponse>(
-      "account",
-      {
-        account,
-      }
-    );
+    return this.post<
+      { account: Omit<IAccount, "id"> },
+      IAccountAccountPostResponse
+    >("account", {
+      account,
+    });
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/test/api/meter/meter/get
@@ -199,13 +210,13 @@ export class PortfolioManagerApi {
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/property/property/post
   async propertyPropertyPost(
-    property: IProperty,
+    property: Omit<IProperty, "id">,
     accountId: number
   ): Promise<IPropertyPropertyPostResponse> {
-    return this.post<{ property: IProperty }, IPropertyPropertyPostResponse>(
-      `account/${accountId}/property`,
-      { property }
-    );
+    return this.post<
+      { property: Omit<IProperty, "id"> },
+      IPropertyPropertyPostResponse
+    >(`account/${accountId}/property`, { property });
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/property/propertyList/get
@@ -249,12 +260,12 @@ export class PortfolioManagerApi {
   // https://portfoliomanager.energystar.gov/webservices/home/api/meter/identifier/post
   async meterIdentifierPost(
     meterId: number,
-    identifier: IAdditionalIdentifier
+    identifier: Omit<IAdditionalIdentifier, "@_id">
   ) {
-    return this.post<{ additionalIdentifier: IAdditionalIdentifier }, IMeterIdentifierPostResponse>(
-      `meter/${meterId}/identifier`,
-      { additionalIdentifier: identifier }
-    );
+    return this.post<
+      { additionalIdentifier: Omit<IAdditionalIdentifier, "@_id"> },
+      IMeterIdentifierPostResponse
+    >(`meter/${meterId}/identifier`, { additionalIdentifier: identifier });
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/meter/identifier/put
@@ -277,6 +288,12 @@ export class PortfolioManagerApi {
   ): Promise<IMeterIdentifierListGetResponse> {
     return this.get<IMeterIdentifierListGetResponse>(
       `meter/${meterId}/identifier/list`
+    );
+  }
+
+  async meterIdentifierTypesListGet(): Promise<IMeterIdentifierTypesListGetResponse> {
+    return this.get<IMeterIdentifierTypesListGetResponse>(
+      `meter/identifier/list`
     );
   }
 

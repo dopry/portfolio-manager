@@ -12,6 +12,10 @@ export interface IAdditionIdentifierType {
     '@_description': string;
 }
 
+export interface IAdditionalIdentifierTypes {
+    additionalIdentifierType: IAdditionIdentifierType[];
+}
+
 // {
 //   additionalIdentifierType: {
 //     '@_id': '1',
@@ -24,7 +28,7 @@ export interface IAdditionIdentifierType {
 //   '@_id': '2391167'
 // }
 export interface IAdditionalIdentifier {
-    '@_id'?: string;
+    '@_id': string;
     additionalIdentifierType: IAdditionIdentifierType;
     description: string;
     value: string;

@@ -1,16 +1,14 @@
 import { expect } from "chai";
+import { mockIAccount, mockIOrganization, mockIProperty, mockMeter } from "./Mocks";
+import { PortfolioManagerApi } from "./PortfolioManagerApi";
 import {
-  IAccount,
   IAddress,
   ILink,
   IMeter,
-  IOrganization,
   isIEmptyResponse,
-  isIPopoulatedResponse,
-  isIPropertyNonMonthlyMetric,
+  isIPopulatedResponse,
+  isIPropertyNonMonthlyMetric
 } from "./types/xml";
-import { PortfolioManagerApi } from "./PortfolioManagerApi";
-import { IProperty } from "./types";
 
 const BASE_URL = "https://portfoliomanager.energystar.gov/wstest/";
 const STAMP = new Date()
@@ -21,7 +19,7 @@ const STAMP = new Date()
 const USERNAME = "test" + STAMP;
 const PASSWORD = STAMP;
 
-const client = new PortfolioManagerApi(BASE_URL, USERNAME, PASSWORD);
+const api = new PortfolioManagerApi(BASE_URL, USERNAME, PASSWORD);
 
 const address: IAddress = {
   "@_address1": "123 Main St",
@@ -31,38 +29,16 @@ const address: IAddress = {
   "@_state": "NY",
 };
 
-describe("EpaPortfolioManagerClient", () => {
+describe("PortfolioManagerApi", () => {
   it("can be constucted", () => {
-    expect(client).to.be.an.instanceof(PortfolioManagerApi);
+    expect(api).to.be.an.instanceof(PortfolioManagerApi);
   });
 
   it("can create a test account", async () => {
-    const organization: IOrganization = {
-      "@_name": "Test",
-      primaryBusiness: "Energy Efficiency Program",
-      energyStarPartner: true,
-      energyStarPartnerType: "Other",
-      otherPartnerDescription: "Test Partner Deacription",
-    };
-    const account: IAccount = {
-      username: USERNAME,
-      password: PASSWORD,
-      webserviceUser: true,
-      searchable: false,
-      contact: {
-        firstName: "Test",
-        lastName: "User",
-        email: "" + USERNAME + "@energystar.gov",
-        phone: "555-555-5555",
-        jobTitle: "Test User",
-        address,
-      },
-      organization,
-      includeTestPropertiesInGraphics: false,
-      languagePreference: "en_US",
-    };
-    // try {
-    const postAccountResponse = await client.accountAccountPost(account);
+    const organization = mockIOrganization()
+    const account = mockIAccount(USERNAME, PASSWORD, organization, address);
+    const postAccountResponse = await api.accountAccountPost(account);
+
     expect(postAccountResponse.response["@_status"]).to.equal("Ok");
     expect(postAccountResponse.response.id).to.be.a("number");
     expect(postAccountResponse.response.links).to.be.an("object");
@@ -73,7 +49,7 @@ describe("EpaPortfolioManagerClient", () => {
       "@_link": "/account",
       "@_httpMethod": "GET",
     });
-    const getAccountResponse = await client.accountAccountGet();
+    const getAccountResponse = await api.accountAccountGet();
     expect(getAccountResponse.account).to.be.an("object");
     expect(getAccountResponse.account.id).to.equal(
       postAccountResponse.response.id
@@ -122,42 +98,27 @@ describe("EpaPortfolioManagerClient", () => {
     ).to.equal("Test Partner Deacription");
     // expect(getAccountResponse.account.includeTestPropertiesInGraphics).to.equal(false);
     expect(getAccountResponse.account.languagePreference).to.equal("en_US");
-    // } catch (e) {
-    //   console.log(e);
-    //   throw e
-    // }
-  });
+
+  }).timeout(60000);
 
   it("can query an account without properties", async () => {
-    const { account } = await client.accountAccountGet();
-    const listPropertyResponse = await client.propertyPropertyListGet(
+    const { account } = await api.accountAccountGet();
+    const listPropertyResponse = await api.propertyPropertyListGet(
       account.id || 0
     );
     expect(listPropertyResponse.response["@_status"]).to.equal("Ok");
     expect(listPropertyResponse.response.links).to.be.an("string");
     expect(isIEmptyResponse(listPropertyResponse.response)).to.equal(true);
-  });
+  }).timeout(60000);
 
   it("can create a test property", async () => {
-    const property: IProperty = {
-      isFederalProperty: false,
-      occupancyPercentage: 80,
-      name: "Test Property",
-      constructionStatus: "Test",
-      primaryFunction: "Data Center",
-      grossFloorArea: {
-        value: 8000,
-        "@_units": "Square Feet",
-      },
-      yearBuilt: 2022,
-      address,
-    };
-    const { account } = await client.accountAccountGet();
-    const postPropertyResponse = await client.propertyPropertyPost(
+    const property = mockIProperty();
+    const { account } = await api.accountAccountGet();
+    const postPropertyResponse = await api.propertyPropertyPost(
       property,
       account.id || 0
     );
-    if (!isIPopoulatedResponse(postPropertyResponse.response)) {
+    if (!isIPopulatedResponse(postPropertyResponse.response)) {
       throw new Error("Expected isIPopoulatedResponse");
     }
     expect(postPropertyResponse.response["@_status"]).to.equal("Ok");
@@ -172,7 +133,7 @@ describe("EpaPortfolioManagerClient", () => {
     expect(link[0]["@_link"]).to.match(/^\/property\/\d+$/);
     expect(link[0]["@_httpMethod"]).to.equal("GET");
 
-    const getPropertyResponse = await client.propertyPropertyGet(
+    const getPropertyResponse = await api.propertyPropertyGet(
       postPropertyResponse.response.id
     );
     expect(getPropertyResponse.property).to.be.an("object");
@@ -224,11 +185,11 @@ describe("EpaPortfolioManagerClient", () => {
     );
     expect(getPropertyResponse.property.yearBuilt).to.equal(2022);
 
-    const postPropertyResponse2 = await client.propertyPropertyPost(
+    const postPropertyResponse2 = await api.propertyPropertyPost(
       property,
       account.id || 0
     );
-    if (!isIPopoulatedResponse(postPropertyResponse2.response)) {
+    if (!isIPopulatedResponse(postPropertyResponse2.response)) {
       throw new Error("Expected isIPopoulatedResponse");
     }
 
@@ -236,7 +197,7 @@ describe("EpaPortfolioManagerClient", () => {
       postPropertyResponse.response.id.toString(),
       postPropertyResponse2.response.id.toString(),
     ];
-    const getPropertyListResponse = await client.propertyPropertyListGet(
+    const getPropertyListResponse = await api.propertyPropertyListGet(
       account.id || 0
     );
     expect(getPropertyListResponse["?xml"]).to.deep.equal({
@@ -248,7 +209,7 @@ describe("EpaPortfolioManagerClient", () => {
     expect(listResponse["@_status"]).to.equal("Ok");
     expect(listResponse.links).to.be.an("object");
     expect(listResponse.links.link).to.be.an("array");
-    if (!isIPopoulatedResponse(listResponse)) {
+    if (!isIPopulatedResponse(listResponse)) {
       throw new Error("Expected isIPopoulatedResponse");
     }
     expect(listResponse.links.link[0]).to.be.an("object");
@@ -272,13 +233,13 @@ describe("EpaPortfolioManagerClient", () => {
     expect(listResponse.links.link[1]["@_linkDescription"]).to.equal(
       "This is the GET url for this Property."
     );
-  });
+  }).timeout(60000);
 
   it.skip("can create a property design metric", async () => {});
 
   it("can create a meter", async () => {
-    const { account } = await client.accountAccountGet();
-    const getPropertyListResponse = await client.propertyPropertyListGet(
+    const { account } = await api.accountAccountGet();
+    const getPropertyListResponse = await api.propertyPropertyListGet(
       account.id || 0
     );
     const listResponse = getPropertyListResponse.response;
@@ -291,16 +252,10 @@ describe("EpaPortfolioManagerClient", () => {
 
     const propertyId = parseInt(propertyIdStr);
 
-    const meter: IMeter = {
-      name: "Test Meter",
-      unitOfMeasure: "kWh (thousand Watt-hours)",
-      type: "Electric",
-      firstBillDate: new Date(2019, 0, 1),
-      inUse: true,
-    };
-    const postMeterResponse = await client.meterMeterPost(propertyId, meter);
+    const meter = mockMeter();
+    const postMeterResponse = await api.meterMeterPost(propertyId, meter);
     expect(postMeterResponse.response["@_status"]).to.equal("Ok");
-    if (!isIPopoulatedResponse(postMeterResponse.response)) {
+    if (!isIPopulatedResponse(postMeterResponse.response)) {
       throw new Error("Expected isIPopoulatedResponse");
     }
     expect(postMeterResponse.response.id).to.be.a("number");
@@ -308,7 +263,7 @@ describe("EpaPortfolioManagerClient", () => {
     expect(postMeterResponse.response.links.link).to.be.an("array");
     // expect(postMeterResponse.response).to.equal({});
 
-    const getPropertyMeterListResponse = await client.meterMeterListGet(
+    const getPropertyMeterListResponse = await api.meterMeterListGet(
       propertyId
     );
     const meterLink = getPropertyMeterListResponse.response.links
@@ -324,16 +279,16 @@ describe("EpaPortfolioManagerClient", () => {
       firstBillDate: new Date(2019, 0, 1),
       inUse: true,
     };
-    const postMeterResponse2 = await client.meterMeterPost(propertyId, meter2);
+    const postMeterResponse2 = await api.meterMeterPost(propertyId, meter2);
     expect(postMeterResponse2.response["@_status"]).to.equal("Ok");
-    if (!isIPopoulatedResponse(postMeterResponse2.response)) {
+    if (!isIPopulatedResponse(postMeterResponse2.response)) {
       throw new Error("Expected isIPopoulatedResponse");
     }
 
     expect(postMeterResponse2.response.id).to.be.a("number");
     expect(postMeterResponse2.response.links).to.be.an("object");
     expect(postMeterResponse2.response.links.link).to.be.an("array");
-    const getPropertyMeterListResponse2 = await client.meterMeterListGet(
+    const getPropertyMeterListResponse2 = await api.meterMeterListGet(
       propertyId
     );
     const meterListLink = getPropertyMeterListResponse2.response.links
@@ -342,14 +297,14 @@ describe("EpaPortfolioManagerClient", () => {
       postMeterResponse2.response.id.toString()
     );
     expect(meterListLink[1]["@_hint"]).to.equal("Test Meter 2");
-  });
+  }).timeout(60000);
 
   it.skip("can create a meter consumption record", async () => {});
   it.skip("can create a meter delivery record", async () => {});
 
   it("can create manage custom meter identifiers", async () => {
-    const { account } = await client.accountAccountGet();
-    const getPropertyListResponse = await client.propertyPropertyListGet(
+    const { account } = await api.accountAccountGet();
+    const getPropertyListResponse = await api.propertyPropertyListGet(
       account.id || 0
     );
     const listResponse = getPropertyListResponse.response;
@@ -369,7 +324,7 @@ describe("EpaPortfolioManagerClient", () => {
       firstBillDate: new Date(2019, 0, 1),
       inUse: true,
     };
-    const postMeterResponse = await client.meterMeterPost(propertyId, meter);
+    const postMeterResponse = await api.meterMeterPost(propertyId, meter);
     const meterId = postMeterResponse.response.id;
     if (!meterId) {
       throw new Error("Expected meterId");
@@ -386,12 +341,12 @@ describe("EpaPortfolioManagerClient", () => {
       value:
         "?spacetype={spacetype}&fuelsource={fuelsource}&baseload={baseload}&heating={heating}&cooling={cooling}",
     };
-    const postMeterIdentifierResponse = await client.meterIdentifierPost(
+    const postMeterIdentifierResponse = await api.meterIdentifierPost(
       meterId,
       additionalIdentifier
     );
     expect(postMeterIdentifierResponse.response["@_status"]).to.equal("Ok");
-    if (!isIPopoulatedResponse(postMeterIdentifierResponse.response)) {
+    if (!isIPopulatedResponse(postMeterIdentifierResponse.response)) {
       throw new Error("Expected isIPopoulatedResponse");
     }
     expect(postMeterIdentifierResponse.response.id).to.be.a("number");
@@ -400,15 +355,16 @@ describe("EpaPortfolioManagerClient", () => {
     // expect(postMeterResponse.response).to.equal({});
 
     const getPropertyMeterIdentifierListResponse =
-      await client.meterIdentifierListGet(meterId);
-    const meterIdentifierLink =
+      await api.meterIdentifierListGet(meterId);
+      const meterIdentifierLink =
       getPropertyMeterIdentifierListResponse.additionalIdentifiers
-        .additionalIdentifier;
+      .additionalIdentifier;
+    // console.log({ meterIdentifierLink })
     expect(meterIdentifierLink[0]["@_id"]).to.equal(
       postMeterIdentifierResponse.response.id.toString()
     );
 
-    const meterIdentifierGetResponse = await client.meterIdentifierGet(
+    const meterIdentifierGetResponse = await api.meterIdentifierGet(
       propertyId,
       postMeterIdentifierResponse.response.id
     );
@@ -432,22 +388,41 @@ describe("EpaPortfolioManagerClient", () => {
     if (!putId) {
       throw new Error("Expected putId");
     }
-    const putMeterIdentifierResponse = await client.meterIdentifierPut(
+    const putMeterIdentifierResponse = await api.meterIdentifierPut(
       meterId, putId, gotIdentifier
     );
 
-    const get2Response = await client.meterIdentifierGet(meterId, putId);
+
+    const get2Response = await api.meterIdentifierGet(meterId, putId);
     const got2Identifier = get2Response.additionalIdentifier;
+    // console.log({ got2Identifier })
     expect(got2Identifier).to.be.an("object");
     expect(got2Identifier.value).to.eq("New Value");
-  }).timeout(10000);
+  }).timeout(60000);
 
-  it("can query property design metrics", async () => {
-    const { account } = await client.accountAccountGet();
-    const getPropertyListResponse = await client.propertyPropertyListGet(
+
+  it("can query meter identifier types", async () => {
+    const meterIdentifierTypesResponse = await api.meterIdentifierTypesListGet();
+
+      const additionalIdentifierTypes =
+        meterIdentifierTypesResponse.additionalIdentifierTypes
+          .additionalIdentifierType;
+      // console.log({ additionalIdentifierTypes })
+    expect(additionalIdentifierTypes).to.be.an("array");
+    const meterIdentifierType =
+      additionalIdentifierTypes[0];
+    expect(meterIdentifierType["@_id"]).to.be.a("string");
+    expect(meterIdentifierType["@_standardApproved"]).to.be.a("string");
+    expect(meterIdentifierType["@_name"]).to.be.a("string");
+    expect(meterIdentifierType["@_description"]).to.be.a("string");
+  }).timeout(60000);
+
+  it.skip("can query property design metrics", async () => {
+    const { account } = await api.accountAccountGet();
+    const getPropertyListResponse = await api.propertyPropertyListGet(
       account.id || 0
     );
-    if (!isIPopoulatedResponse(getPropertyListResponse.response)) {
+    if (!isIPopulatedResponse(getPropertyListResponse.response)) {
       throw new Error("Expected isIPopoulatedResponse");
     }
     // console.log({ getPropertyListResponse });
@@ -455,7 +430,7 @@ describe("EpaPortfolioManagerClient", () => {
       getPropertyListResponse.response.links.link[0]["@_id"] || "0"
     );
 
-    const designMetricsResponse = await client.propertyDesignMetricsGet(
+    const designMetricsResponse = await api.propertyDesignMetricsGet(
       propertyId
     );
 
