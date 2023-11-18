@@ -1,4 +1,4 @@
-import { AddressCountry } from "../common";
+import { AddressCountry } from "../common/index.js";
 
 // XML: property/federalAgency.xsd: AgencyType
 export interface Agency {

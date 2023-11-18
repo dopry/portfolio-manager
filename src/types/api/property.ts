@@ -1,5 +1,5 @@
-import { IProperty, IResponse, PropertyMetrics } from "../xml";
-import { IParsedXml } from "./IParsedXML";
+import { IProperty, IResponse, PropertyMetrics } from "../xml/index.js";
+import { IParsedXml } from "./IParsedXML.js";
 
 export interface IPropertyPropertyGetResponse extends IParsedXml {
   property: IProperty;

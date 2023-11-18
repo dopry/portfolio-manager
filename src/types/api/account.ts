@@ -1,5 +1,5 @@
-import { IAccount, IResponse } from "../xml";
-import { IParsedXml } from "./IParsedXML";
+import { IAccount, IResponse } from "../xml/index.js";
+import { IParsedXml } from "./IParsedXML.js";
 
 /**
  * @file

@@ -1,4 +1,4 @@
-import { UseAttributeBase } from "../propertyUse";
+import { UseAttributeBase } from "../propertyUse/index.js";
 
 export type GrossFloorAreaUnits = "Square Feet" | "Square Meters";
 

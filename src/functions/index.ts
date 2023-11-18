@@ -1,1 +1,1 @@
-export * from './btoa'
+export * from './btoa.js'

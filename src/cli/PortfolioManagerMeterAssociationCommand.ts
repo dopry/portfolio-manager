@@ -1,6 +1,6 @@
-import { PortfolioManagerBaseCommand } from "./PortfolioManagerBaseCommand";
-import { PortfolioManagerMeterAssociationGetCommand } from "./PortfolioManagerMeterAssociationGetCommand";
-import { PortfolioManagerMeterAssociationListCommand } from "./PortfolioManagerMeterAssociationListCommand";
+import { PortfolioManagerBaseCommand } from "./PortfolioManagerBaseCommand.js";
+import { PortfolioManagerMeterAssociationGetCommand } from "./PortfolioManagerMeterAssociationGetCommand.js";
+import { PortfolioManagerMeterAssociationListCommand } from "./PortfolioManagerMeterAssociationListCommand.js";
 
 export class PortfolioManagerMeterAssociationCommand extends PortfolioManagerBaseCommand {
   _description = "List meters that are included in metrics for a property";

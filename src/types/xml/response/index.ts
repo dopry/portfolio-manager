@@ -1,1 +1,1 @@
-export * from "./IResponse";
+export * from "./IResponse.js";

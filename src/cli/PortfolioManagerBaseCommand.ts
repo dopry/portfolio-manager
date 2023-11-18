@@ -1,7 +1,7 @@
 import { Command, Option } from "commander";
-import { formatExamplesHelpText } from "../functions/formatExamplesHelpText";
-import { PortfolioManager } from "../PortfolioManager";
-import { PortfolioManagerApi } from "../PortfolioManagerApi";
+import { formatExamplesHelpText } from "../functions/formatExamplesHelpText.js";
+import { PortfolioManager } from "../PortfolioManager.js";
+import { PortfolioManagerApi } from "../PortfolioManagerApi.js";
 
 export class PortfolioManagerBaseCommand extends Command {
   protected fields: string[] = [];

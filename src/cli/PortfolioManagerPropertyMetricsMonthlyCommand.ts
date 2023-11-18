@@ -1,5 +1,5 @@
-import { METRICS } from "../types";
-import { PortfolioManagerBaseCommand } from "./PortfolioManagerBaseCommand";
+import { METRICS } from "../types/index.js";
+import { PortfolioManagerBaseCommand } from "./PortfolioManagerBaseCommand.js";
 
 export class PortfolioManagerPropertyMetricsMonthlyCommand extends PortfolioManagerBaseCommand {
   protected _description = "Get monthly metrics for a property";

@@ -1,8 +1,8 @@
-import { PortfolioManagerBaseCommand } from "./PortfolioManagerBaseCommand";
-import { PortfolioManagerMeterAssociationCommand } from "./PortfolioManagerMeterAssociationCommand";
-import { PortfolioManagerMeterConsumptionCommand } from "./PortfolioManagerMeterConsumptionCommand";
-import { PortfolioManagerMeterIdentifiersCommand } from "./PortfolioManagerMeterIdentifiersCommand";
-import { PortfolioManagerMeterListCommand } from "./PortfolioManagerMeterListCommand";
+import { PortfolioManagerBaseCommand } from "./PortfolioManagerBaseCommand.js";
+import { PortfolioManagerMeterAssociationCommand } from "./PortfolioManagerMeterAssociationCommand.js";
+import { PortfolioManagerMeterConsumptionCommand } from "./PortfolioManagerMeterConsumptionCommand.js";
+import { PortfolioManagerMeterIdentifiersCommand } from "./PortfolioManagerMeterIdentifiersCommand.js";
+import { PortfolioManagerMeterListCommand } from "./PortfolioManagerMeterListCommand.js";
 
 export class PortfolioManagerMeterCommand extends PortfolioManagerBaseCommand {
   constructor() {

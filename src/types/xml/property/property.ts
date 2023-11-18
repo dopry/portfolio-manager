@@ -1,12 +1,12 @@
-import { ShareLevel } from "../authorization";
+import { ShareLevel } from "../authorization/index.js";
 import {
   AddressCountry,
   GrossFloorArea,
   IAddress,
   IAudit,
   IrrigationArea,
-} from "../common";
-import { Agency } from "./FederalAgency";
+} from "../common/index.js";
+import { Agency } from "./FederalAgency.js";
 
 // xml: constructionStatusType
 export type ConstructionStatus = "Existing" | "Project" | "Test";

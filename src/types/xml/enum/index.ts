@@ -1,3 +1,3 @@
-export * from "./MeterCategory";
-export * from "./PeriodType";
-export * from "./ReportingEnums";
+export * from "./MeterCategory.js";
+export * from "./PeriodType.js";
+export * from "./ReportingEnums.js";

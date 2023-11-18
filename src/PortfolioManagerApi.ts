@@ -15,7 +15,7 @@ import {
   IProperty,
   IResponse,
   toXmlDateString,
-} from "./types/xml";
+} from "./types/xml/index.js";
 import fetch from "node-fetch";
 import { RequestInit, BodyInit, Response } from "node-fetch";
 import {
@@ -42,8 +42,8 @@ import {
   IPropertyPropertyListGetResponse,
   IPropertyPropertyPostResponse,
   MeasurementSystem,
-} from "./types";
-import { btoa } from "./functions";
+} from "./types/index.js";
+import { btoa } from "./functions/index.js";
 import { isNumber, isString } from "type-guards";
 import { isDate } from "util/types";
 import { deepmerge } from "deepmerge-ts";
