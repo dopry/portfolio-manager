@@ -2,25 +2,34 @@
   "compilerOptions": {
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
+    // base relative imports in src, TODO: implement paths instead
     "baseUrl": "src",
     "declaration": true,
     "esModuleInterop": true,
-    "sourceMap": true,
+    "forceConsistentCasingInFileNames": true,
     "lib": ["esnext"],
     "listEmittedFiles": false,
     "listFiles": false,
+    "module": "ES2020",
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
+    "outDir": "dist",
     "pretty": true,
     "resolveJsonModule": true,
     "rootDir": "src",
     "skipLibCheck": true,
+    "sourceMap": true,
     "strict": true,
+    "target": "ES2015",
     "traceResolution": false,
     "types": [
       "node",
       "mocha"
-    ]
+    ],
+  },
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
   },
   "compileOnSave": false,
   "exclude": ["node_modules", "dist"],
