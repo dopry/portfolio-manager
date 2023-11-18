@@ -1,4 +1,4 @@
-import { PortfolioManager } from "./PortfolioManager";
+import { PortfolioManager } from "./PortfolioManager.js";
 import {
   IAccount,
   IAddress,
@@ -7,7 +7,7 @@ import {
   IProperty,
   MeterUnitsOfMeasure,
   TypeOfMeter,
-} from "./types";
+} from "./types/index.js";
 
 export function mockIAddress(): IAddress {
   return {

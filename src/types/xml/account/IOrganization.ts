@@ -1,5 +1,5 @@
-import { EnergyStarPartnerType } from "./EnergyStarPartnerType";
-import { PrimaryBusiness } from "./PrimaryBusiness";
+import { EnergyStarPartnerType } from "./EnergyStarPartnerType.js";
+import { PrimaryBusiness } from "./PrimaryBusiness.js";
 
 export interface IOrganization {
   primaryBusiness: PrimaryBusiness;

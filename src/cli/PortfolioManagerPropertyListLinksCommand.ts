@@ -1,4 +1,4 @@
-import { PortfolioManagerBaseCommand } from "./PortfolioManagerBaseCommand";
+import { PortfolioManagerBaseCommand } from "./PortfolioManagerBaseCommand.js";
 
 export class PortfolioManagerPropertyListLinksCommand extends PortfolioManagerBaseCommand {
   get examples() {

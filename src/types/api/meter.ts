@@ -3,13 +3,13 @@ import {
   IMeterData,
   IMeterPropertyAssociationList,
   IResponse,
-} from "../xml";
+} from "../xml/index.js";
 import {
   IAdditionalIdentifier,
   IAdditionalIdentifierTypes,
   IAdditionalIdentifiers
-} from "../xml/property/AdditionalIdentifier";
-import { IParsedXml } from "./IParsedXML";
+} from "../xml/property/AdditionalIdentifier.js";
+import { IParsedXml } from "./IParsedXML.js";
 
 export interface IMeterConsumptionDataGetResponse extends IParsedXml {
   meterData: IMeterData;

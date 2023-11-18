@@ -1,6 +1,6 @@
-import { PortfolioManagerBaseCommand } from "./PortfolioManagerBaseCommand";
-import { PortfolioManagerMeterCommand } from "./PortfolioManagerMeterCommand";
-import { PortfolioManagerPropertyCommand } from "./PortfolioManagerPropertyCommand";
+import { PortfolioManagerBaseCommand } from "./PortfolioManagerBaseCommand.js";
+import { PortfolioManagerMeterCommand } from "./PortfolioManagerMeterCommand.js";
+import { PortfolioManagerPropertyCommand } from "./PortfolioManagerPropertyCommand.js";
 
 export class PortfolioManagerCommand extends PortfolioManagerBaseCommand {
   constructor() {

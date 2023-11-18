@@ -1,6 +1,6 @@
 import { expect } from "chai";
-import { mockIAccount, mockIOrganization, mockIProperty, mockMeter } from "./Mocks";
-import { PortfolioManagerApi } from "./PortfolioManagerApi";
+import { mockIAccount, mockIOrganization, mockIProperty, mockMeter } from "./Mocks.js";
+import { PortfolioManagerApi } from "./PortfolioManagerApi.js";
 import {
   IAddress,
   ILink,
@@ -8,7 +8,7 @@ import {
   isIEmptyResponse,
   isIPopulatedResponse,
   isIPropertyNonMonthlyMetric
-} from "./types/xml";
+} from "./types/xml/index.js";
 
 const BASE_URL = "https://portfoliomanager.energystar.gov/wstest/";
 const STAMP = new Date()

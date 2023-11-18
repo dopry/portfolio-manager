@@ -4,10 +4,10 @@ import {
   mockIAddress,
   mockIProperty,
   mockMeter,
-} from "./Mocks";
-import { PortfolioManager } from "./PortfolioManager";
-import { PortfolioManagerApi } from "./PortfolioManagerApi";
-import { IAccount, IMeter, IProperty } from "./types";
+} from "./Mocks.js";
+import { PortfolioManager } from "./PortfolioManager.js";
+import { PortfolioManagerApi } from "./PortfolioManagerApi.js";
+import { IAccount, IMeter, IProperty } from "./types/index.js";
 
 const BASE_URL = "https://portfoliomanager.energystar.gov/wstest/";
 const STAMP = new Date()

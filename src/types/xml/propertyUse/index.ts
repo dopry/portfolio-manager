@@ -1,1 +1,1 @@
-export * from "./characteristicType";
+export * from "./characteristicType.js";

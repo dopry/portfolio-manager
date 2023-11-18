@@ -1,6 +1,6 @@
-import { ILink } from "../common/links";
-import { IMeterConsumption } from "./IMeterConsumption";
-import { IMeterDelivery } from "./IMeterDelivery";
+import { ILink } from "../common/links.js";
+import { IMeterConsumption } from "./IMeterConsumption.js";
+import { IMeterDelivery } from "./IMeterDelivery.js";
 
 export interface IDeliveryMeterData extends Omit<IMeterData, "meterDelivery"> {
   meterDelivery: IMeterDelivery[];

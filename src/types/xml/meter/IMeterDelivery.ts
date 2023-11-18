@@ -1,4 +1,4 @@
-import { IAudit } from "../common/audit";
+import { IAudit } from "../common/audit.js";
 
 export interface IMeterDelivery {
   id: number;

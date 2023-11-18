@@ -1,4 +1,4 @@
-import { PortfolioManagerBaseCommand } from "./PortfolioManagerBaseCommand";
+import { PortfolioManagerBaseCommand } from "./PortfolioManagerBaseCommand.js";
 
 export class PortfolioManagerMeterAssociationListCommand extends PortfolioManagerBaseCommand {
   _description = "List meters that are included in metrics for a property";

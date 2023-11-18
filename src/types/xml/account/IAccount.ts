@@ -1,5 +1,5 @@
-import { IContact } from "./IContact";
-import { IOrganization } from "./IOrganization";
+import { IContact } from "./IContact.js";
+import { IOrganization } from "./IOrganization.js";
 
 export type LanguagePreference = "en_US" | "fr_CA" | "es_US";
 

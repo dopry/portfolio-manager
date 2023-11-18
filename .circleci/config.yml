@@ -11,6 +11,7 @@ jobs:
       - node/install-packages: # Install and automatically cache packages
           override-ci-command: npm install
       - run: npm run build
+      - run: node ./dist/index.js --help # Run the CLI to ensure it works, we had some test releases where this was broken during the esm migration
       - run: npm test
       - run: npx semantic-release
 
@@ -20,4 +21,3 @@ workflows:
     jobs:
       - release:
           context: dopry-npm-packages
-          

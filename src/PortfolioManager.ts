@@ -1,7 +1,7 @@
 import {
   PortfolioManagerApi,
   isPortfolioManagerApiError,
-} from "./PortfolioManagerApi";
+} from "./PortfolioManagerApi.js";
 import {
   IAccount,
   IAdditionalIdentifier,
@@ -21,7 +21,7 @@ import {
   isIMeteredMeterData,
   isIPopulatedResponse,
   isIPropertyMonthlyMetric,
-} from "./types";
+} from "./types/index.js";
 
 
 async function sleep(seconds: number) {

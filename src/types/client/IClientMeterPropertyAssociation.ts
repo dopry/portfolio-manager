@@ -1,4 +1,4 @@
-import { IPropertyRepresentation } from "../xml";
+import { IPropertyRepresentation } from "../xml/index.js";
 
 export interface IClientMeterAssociation {
   meters: number[];

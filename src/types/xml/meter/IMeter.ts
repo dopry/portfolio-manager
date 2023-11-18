@@ -1,5 +1,5 @@
-import { IAudit } from "../common/audit";
-import { ShareLevel } from "../authorization/ShareLevel";
+import { IAudit } from "../common/audit.js";
+import { ShareLevel } from "../authorization/ShareLevel.js";
 
 export type MeterUnitsOfMeasure =
   | "ccf (hundred cubic feet)"

@@ -1,4 +1,4 @@
-import { PeriodType } from "../enum";
+import { PeriodType } from "../enum/index.js";
 
 export type DataType = "date" | "numeric" | "string";
 
