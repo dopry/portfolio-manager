@@ -2,19 +2,19 @@ import { PortfolioManagerApiError } from "../PortfolioManagerApi.js";
 import { METRICS } from "../types/index.js";
 import { PortfolioManagerBaseCommand } from "./PortfolioManagerBaseCommand.js";
 
-export class PortfolioManagerPropertyMetricsMonthlyCommand extends PortfolioManagerBaseCommand {
+export class PortfolioManagerPropertyMetricsAnnualCommand extends PortfolioManagerBaseCommand {
   protected _description = "Get monthly metrics for a property";
   protected get examples() { return [
     "# customizing the output",
-    `${this.getFullCommand()} property metrics monthly  --propertyId <propertyId> --fields name year month value --indent 2`,
+    `${this.getFullCommand()} property metrics annual  --propertyId <propertyId> --fields name year month value --indent 2`,
   ];
   }
   protected fields = ["propertyId", "name", "uom", "year", "month", "value"];
   protected defaultFields = this.fields;
 
   constructor() {
-    super("monthly");
-    const MONTHLY_METRICS = METRICS.filter((m) => m[14]).map((m) => [m[0]]);
+    super("annual");
+    const cmdMetrics = METRICS.filter((m) => m[7]).map((m) => [m[0]]);
     this.addFieldsOption(this.fields, this.defaultFields)
     this.requiredOption(
       "--propertyId <propertyId>",
@@ -24,7 +24,7 @@ export class PortfolioManagerPropertyMetricsMonthlyCommand extends PortfolioMana
     this.requiredOption("--month <month>", "month to fetch metrics for");
     this.option(
       "--metrics [metrics...]",
-      `metrics to include: ${MONTHLY_METRICS.join(", ")}`
+      `metrics to include: ${cmdMetrics.join(", ")}`
     );
     this.option("--include_null", "include null values");
   }
@@ -32,7 +32,7 @@ export class PortfolioManagerPropertyMetricsMonthlyCommand extends PortfolioMana
   protected async _action(): Promise<void> {
     const cmdOpts = this.opts();
     // write help text we don't want in output pipes to stderr
-    console.error("list property metrics monthly", cmdOpts);
+    console.error("list property metrics annual", cmdOpts);
     const {
       propertyId,
       year,
@@ -46,7 +46,7 @@ export class PortfolioManagerPropertyMetricsMonthlyCommand extends PortfolioMana
 
     const exclude_null = !include_null;
     try {
-      const items = await pmClient.getPropertyMonthlyMetrics(
+      const items = await pmClient.getPropertyMetrics(
         propertyId,
         year,
         month,

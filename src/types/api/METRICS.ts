@@ -1,23 +1,23 @@
 ﻿export type MetricTuple = [
-  slug: string,
-  id: string,
-  dataType: string,
-  uomEPA: string,
-  uomMetric: string,
-  metricGroup: string,
-  metricGroupId: string,
+  slug: string, // 0
+  id: string, // 1
+  dataType: string, // 2
+  uomEPA: string, // 3
+  uomMetric: string, // 4
+  metricGroup: string, // 5
+  metricGroupId: string, // 6
   // indicates which apis this metric is available in
-  getMetrics: boolean,
-  getDesignMetrics: boolean,
-  getProperty: boolean,
-  getPropertyEDUList: boolean,
-  getPropertyUniqueIdentifier: boolean,
-  getPropertyMeterAssociation: boolean,
-  getUseDetailsMetrics: boolean,
-  getMonthlyMetrics: boolean,
-  getReasonsForNoEnergyScore: boolean,
-  webServiceCallMethod: string,
-  userInterfaceMetricName: string
+  getMetrics: boolean, // 7
+  getDesignMetrics: boolean, // 8
+  getProperty: boolean, // 9
+  getPropertyEDUList: boolean, // 10
+  getPropertyUniqueIdentifier: boolean, // 11
+  getPropertyMeterAssociation: boolean, // 12
+  getUseDetailsMetrics: boolean, // 13
+  getMonthlyMetrics: boolean, // 14
+  getReasonsForNoEnergyScore: boolean, // 15
+  webServiceCallMethod: string, // 16
+  userInterfaceMetricName: string // 17
 ];
 // derived from https://downloads.energystar.gov/bi/portfolio-manager/Custom_Reporting_Metric_Inventory_en_US.xlsx
 // prettier-ignore

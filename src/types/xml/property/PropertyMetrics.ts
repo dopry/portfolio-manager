@@ -2,7 +2,16 @@ import { PeriodType } from "../enum/index.js";
 
 export type DataType = "date" | "numeric" | "string";
 
-export interface ReportMetricValue {
+export type IPropertyAnnualMetricValueNull = { "@_xsi:nil": boolean };
+export type IPropertyAnnualMetricValue = IPropertyAnnualMetricValueNull | string;
+
+export function isIPropertyMetricValueNull(
+  value: IPropertyAnnualMetricValue
+): value is IPropertyAnnualMetricValueNull {
+  return value?.hasOwnProperty("@_xsi:nil");
+}
+
+export interface IPropertyMonthlyMetricValue {
   value: string | number; // The value of the metric
   "@_year": string; // The year of the metric
   "@_month": string; // The month of the metric
@@ -11,8 +20,8 @@ export interface ReportMetricValue {
 }
 
 export interface IPropertyMetric {
-  monthlyMetric?: ReportMetricValue[]; // the value of the monthly metric
-  value?: { "@_xsi:nil": boolean } | string; // The value of the Non-Monthly metric
+  monthlyMetric?: IPropertyMonthlyMetricValue[]; // the value of the monthly metric
+  value?: IPropertyAnnualMetricValue; // The value of the Non-Monthly metric
   "@_name": string; // The name of the metric
   "@_id"?: number; // The id of the metric
   "@_uom"?: string; // The unit of measure of the metric
@@ -21,7 +30,7 @@ export interface IPropertyMetric {
 }
 
 export interface IPropertyMonthlyMetric extends IPropertyMetric {
-  monthlyMetric: ReportMetricValue[];
+  monthlyMetric: IPropertyMonthlyMetricValue[];
   value: undefined;
 }
 
@@ -31,17 +40,16 @@ export function isIPropertyMonthlyMetric(
   return (metric as IPropertyMonthlyMetric).monthlyMetric !== undefined;
 }
 
-export interface IPropertyNonMonthlyMetric extends IPropertyMetric {
+export interface IPropertyAnnualMetric extends IPropertyMetric {
   monthlyMetric: undefined;
-  value: { "@_xsi:nil": boolean } | string;
+  value: IPropertyAnnualMetricValue;
 }
 
-export function isIPropertyNonMonthlyMetric(
+export function isIPropertyAnnualMetric(
   metric: IPropertyMetric
-): metric is IPropertyNonMonthlyMetric {
-  return (metric as IPropertyNonMonthlyMetric).value !== undefined;
+): metric is IPropertyAnnualMetric {
+  return (metric as IPropertyAnnualMetric).value !== undefined;
 }
-
 
 export interface PropertyMetrics {
   "@_year"?: number;

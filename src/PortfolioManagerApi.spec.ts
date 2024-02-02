@@ -7,7 +7,7 @@ import {
   IMeter,
   isIEmptyResponse,
   isIPopulatedResponse,
-  isIPropertyNonMonthlyMetric
+  isIPropertyAnnualMetric,
 } from "./types/xml/index.js";
 
 const BASE_URL = "https://portfoliomanager.energystar.gov/wstest/";
@@ -440,7 +440,7 @@ describe("PortfolioManagerApi", () => {
     );
     expect(designMetricsResponse.propertyMetrics.metric).to.be.an("array");
     const metric = designMetricsResponse.propertyMetrics.metric[0];
-    if (!isIPropertyNonMonthlyMetric(metric)) {
+    if (!isIPropertyAnnualMetric(metric)) {
       throw new Error("Expected isIPropertyNonMonthlyMetric");
     }
     expect(metric["@_name"]).to.be.a("string");

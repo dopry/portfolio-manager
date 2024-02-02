@@ -21,8 +21,11 @@ import {
   isIMeteredMeterData,
   isIPopulatedResponse,
   isIPropertyMonthlyMetric,
+  isIPropertyAnnualMetric,
+  isIPropertyMetricValueNull,
+  IClientMetricMonthly,
+  IClientMetricMonthlyValue,
 } from "./types/index.js";
-
 
 async function sleep(seconds: number) {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
@@ -43,7 +46,7 @@ async function sleep(seconds: number) {
 export class PortfolioManager {
   protected _accountPromise: Promise<IAccount> | undefined;
 
-  constructor(protected api: PortfolioManagerApi) { }
+  constructor(protected api: PortfolioManagerApi) {}
 
   protected async _getAccount(): Promise<IAccount> {
     const response = await this.api.accountAccountGet();
@@ -55,12 +58,12 @@ export class PortfolioManager {
 
   async getAccount(cached = true): Promise<IAccount> {
     if (!this._accountPromise || !cached) {
-        const promise = this._getAccount();
-        promise.catch((e) => {
-          this._accountPromise = undefined;
-          throw e;
-        });
-        this._accountPromise = promise;
+      const promise = this._getAccount();
+      promise.catch((e) => {
+        this._accountPromise = undefined;
+        throw e;
+      });
+      this._accountPromise = promise;
     }
     return this._accountPromise;
   }
@@ -430,6 +433,7 @@ export class PortfolioManager {
       throw new Error("Failed to create property: " + JSON.stringify(response));
     }
   }
+
   async getProperty(propertyId: number): Promise<IClientProperty> {
     const response = await this.api.propertyPropertyGet(propertyId);
     if (response.property) {
@@ -525,5 +529,116 @@ export class PortfolioManager {
       },
       []
     );
+  }
+
+  async getPropertyMonthlyMetrics2(
+    propertyId: number,
+    year: number,
+    month: number,
+    metrics: string[] = [],
+    exclude_null = true
+  ): Promise<Record<string, IClientMetricMonthly>> {
+    if (metrics.length == 0) {
+      throw new Error("No metrics provided");
+    }
+    if (metrics.length > 10) {
+      throw new Error("Too many metrics provided, maximum if 10 metrics");
+    }
+    //fetch the metrics, but don't flatten, key them on mertric name.
+    const response = await this.api.propertyMetricsGet(
+      propertyId,
+      year,
+      month,
+      metrics
+    );
+    if (!response.propertyMetrics) {
+      throw new Error(
+        `No property metrics found:\n ${JSON.stringify(response, null, 2)}`
+      );
+    }
+    // console.log(JSON.stringify(response, null, 2))
+    // to make this more usable with our field selection options, we will flatten the metrics, then select the fields.
+    return response.propertyMetrics.metric.reduce<
+      Record<string, IClientMetricMonthly>
+    >((acc, series) => {
+      if (!isIPropertyMonthlyMetric(series)) return acc;
+      const name = series["@_name"];
+      const uom = series["@_uom"] || "";
+
+      const value = series.monthlyMetric?.reduce<IClientMetricMonthlyValue[]>(
+        (monthtlyAcc, monthly) => {
+          const monthtlyValue = monthly["value"].hasOwnProperty("@_xsi:nil")
+            ? null
+            : monthly["value"];
+          if (exclude_null && !monthtlyValue) return monthtlyAcc;
+          const month = parseInt(monthly["@_month"]);
+          const year = parseInt(monthly["@_year"]);
+          const metric: IClientMetricMonthlyValue = {
+            month,
+            year,
+            value: monthtlyValue,
+          };
+          monthtlyAcc.push(metric);
+          return monthtlyAcc;
+        },
+        []
+      );
+
+      if (exclude_null && value.length == 0) return acc;
+      const metric: IClientMetricMonthly = {
+        propertyId,
+        name,
+        uom,
+        value,
+        month,
+        year,
+      };
+      acc[name] = metric;
+      return acc;
+    }, {});
+  }
+
+  // returns a metric indexed
+  async getPropertyMetrics(
+    propertyId: number,
+    year: number,
+    month: number,
+    metrics: string[] = [],
+    exclude_null = true
+  ): Promise<Record<string, IClientMetric>> {
+    if (metrics.length == 0) {
+      throw new Error("No metrics provided");
+    }
+    if (metrics.length > 10) {
+      throw new Error("Too many metrics provided, maximum if 10 metrics");
+    }
+    //fetch the metrics, but don't flatten, key them on mertric name.
+    const response = await this.api.propertyMetricsGet(
+      propertyId,
+      year,
+      month,
+      metrics
+    );
+    if (!response.propertyMetrics) {
+      throw new Error(
+        `No property metrics found:\n ${JSON.stringify(response, null, 2)}`
+      );
+    }
+    // console.log(JSON.stringify(response, null, 2))
+    // In this version we will key the metrics on the metric name, and return the metric or an array of metrics for monthly metrics.
+    return response.propertyMetrics.metric.reduce<
+      Record<string, IClientMetric>
+    >((acc, series) => {
+      if (isIPropertyAnnualMetric(series)) {
+        const name = series["@_name"];
+        const uom = series["@_uom"] || "";
+        const value = isIPropertyMetricValueNull(series["value"])
+          ? null
+          : series["value"];
+        if (exclude_null && !value) return acc;
+        acc[name] = { propertyId, name, uom, year, month, value };
+      }
+      return acc;
+    }, {});
   }
 }
