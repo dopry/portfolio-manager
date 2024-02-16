@@ -1,23 +1,14 @@
+import { deepmerge } from "deepmerge-ts";
 import {
-  XMLParser,
-  XMLBuilder,
-  XmlBuilderOptions,
   X2jOptions,
+  XMLBuilder,
+  XMLParser,
+  XmlBuilderOptions,
 } from "fast-xml-parser";
-import {
-  IAccount,
-  IAddress,
-  IContact,
-  IMeter,
-  IMeterConsumption,
-  IMeterData,
-  IMeterDataPost,
-  IProperty,
-  IResponse,
-  toXmlDateString,
-} from "./types/xml/index.js";
-import fetch from "node-fetch";
-import { RequestInit, BodyInit, Response } from "node-fetch";
+import fetch, { BodyInit, RequestInit, Response } from "node-fetch";
+import { isNumber, isString } from "type-guards";
+import { isDate } from "util/types";
+import { btoa } from "./functions/index.js";
 import {
   IAccountAccountGetResponse,
   IAccountAccountPostResponse,
@@ -43,14 +34,34 @@ import {
   IPropertyPropertyPostResponse,
   MeasurementSystem,
 } from "./types/index.js";
-import { btoa } from "./functions/index.js";
-import { isNumber, isString } from "type-guards";
-import { isDate } from "util/types";
-import { deepmerge } from "deepmerge-ts";
+import {
+  IAccount,
+  IMeter,
+  IMeterConsumption,
+  IMeterData,
+  IMeterDataPost,
+  IProperty,
+  toXmlDateString
+} from "./types/xml/index.js";
 
 export class PortfolioManagerApiError extends Error {
-  constructor(public response: Response) {
-    super(response.statusText);
+  static async fromResponse(response: Response) {
+    const responseText = await response.text();
+    const url = response.url;
+    return new PortfolioManagerApiError(
+      response.status,
+      response.statusText,
+      responseText,
+      url
+    );
+  }
+  constructor(
+    public status: number,
+    public statusText: string,
+    public responseText?: string,
+    public url?: string
+  ) {
+    super(statusText);
   }
 }
 
@@ -145,7 +156,8 @@ export class PortfolioManagerApi {
       //   options,
       //   path
       // );
-      throw new PortfolioManagerApiError(response);
+      const error = await PortfolioManagerApiError.fromResponse(response);
+      throw error;
     }
 
     const xmlResp = await response.text();
@@ -181,7 +193,6 @@ export class PortfolioManagerApi {
   // https://portfoliomanager.energystar.gov/webservices/home/test/api/account/account/get
   async accountAccountGet(): Promise<IAccountAccountGetResponse> {
     return this.get<IAccountAccountGetResponse>("account");
-
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/test/api/account/account/post

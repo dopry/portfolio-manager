@@ -65,7 +65,7 @@ export class PortfolioManagerPropertyMetricsMonthlyCommand extends PortfolioMana
     }
     catch (e) {
       if (e instanceof PortfolioManagerApiError) {
-        console.error('api error', e.message, e.response.status, e.response.statusText, await e.response.text());
+        console.error('api error', e.message, e.status, e.statusText, e.responseText);
       }
       else {
         console.error('unknown error', e);

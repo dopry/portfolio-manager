@@ -107,7 +107,7 @@ export class PortfolioManager {
       if (!isPortfolioManagerApiError(error)) {
         throw error;
       }
-      if (error.response.status == 404) {
+      if (error.status == 404) {
         // meter not found, throw a more meaningful error.
         throw new Error(`Meter or additionalIdentifier not found: ${meterId}`);
       }
@@ -132,7 +132,7 @@ export class PortfolioManager {
       if (!isPortfolioManagerApiError(error)) {
         throw error;
       }
-      if (error.response.status == 404) {
+      if (error.status == 404) {
         // meter not found, throw a more meaningful error.
         throw new Error(`Meter not found: ${meterId}`);
       }
@@ -159,7 +159,7 @@ export class PortfolioManager {
       if (!isPortfolioManagerApiError(error)) {
         throw error;
       }
-      if (error.response.status == 404) {
+      if (error.status == 404) {
         // meter not found, throw a more meaningful error.
         throw new Error(`Meter not found: ${meterId}`);
       }
@@ -177,7 +177,7 @@ export class PortfolioManager {
       if (!isPortfolioManagerApiError(error)) {
         throw error;
       }
-      if (error.response.status == 404) {
+      if (error.status == 404) {
         // meter not found, throw a more meaningful error.
         throw new Error(`Meter not found: ${meterId}`);
       }
