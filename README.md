@@ -89,7 +89,6 @@ class PortfolioManagerApi {
     constructor(endpoint: string, username: string, password: string)
 
     async getAccount(): Promise<IGetAccountResponse>
-    async postAccount(account: IAccount): Promise<IPostAccountResponse>
     async getMeter(meterId: number): Promise<IGetMeterResponse>
     async getProperty(propertyId: number): Promise<IGetPropertyResponse>
     async postProperty(property: IProperty, accountId: number): Promise<IPostPropertyResponse>
