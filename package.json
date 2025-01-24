@@ -3,7 +3,7 @@
   "version": "1.6.0",
   "description": "Unofficial CLI Tool and SDK for Energy Star Portfolio Manager",
   "engines": {
-    "node": ">=18 <=20"
+    "node": ">=18 <=22"
   },
   "files": [
     "dist/"
