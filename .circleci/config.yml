@@ -20,4 +20,6 @@ workflows:
     # Run the test jobs first, then the release only when all the test jobs are successful
     jobs:
       - release:
-          context: dopry-npm-packages
+          context:
+            - dopry-npm-packages
+            - dopry-portfoliomanager-epa

@@ -1,13 +1,20 @@
-import { PortfolioManager } from "./PortfolioManager.js";
 import {
-  IAccount,
   IAddress,
   IMeter,
-  IOrganization,
   IProperty,
   MeterUnitsOfMeasure,
-  TypeOfMeter,
+  TypeOfMeter
 } from "./types/index.js";
+
+export function stamp() {
+  return (
+    new Date()
+      .toISOString()
+      // @ts-ignore
+      .replaceAll(":", "_")
+      .replaceAll(".", "_")
+  );
+}
 
 export function mockIAddress(): IAddress {
   return {
@@ -16,41 +23,6 @@ export function mockIAddress(): IAddress {
     "@_postalCode": "1234567",
     "@_country": "US",
     "@_state": "NY",
-  };
-}
-
-export function mockIOrganization(): IOrganization {
-  return {
-    "@_name": "Test",
-    primaryBusiness: "Energy Efficiency Program",
-    energyStarPartner: true,
-    energyStarPartnerType: "Other",
-    otherPartnerDescription: "Test Partner Deacription",
-  };
-}
-
-export function mockIAccount(
-  USERNAME: string,
-  PASSWORD: string,
-  organization = mockIOrganization(),
-  address = mockIAddress()
-): Omit<IAccount, "id"> {
-  return {
-    username: USERNAME,
-    password: PASSWORD,
-    webserviceUser: true,
-    searchable: false,
-    contact: {
-      firstName: "Test",
-      lastName: "User",
-      email: "" + USERNAME + "@energystar.gov",
-      phone: "555-555-5555",
-      jobTitle: "Test User",
-      address,
-    },
-    organization,
-    includeTestPropertiesInGraphics: false,
-    languagePreference: "en_US",
   };
 }
 
@@ -85,18 +57,4 @@ export function mockMeter(
     firstBillDate,
     inUse,
   };
-}
-
-export async function ensureTestAccount(
-  pm: PortfolioManager,
-  username: string,
-  password: string
-): Promise<IAccount> {
-  try {
-    return await pm.getAccount();
-  } catch (e) {
-      const account = mockIAccount(username, password);
-      const created = await pm.createAccount(account);
-      return created;
-  }
 }

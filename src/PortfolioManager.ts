@@ -68,12 +68,6 @@ export class PortfolioManager {
     return this._accountPromise;
   }
 
-  async createAccount(account: Omit<IAccount, "id">): Promise<IAccount> {
-    // account not found, create it.
-    const response = await this.api.accountAccountPost(account);
-    return await this.getAccount(false);
-  }
-
   async getAccountId(): Promise<number> {
     const account = await this.getAccount();
     if (account.id) return account.id;

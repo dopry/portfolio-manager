@@ -13,7 +13,3 @@ import { IParsedXml } from "./IParsedXML.js";
 export interface IAccountAccountGetResponse extends IParsedXml {
   account: IAccount;
 }
-
-export interface IAccountAccountPostResponse extends IParsedXml {
-  response: IResponse;
-}

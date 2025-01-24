@@ -1,107 +1,40 @@
 import { expect } from "chai";
-import { mockIAccount, mockIOrganization, mockIProperty, mockMeter } from "./Mocks.js";
+import {
+  mockIProperty,
+  mockMeter
+} from "./Mocks.js";
 import { PortfolioManagerApi } from "./PortfolioManagerApi.js";
 import {
-  IAddress,
   ILink,
   IMeter,
   isIEmptyResponse,
   isIPopulatedResponse,
-  isIPropertyAnnualMetric,
+  isIPropertyAnnualMetric
 } from "./types/xml/index.js";
 
 const BASE_URL = "https://portfoliomanager.energystar.gov/wstest/";
-const STAMP = new Date()
-  .toISOString()
-  // @ts-ignore
-  .replaceAll(":", "_")
-  .replaceAll(".", "_");
-const USERNAME = "test" + STAMP;
-const PASSWORD = STAMP;
+
+const USERNAME = process.env.PM_USERNAME;
+const PASSWORD = process.env.PM_PASSWORD;
+
+if (!USERNAME || !PASSWORD) {
+  throw new Error(
+    "Please set PM_USERNAME and PM_PASSWORD environment variables"
+  );
+}
 
 const api = new PortfolioManagerApi(BASE_URL, USERNAME, PASSWORD);
-
-const address: IAddress = {
-  "@_address1": "123 Main St",
-  "@_city": "Test",
-  "@_postalCode": "1234567",
-  "@_country": "US",
-  "@_state": "NY",
-};
 
 describe("PortfolioManagerApi", () => {
   it("can be constucted", () => {
     expect(api).to.be.an.instanceof(PortfolioManagerApi);
   });
 
-  it("can create a test account", async () => {
-    const organization = mockIOrganization()
-    const account = mockIAccount(USERNAME, PASSWORD, organization, address);
-    const postAccountResponse = await api.accountAccountPost(account);
-
-    expect(postAccountResponse.response["@_status"]).to.equal("Ok");
-    expect(postAccountResponse.response.id).to.be.a("number");
-    expect(postAccountResponse.response.links).to.be.an("object");
-    const link = postAccountResponse.response.links.link as ILink[];
-    expect(link).to.be.an("array");
-    expect(link[0]).to.deep.equal({
-      "@_linkDescription": "This is the GET url for this Account.",
-      "@_link": "/account",
-      "@_httpMethod": "GET",
-    });
-    const getAccountResponse = await api.accountAccountGet();
-    expect(getAccountResponse.account).to.be.an("object");
-    expect(getAccountResponse.account.id).to.equal(
-      postAccountResponse.response.id
-    );
-    expect(getAccountResponse.account.username).to.equal(USERNAME);
-    expect(getAccountResponse.account.password).to.equal("********");
-    expect(getAccountResponse.account.webserviceUser).to.equal(true);
-    expect(getAccountResponse.account.searchable).to.equal(false);
-    expect(getAccountResponse.account.contact).to.be.an("object");
-    expect(getAccountResponse.account.contact.firstName).to.equal("Test");
-    expect(getAccountResponse.account.contact.lastName).to.equal("User");
-    expect(getAccountResponse.account.contact.email).to.equal(
-      "" + USERNAME + "@energystar.gov"
-    );
-    expect(getAccountResponse.account.contact.phone).to.equal("555-555-5555");
-    expect(getAccountResponse.account.contact.jobTitle).to.equal("Test User");
-    expect(getAccountResponse.account.contact.address).to.be.an("object");
-    expect(getAccountResponse.account.contact.address["@_address1"]).to.equal(
-      "123 Main St"
-    );
-    expect(getAccountResponse.account.contact.address["@_city"]).to.equal(
-      "Test"
-    );
-    expect(getAccountResponse.account.contact.address["@_postalCode"]).to.equal(
-      "1234567"
-    );
-    expect(getAccountResponse.account.contact.address["@_country"]).to.equal(
-      "US"
-    );
-    expect(getAccountResponse.account.contact.address["@_state"]).to.equal(
-      "NY"
-    );
-    expect(getAccountResponse.account.organization).to.be.an("object");
-    expect(getAccountResponse.account.organization["@_name"]).to.equal("Test");
-    expect(getAccountResponse.account.organization.primaryBusiness).to.equal(
-      "Energy Efficiency Program"
-    );
-    expect(getAccountResponse.account.organization.energyStarPartner).to.equal(
-      true
-    );
-    expect(
-      getAccountResponse.account.organization.energyStarPartnerType
-    ).to.equal("Other");
-    expect(
-      getAccountResponse.account.organization.otherPartnerDescription
-    ).to.equal("Test Partner Deacription");
-    // expect(getAccountResponse.account.includeTestPropertiesInGraphics).to.equal(false);
-    expect(getAccountResponse.account.languagePreference).to.equal("en_US");
-
-  }).timeout(60000);
-
-  it("can query an account without properties", async () => {
+  // since the PM Test UI became available and we aren't starting from a test account
+  // we can no longer setup this test case without potentially conflicting with other
+  // test runners that may be running at the same time. skip for now until we come up
+  // with a strategy to handle this.
+  it.skip("can query an account without properties", async () => {
     const { account } = await api.accountAccountGet();
     const listPropertyResponse = await api.propertyPropertyListGet(
       account.id || 0
@@ -118,10 +51,16 @@ describe("PortfolioManagerApi", () => {
       property,
       account.id || 0
     );
+    // console.log({ postPropertyResponse });
     if (!isIPopulatedResponse(postPropertyResponse.response)) {
       throw new Error("Expected isIPopoulatedResponse");
     }
     expect(postPropertyResponse.response["@_status"]).to.equal("Ok");
+    const id = postPropertyResponse.response.id;
+    expect(id).to.be.a("number");
+    if (!id) {
+      throw new Error("Posted property missing id");
+    }
     expect(postPropertyResponse.response.id).to.be.a("number");
     expect(postPropertyResponse.response.links).to.be.an("object");
     const link = postPropertyResponse.response.links.link as ILink[];
@@ -136,6 +75,7 @@ describe("PortfolioManagerApi", () => {
     const getPropertyResponse = await api.propertyPropertyGet(
       postPropertyResponse.response.id
     );
+    // console.log({ getPropertyResponse });
     expect(getPropertyResponse.property).to.be.an("object");
     expect(getPropertyResponse.property.accessLevel).to.equal("Read Write");
     expect(getPropertyResponse.property.address).to.be.an("object");
@@ -185,52 +125,40 @@ describe("PortfolioManagerApi", () => {
     );
     expect(getPropertyResponse.property.yearBuilt).to.equal(2022);
 
-    const postPropertyResponse2 = await api.propertyPropertyPost(
-      property,
-      account.id || 0
-    );
-    if (!isIPopulatedResponse(postPropertyResponse2.response)) {
-      throw new Error("Expected isIPopoulatedResponse");
-    }
-
-    const propertyIds = [
-      postPropertyResponse.response.id.toString(),
-      postPropertyResponse2.response.id.toString(),
-    ];
     const getPropertyListResponse = await api.propertyPropertyListGet(
       account.id || 0
     );
+    // console.log({ getPropertyListResponse });
     expect(getPropertyListResponse["?xml"]).to.deep.equal({
       "@_encoding": "UTF-8",
       "@_standalone": "yes",
       "@_version": "1.0",
     });
     const listResponse = getPropertyListResponse.response;
+    // console.log({ listResponse });
+
     expect(listResponse["@_status"]).to.equal("Ok");
     expect(listResponse.links).to.be.an("object");
     expect(listResponse.links.link).to.be.an("array");
     if (!isIPopulatedResponse(listResponse)) {
       throw new Error("Expected isIPopoulatedResponse");
     }
-    expect(listResponse.links.link[0]).to.be.an("object");
-    expect(listResponse.links.link[0]["@_hint"]).to.equal("Test Property");
-    expect(listResponse.links.link[0]["@_httpMethod"]).to.equal("GET");
-    expect(propertyIds).to.contain(listResponse.links.link[0]["@_id"]);
-    expect(listResponse.links.link[0]["@_link"]).to.match(/^\/property\/\d+$/);
-    expect(listResponse.links.link[0]["@_linkDescription"]).to.equal(
-      "This is the GET url for this Property."
-    );
 
-    const remainingIds = propertyIds.filter(
-      (id) => id.toString() !== listResponse.links.link[0]["@_id"]
+    const propFromList = listResponse.links.link.find(
+      (link) => link["@_id"] == postPropertyResponse.response.id?.toString()
     );
+    if (!propFromList) {
+      throw new Error("Created property not found in list response");
+    }
+    expect(
+      propFromList,
+      "created property not found in list response"
+    ).to.be.an("object");
+    expect(propFromList["@_hint"]).to.equal("Test Property");
+    expect(propFromList["@_httpMethod"]).to.equal("GET");
 
-    expect(listResponse.links.link[1]).to.be.an("object");
-    expect(listResponse.links.link[1]["@_hint"]).to.equal("Test Property");
-    expect(listResponse.links.link[1]["@_httpMethod"]).to.equal("GET");
-    expect(remainingIds).to.contain(listResponse.links.link[1]["@_id"]);
-    expect(listResponse.links.link[1]["@_link"]).to.match(/^\/property\/\d+$/);
-    expect(listResponse.links.link[1]["@_linkDescription"]).to.equal(
+    expect(propFromList["@_link"]).to.match(/^\/property\/\d+$/);
+    expect(propFromList["@_linkDescription"]).to.equal(
       "This is the GET url for this Property."
     );
   }).timeout(60000);
@@ -268,35 +196,16 @@ describe("PortfolioManagerApi", () => {
     );
     const meterLink = getPropertyMeterListResponse.response.links
       .link as ILink[];
-    expect(meterLink[0]["@_id"]).to.equal(
+
+    const meterFromList = meterLink.find(
+      (link) => link["@_id"] == postMeterResponse.response.id?.toString()
+    );
+    if (!meterFromList) {
+      throw new Error("Created meter not found in list response");
+    }
+    expect(meterFromList["@_id"]).to.equal(
       postMeterResponse.response.id.toString()
     );
-
-    const meter2: IMeter = {
-      name: "Test Meter 2",
-      unitOfMeasure: "kWh (thousand Watt-hours)",
-      type: "Electric",
-      firstBillDate: new Date(2019, 0, 1),
-      inUse: true,
-    };
-    const postMeterResponse2 = await api.meterMeterPost(propertyId, meter2);
-    expect(postMeterResponse2.response["@_status"]).to.equal("Ok");
-    if (!isIPopulatedResponse(postMeterResponse2.response)) {
-      throw new Error("Expected isIPopoulatedResponse");
-    }
-
-    expect(postMeterResponse2.response.id).to.be.a("number");
-    expect(postMeterResponse2.response.links).to.be.an("object");
-    expect(postMeterResponse2.response.links.link).to.be.an("array");
-    const getPropertyMeterListResponse2 = await api.meterMeterListGet(
-      propertyId
-    );
-    const meterListLink = getPropertyMeterListResponse2.response.links
-      .link as ILink[];
-    expect(meterListLink[1]["@_id"]).to.equal(
-      postMeterResponse2.response.id.toString()
-    );
-    expect(meterListLink[1]["@_hint"]).to.equal("Test Meter 2");
   }).timeout(60000);
 
   it.skip("can create a meter consumption record", async () => {});
@@ -356,9 +265,9 @@ describe("PortfolioManagerApi", () => {
 
     const getPropertyMeterIdentifierListResponse =
       await api.meterIdentifierListGet(meterId);
-      const meterIdentifierLink =
+    const meterIdentifierLink =
       getPropertyMeterIdentifierListResponse.additionalIdentifiers
-      .additionalIdentifier;
+        .additionalIdentifier;
     // console.log({ meterIdentifierLink })
     expect(meterIdentifierLink[0]["@_id"]).to.equal(
       postMeterIdentifierResponse.response.id.toString()
@@ -384,14 +293,15 @@ describe("PortfolioManagerApi", () => {
     expect(gotIdentifier.description).to.equal("RossEnergy");
 
     gotIdentifier.value = "New Value";
-    const putId = parseInt(gotIdentifier["@_id"] || '')
+    const putId = parseInt(gotIdentifier["@_id"] || "");
     if (!putId) {
       throw new Error("Expected putId");
     }
     const putMeterIdentifierResponse = await api.meterIdentifierPut(
-      meterId, putId, gotIdentifier
+      meterId,
+      putId,
+      gotIdentifier
     );
-
 
     const get2Response = await api.meterIdentifierGet(meterId, putId);
     const got2Identifier = get2Response.additionalIdentifier;
@@ -400,17 +310,16 @@ describe("PortfolioManagerApi", () => {
     expect(got2Identifier.value).to.eq("New Value");
   }).timeout(60000);
 
-
   it("can query meter identifier types", async () => {
-    const meterIdentifierTypesResponse = await api.meterIdentifierTypesListGet();
+    const meterIdentifierTypesResponse =
+      await api.meterIdentifierTypesListGet();
 
-      const additionalIdentifierTypes =
-        meterIdentifierTypesResponse.additionalIdentifierTypes
-          .additionalIdentifierType;
-      // console.log({ additionalIdentifierTypes })
+    const additionalIdentifierTypes =
+      meterIdentifierTypesResponse.additionalIdentifierTypes
+        .additionalIdentifierType;
+    // console.log({ additionalIdentifierTypes })
     expect(additionalIdentifierTypes).to.be.an("array");
-    const meterIdentifierType =
-      additionalIdentifierTypes[0];
+    const meterIdentifierType = additionalIdentifierTypes[0];
     expect(meterIdentifierType["@_id"]).to.be.a("string");
     expect(meterIdentifierType["@_standardApproved"]).to.be.a("string");
     expect(meterIdentifierType["@_name"]).to.be.a("string");

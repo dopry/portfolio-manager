@@ -1,9 +1,9 @@
 {
   "name": "portfolio-manager",
-  "version": "1.6.0",
+  "version": "0.0.0-semantic-release",
   "description": "Unofficial CLI Tool and SDK for Energy Star Portfolio Manager",
   "engines": {
-    "node": ">=18 <=20"
+    "node": ">=18 <=22"
   },
   "files": [
     "dist/"
@@ -25,16 +25,14 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/git": "^10.0.1",
     "@types/chai": "^4.3.10",
     "@types/mocha": "^10.0.4",
     "@types/node": "^20.9.1",
     "@types/node-fetch": "^2.6.9",
     "chai": "^4.3.10",
-    "mocha": "^10.2.0",
+    "mocha": "^10.8.2",
     "node-fetch": "^3.3.2",
-    "semantic-release": "^22.0.8",
+    "semantic-release": "^24.2.1",
     "should": "^13.2.3",
     "source-map-support": "^0.5.21",
     "ts-node": "^10.9.1",
@@ -54,30 +52,6 @@
         "name": "next",
         "prerelease": true
       }
-    ],
-    "plugins": [
-      "@semantic-release/commit-analyzer",
-      "@semantic-release/release-notes-generator",
-      [
-        "@semantic-release/changelog",
-        {
-          "changelogFile": "CHANGELOG.md"
-        }
-      ],
-      [
-        "@semantic-release/npm"
-      ],
-      [
-        "@semantic-release/git",
-        {
-          "assets": [
-            "CHANGES.md",
-            "package.json",
-            "package-lock.json"
-          ],
-          "message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
-        }
-      ]
     ]
   }
 }

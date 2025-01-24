@@ -1,7 +1,5 @@
 import { expect } from "chai";
 import {
-  ensureTestAccount,
-  mockIAddress,
   mockIProperty,
   mockMeter,
 } from "./Mocks.js";
@@ -10,13 +8,6 @@ import { PortfolioManagerApi } from "./PortfolioManagerApi.js";
 import { IAccount, IMeter, IProperty } from "./types/index.js";
 
 const BASE_URL = "https://portfoliomanager.energystar.gov/wstest/";
-const STAMP = new Date()
-  .toISOString()
-  // @ts-ignore
-  .replaceAll(":", "_")
-  .replaceAll(".", "_");
-const USERNAME = "testPM" + STAMP;
-const PASSWORD = STAMP;
 
 describe("PortfolioManager", async () => {
   let api: PortfolioManagerApi;
@@ -25,9 +16,17 @@ describe("PortfolioManager", async () => {
   let testProperty: IProperty;
   let testMeter: IMeter;
   async function ensureTestFixtures(done: () => void) {
+    const USERNAME = process.env.PM_USERNAME;
+    const PASSWORD = process.env.PM_PASSWORD;
+
+    if (!USERNAME || !PASSWORD) {
+      throw new Error(
+        "Please set PM_USERNAME and PM_PASSWORD environment variables"
+      );
+    }
     api = new PortfolioManagerApi(BASE_URL, USERNAME, PASSWORD);
     pm = new PortfolioManager(api);
-    account = await ensureTestAccount(pm, USERNAME, PASSWORD);
+    account = await pm.getAccount();
     testProperty = await pm.createProperty(mockIProperty());
     testMeter = await pm.createMeter(testProperty.id, mockMeter());
     done();

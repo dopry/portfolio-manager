@@ -11,7 +11,6 @@ import { isDate } from "util/types";
 import { btoa } from "./functions/index.js";
 import {
   IAccountAccountGetResponse,
-  IAccountAccountPostResponse,
   IAdditionalIdentifier,
   ICreateSamplePropertiesPostResponse,
   IMeterConsumptionDataGetResponse,
@@ -144,8 +143,11 @@ export class PortfolioManagerApi {
     const defaults = { method: "GET", headers } as RequestInit;
     const init: RequestInit = deepmerge({}, defaults, options);
     const url = this.endpoint + path;
-    // console.log('req', { url, init })
+    // console.log('PortfolioManagerApi.fetch', { url, init })
     const response = await fetch(url, init);
+
+    // console.log('PortfolioManagerApi.fetch::response.status', response.status)
+
     // raise exception on 400-599 status codes
     if (response.status >= 400 && response.status < 600) {
       // console.log(
@@ -193,18 +195,6 @@ export class PortfolioManagerApi {
   // https://portfoliomanager.energystar.gov/webservices/home/test/api/account/account/get
   async accountAccountGet(): Promise<IAccountAccountGetResponse> {
     return this.get<IAccountAccountGetResponse>("account");
-  }
-
-  // https://portfoliomanager.energystar.gov/webservices/home/test/api/account/account/post
-  async accountAccountPost(
-    account: Omit<IAccount, "id">
-  ): Promise<IAccountAccountPostResponse> {
-    return this.post<
-      { account: Omit<IAccount, "id"> },
-      IAccountAccountPostResponse
-    >("account", {
-      account,
-    });
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/test/api/meter/meter/get
