@@ -13,6 +13,11 @@ import {
   IAccountAccountGetResponse,
   IAdditionalIdentifier,
   ICreateSamplePropertiesPostResponse,
+  IGetCustomerListResponse,
+  IGetNotificationListResponse,
+  IGetPendingConnectionsResponse,
+  IGetPendingMeterSharesResponse,
+  IGetPendingPropertySharesResponse,
   IMeterConsumptionDataGetResponse,
   IMeterConsumptionDataPutResponse,
   IMeterIdentifierGetResponse,
@@ -33,6 +38,7 @@ import {
   IPropertyPropertyDeleteResponse,
   IPropertyPropertyListGetResponse,
   IPropertyPropertyPostResponse,
+  ISharingActionResponse,
   MeasurementSystem,
 } from "./types/index.js";
 import {
@@ -42,7 +48,9 @@ import {
   IMeterData,
   IMeterDataPostRequest,
   IProperty,
-  toXmlDateString
+  ISharingResponsePayload,
+  ITerminateSharingResponsePayload,
+  toXmlDateString,
 } from "./types/xml/index.js";
 
 export class PortfolioManagerApiError extends Error {
@@ -99,14 +107,18 @@ export class PortfolioManagerApi {
         jpath === "propertyMetrics.metric" ||
         jpath === "meterData.links.link" ||
         jpath ===
-          "meterPropertyAssociationList.waterMeterAssociation.meters.meterId" ||
+        "meterPropertyAssociationList.waterMeterAssociation.meters.meterId" ||
         jpath ===
-          "meterPropertyAssociationList.energyMeterAssociation.meters.meterId" ||
+        "meterPropertyAssociationList.energyMeterAssociation.meters.meterId" ||
         jpath ===
-          "meterPropertyAssociationList.wasteMeterAssociation.meters.meterId" ||
+        "meterPropertyAssociationList.wasteMeterAssociation.meters.meterId" ||
         jpath === "meterData.meterDelivery" ||
         jpath === "meterData.meterConsumption" ||
-        jpath === "additionalIdentifiers.additionalIdentifier"
+        jpath === "additionalIdentifiers.additionalIdentifier" ||
+        jpath === "pendingList.links.link" ||
+        jpath === "pendingList.property" ||
+        jpath === "pendingList.account" ||
+        jpath === "pendingList.meter"
       );
     },
   };
@@ -488,4 +500,123 @@ export class PortfolioManagerApi {
    * Returns the time-weighted use detail values for a specific property, period ending date, and measurement system. The property must already be shared with you.
    * see: https://portfoliomanager.energystar.gov/webservices/home/api/reporting/useDetailsMetrics/get
    */
+
+  /* c8 ignore start */
+  // Pending response wrappers depend on externally seeded requests in TEST.
+  // https://portfoliomanager.energystar.gov/webservices/home/api/connection/pendingAccountList/get
+  async connectAccountPendingListGet(
+    page?: number
+  ): Promise<IGetPendingConnectionsResponse> {
+    const url = page
+      ? `/connect/account/pending/list?page=${page}`
+      : "/connect/account/pending/list";
+    return this.get<IGetPendingConnectionsResponse>(url);
+  }
+
+  // https://portfoliomanager.energystar.gov/webservices/home/api/connection/connect/post
+  async connectAccountPost(
+    accountId: number,
+    body: ISharingResponsePayload
+  ): Promise<ISharingActionResponse> {
+    return this.post<ISharingResponsePayload, ISharingActionResponse>(
+      `/connect/account/${accountId}`,
+      body
+    );
+  }
+
+  // https://portfoliomanager.energystar.gov/webservices/home/api/connection/disconnect/post
+  async disconnectAccountPost(
+    accountId: number,
+    body: ITerminateSharingResponsePayload,
+    keepShares: boolean = false
+  ): Promise<ISharingActionResponse> {
+    const url = `/disconnect/account/${accountId}?keepShares=${keepShares}`;
+    return this.post<ITerminateSharingResponsePayload, ISharingActionResponse>(
+      url,
+      body
+    );
+  }
+
+  // https://portfoliomanager.energystar.gov/webservices/home/api/connection/pendingPropertyList/get
+  async sharePropertyPendingListGet(
+    page?: number
+  ): Promise<IGetPendingPropertySharesResponse> {
+    const url = page
+      ? `/share/property/pending/list?page=${page}`
+      : "/share/property/pending/list";
+    return this.get<IGetPendingPropertySharesResponse>(url);
+  }
+
+  // https://portfoliomanager.energystar.gov/webservices/home/api/connection/shareProperty/post
+  async sharePropertyPost(
+    propertyId: number,
+    body: ISharingResponsePayload
+  ): Promise<ISharingActionResponse> {
+    return this.post<ISharingResponsePayload, ISharingActionResponse>(
+      `/share/property/${propertyId}`,
+      body
+    );
+  }
+
+  // https://portfoliomanager.energystar.gov/webservices/home/api/connection/pendingMeterList/get
+  async shareMeterPendingListGet(
+    page?: number
+  ): Promise<IGetPendingMeterSharesResponse> {
+    const url = page
+      ? `/share/meter/pending/list?page=${page}`
+      : "/share/meter/pending/list";
+    return this.get<IGetPendingMeterSharesResponse>(url);
+  }
+
+  // https://portfoliomanager.energystar.gov/webservices/home/api/connection/shareMeter/post
+  async shareMeterPost(
+    meterId: number,
+    body: ISharingResponsePayload
+  ): Promise<ISharingActionResponse> {
+    return this.post<ISharingResponsePayload, ISharingActionResponse>(
+      `/share/meter/${meterId}`,
+      body
+    );
+  }
+
+  // https://portfoliomanager.energystar.gov/webservices/home/api/connection/unshareProperty/post
+  async unsharePropertyPost(
+    propertyId: number,
+    body: ITerminateSharingResponsePayload
+  ): Promise<ISharingActionResponse> {
+    return this.post<ITerminateSharingResponsePayload, ISharingActionResponse>(
+      `/unshare/property/${propertyId}`,
+      body
+    );
+  }
+
+  // https://portfoliomanager.energystar.gov/webservices/home/api/connection/unshareMeter/post
+  async unshareMeterPost(
+    meterId: number,
+    body: ITerminateSharingResponsePayload
+  ): Promise<ISharingActionResponse> {
+    return this.post<ITerminateSharingResponsePayload, ISharingActionResponse>(
+      `/unshare/meter/${meterId}`,
+      body
+    );
+  }
+
+  // https://portfoliomanager.energystar.gov/webservices/home/api/connection/notificationList/get
+  async notificationListGet(
+    clear: boolean = true
+  ): Promise<IGetNotificationListResponse> {
+    return this.get<IGetNotificationListResponse>(
+      `/notification/list?clear=${clear}`
+    );
+  }
+  /* c8 ignore stop */
+
+  /**
+   * GET /customer/list
+   * Returns a list of customers that you are connected to.
+   * see: https://portfoliomanager.energystar.gov/webservices/home/api/customer/list
+   */
+  async customerListGet(): Promise<IGetCustomerListResponse> {
+    return this.get<IGetCustomerListResponse>('customer/list');
+  }
 }

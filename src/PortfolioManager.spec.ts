@@ -397,6 +397,17 @@ function createExtendedMockApi(): PortfolioManagerApi {
     propertyPropertyListGet: vi.fn(),
     propertyMetricsMonthlyGet: vi.fn(),
     propertyMetricsGet: vi.fn(),
+    connectAccountPendingListGet: vi.fn(),
+    connectAccountPost: vi.fn(),
+    disconnectAccountPost: vi.fn(),
+    sharePropertyPendingListGet: vi.fn(),
+    sharePropertyPost: vi.fn(),
+    shareMeterPendingListGet: vi.fn(),
+    shareMeterPost: vi.fn(),
+    unsharePropertyPost: vi.fn(),
+    unshareMeterPost: vi.fn(),
+    notificationListGet: vi.fn(),
+    customerListGet: vi.fn(),
   } as unknown as PortfolioManagerApi;
 }
 
@@ -1130,4 +1141,516 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
       "No account found"
     );
   });
+
+  it("getPendingConnections paginates and maps custom fields", async () => {
+    const api = createExtendedMockApi();
+    const pm = new PortfolioManager(api);
+
+    vi.mocked(api.connectAccountPendingListGet)
+      .mockResolvedValueOnce({
+        pendingList: {
+          account: [
+            {
+              accountId: 101,
+              username: "acct-a",
+              accountInfo: {
+                firstName: "A",
+                lastName: "One",
+                email: "a@example.test",
+                organization: "Org A",
+              },
+              connectionAudit: { createdDate: "2026-03-01" },
+              customFieldList: {
+                customField: [
+                  { "@_name": "ticket", "#text": "T-10" },
+                  { "@_name": "priority", "#text": 2 },
+                ],
+              },
+            },
+          ],
+          links: {
+            link: [
+              {
+                "@_linkDescription": "next page",
+                "@_link": "/connect/account/pending/list?page=2",
+                "@_httpMethod": "GET",
+              },
+            ],
+          },
+        },
+      } as never)
+      .mockResolvedValueOnce({
+        pendingList: {
+          account: [
+            {
+              accountId: 102,
+              username: "acct-b",
+              accountInfo: {
+                firstName: "B",
+                lastName: "Two",
+                email: "b@example.test",
+                organization: "Org B",
+              },
+            },
+          ],
+          links: { link: [] },
+        },
+      } as never);
+
+    const pending = await pm.getPendingConnections();
+    expect(api.connectAccountPendingListGet).toHaveBeenNthCalledWith(1, 1);
+    expect(api.connectAccountPendingListGet).toHaveBeenNthCalledWith(2, 2);
+    expect(pending).toEqual([
+      {
+        accountId: 101,
+        username: "acct-a",
+        firstName: "A",
+        lastName: "One",
+        email: "a@example.test",
+        organization: "Org A",
+        requestedDate: "2026-03-01",
+        customFields: { ticket: "T-10", priority: 2 },
+      },
+      {
+        accountId: 102,
+        username: "acct-b",
+        firstName: "B",
+        lastName: "Two",
+        email: "b@example.test",
+        organization: "Org B",
+        requestedDate: "",
+        customFields: undefined,
+      },
+    ]);
+  });
+
+    it("getPendingConnections handles missing account list and singleton customField", async () => {
+      const api = createExtendedMockApi();
+      const pm = new PortfolioManager(api);
+
+      vi.mocked(api.connectAccountPendingListGet)
+        .mockResolvedValueOnce({
+          pendingList: {
+            account: [
+              {
+                accountId: 103,
+                username: "acct-c",
+                accountInfo: {
+                  firstName: "C",
+                  lastName: "Three",
+                  email: "c@example.test",
+                  organization: "Org C",
+                },
+                customFieldList: {
+                  customField: {
+                    "@_name": "ticket",
+                    "#text": "T-20",
+                  },
+                },
+              },
+              {
+                accountId: 104,
+                username: "acct-d",
+                accountInfo: {
+                  firstName: "D",
+                  lastName: "Four",
+                  email: "d@example.test",
+                  organization: "Org D",
+                },
+                customFieldList: {
+                  customField: {
+                    "@_name": "ignored",
+                  },
+                },
+              },
+            ],
+            links: { link: [] },
+          },
+        } as never)
+        .mockResolvedValueOnce({
+          pendingList: {
+            links: { link: [] },
+          },
+        } as never);
+
+      const mapped = await pm.getPendingConnections();
+      expect(mapped[0].customFields).toEqual({ ticket: "T-20" });
+      expect(mapped[1].customFields).toEqual({});
+
+      const empty = await pm.getPendingConnections();
+      expect(empty).toEqual([]);
+    });
+
+  it("acceptConnection and rejectConnection send expected payloads", async () => {
+    const api = createExtendedMockApi();
+    const pm = new PortfolioManager(api);
+
+    await pm.acceptConnection(33, "ok");
+    await pm.rejectConnection(44, "nope");
+
+    expect(api.connectAccountPost).toHaveBeenNthCalledWith(1, 33, {
+      sharingResponse: { action: "Accept", note: "ok" },
+    });
+    expect(api.connectAccountPost).toHaveBeenNthCalledWith(2, 44, {
+      sharingResponse: { action: "Reject", note: "nope" },
+    });
+  });
+
+  it("disconnect forwards keepShares and note options", async () => {
+    const api = createExtendedMockApi();
+    const pm = new PortfolioManager(api);
+
+    await pm.disconnect(71, { keepShares: true, note: "done" });
+    await pm.disconnect(72);
+
+    expect(api.disconnectAccountPost).toHaveBeenNthCalledWith(
+      1,
+      71,
+      { terminateSharingResponse: { note: "done" } },
+      true
+    );
+    expect(api.disconnectAccountPost).toHaveBeenNthCalledWith(
+      2,
+      72,
+      { terminateSharingResponse: { note: undefined } },
+      undefined
+    );
+  });
+
+  it("getPendingPropertyShares and getPendingMeterShares map pending records", async () => {
+    const api = createExtendedMockApi();
+    const pm = new PortfolioManager(api);
+
+    vi.mocked(api.sharePropertyPendingListGet).mockResolvedValueOnce({
+      pendingList: {
+        property: [
+          {
+            propertyId: 501,
+            propertyInfo: { name: "Property A" },
+            username: "acct-a",
+            accountId: 9001,
+            accessLevel: "Read",
+            shareAudit: { createdDate: "2026-03-02" },
+          },
+        ],
+        links: { link: [] },
+      },
+    } as never);
+
+    vi.mocked(api.shareMeterPendingListGet).mockResolvedValueOnce({
+      pendingList: {
+        meter: [
+          {
+            meterId: 601,
+            propertyId: 501,
+            propertyInfo: { name: "Property A" },
+            username: "acct-a",
+            accountId: 9001,
+            accessLevel: "Read Write",
+            shareAudit: { createdDate: "2026-03-02" },
+          },
+        ],
+        links: { link: [] },
+      },
+    } as never);
+
+    await expect(pm.getPendingPropertyShares()).resolves.toEqual([
+      {
+        type: "property",
+        id: 501,
+        propertyId: 501,
+        propertyName: "Property A",
+        sharerUsername: "acct-a",
+        sharerAccountId: 9001,
+        accessLevel: "Read",
+        requestedDate: "2026-03-02",
+      },
+    ]);
+
+    await expect(pm.getPendingMeterShares()).resolves.toEqual([
+      {
+        type: "meter",
+        id: 601,
+        propertyId: 501,
+        propertyName: "Property A",
+        sharerUsername: "acct-a",
+        sharerAccountId: 9001,
+        accessLevel: "Read Write",
+        requestedDate: "2026-03-02",
+      },
+    ]);
+  });
+
+  it("share accept/reject and unshare actions map to API calls", async () => {
+    const api = createExtendedMockApi();
+    const pm = new PortfolioManager(api);
+
+    await pm.acceptPropertyShare(10, "accepted");
+    await pm.rejectPropertyShare(11, "rejected");
+    await pm.acceptMeterShare(12, "accepted");
+    await pm.rejectMeterShare(13, "rejected");
+    await pm.unshareProperty(14, "cleanup");
+    await pm.unshareMeter(15, "cleanup");
+
+    expect(api.sharePropertyPost).toHaveBeenNthCalledWith(1, 10, {
+      sharingResponse: { action: "Accept", note: "accepted" },
+    });
+    expect(api.sharePropertyPost).toHaveBeenNthCalledWith(2, 11, {
+      sharingResponse: { action: "Reject", note: "rejected" },
+    });
+    expect(api.shareMeterPost).toHaveBeenNthCalledWith(1, 12, {
+      sharingResponse: { action: "Accept", note: "accepted" },
+    });
+    expect(api.shareMeterPost).toHaveBeenNthCalledWith(2, 13, {
+      sharingResponse: { action: "Reject", note: "rejected" },
+    });
+    expect(api.unsharePropertyPost).toHaveBeenCalledWith(14, {
+      terminateSharingResponse: { note: "cleanup" },
+    });
+    expect(api.unshareMeterPost).toHaveBeenCalledWith(15, {
+      terminateSharingResponse: { note: "cleanup" },
+    });
+  });
+
+  it("getNotifications maps payload and defaults markAsRead=true", async () => {
+    const api = createExtendedMockApi();
+    const pm = new PortfolioManager(api);
+
+    vi.mocked(api.notificationListGet)
+      .mockResolvedValueOnce({
+        notificationList: {
+          notification: [
+            {
+              notificationId: 91,
+              notificationTypeCode: "DISCONNECT",
+              notificationCreatedDate: "2026-03-03",
+              description: "Disconnected",
+              accountId: 42,
+              propertyId: 77,
+              meterId: 88,
+              notificationCreatedBy: "primary",
+              notificationCreatedByAccountId: 12,
+            },
+          ],
+        },
+      } as never)
+      .mockResolvedValueOnce({
+        notificationList: { notification: [] },
+      } as never);
+
+    await expect(pm.getNotifications()).resolves.toEqual([
+      {
+        id: 91,
+        type: "DISCONNECT",
+        date: "2026-03-03",
+        description: "Disconnected",
+        accountId: 42,
+        propertyId: 77,
+        meterId: 88,
+        createdByUsername: "primary",
+        createdByAccountId: 12,
+      },
+    ]);
+    expect(api.notificationListGet).toHaveBeenNthCalledWith(1, true);
+
+    await expect(pm.getNotifications({ markAsRead: false })).resolves.toEqual([]);
+    expect(api.notificationListGet).toHaveBeenNthCalledWith(2, false);
+  });
+
+    it("pending property/meter shares follow next-page links", async () => {
+      const api = createExtendedMockApi();
+      const pm = new PortfolioManager(api);
+
+      vi.mocked(api.sharePropertyPendingListGet)
+        .mockResolvedValueOnce({
+          pendingList: {
+            property: [
+              {
+                propertyId: 1001,
+                propertyInfo: { name: "Property P1" },
+                username: "acct-a",
+                accountId: 101,
+                accessLevel: "Read",
+              },
+            ],
+            links: {
+              link: [
+                {
+                  "@_linkDescription": "next page",
+                  "@_link": "/share/property/pending/list?page=2",
+                },
+              ],
+            },
+          },
+        } as never)
+        .mockResolvedValueOnce({
+          pendingList: {
+            property: [
+              {
+                propertyId: 1002,
+                propertyInfo: { name: "Property P2" },
+                username: "acct-b",
+                accountId: 102,
+                accessLevel: "Read Write",
+              },
+            ],
+            links: { link: [] },
+          },
+        } as never);
+
+      vi.mocked(api.shareMeterPendingListGet)
+        .mockResolvedValueOnce({
+          pendingList: {
+            meter: [
+              {
+                meterId: 2001,
+                propertyId: 1001,
+                propertyInfo: { name: "Property P1" },
+                username: "acct-a",
+                accountId: 101,
+                accessLevel: "Read",
+              },
+            ],
+            links: {
+              link: [
+                {
+                  "@_linkDescription": "next page",
+                  "@_link": "/share/meter/pending/list?page=2",
+                },
+              ],
+            },
+          },
+        } as never)
+        .mockResolvedValueOnce({
+          pendingList: {
+            meter: [
+              {
+                meterId: 2002,
+                propertyId: 1002,
+                propertyInfo: { name: "Property P2" },
+                username: "acct-b",
+                accountId: 102,
+                accessLevel: "Read Write",
+              },
+            ],
+            links: { link: [] },
+          },
+        } as never);
+
+      const propertyShares = await pm.getPendingPropertyShares();
+      expect(api.sharePropertyPendingListGet).toHaveBeenNthCalledWith(1, 1);
+      expect(api.sharePropertyPendingListGet).toHaveBeenNthCalledWith(2, 2);
+      expect(propertyShares.map((item) => item.id)).toEqual([1001, 1002]);
+
+      const meterShares = await pm.getPendingMeterShares();
+      expect(api.shareMeterPendingListGet).toHaveBeenNthCalledWith(1, 1);
+      expect(api.shareMeterPendingListGet).toHaveBeenNthCalledWith(2, 2);
+      expect(meterShares.map((item) => item.id)).toEqual([2001, 2002]);
+    });
+
+    it("getPendingPropertyShares handles missing property list", async () => {
+      const api = createExtendedMockApi();
+      const pm = new PortfolioManager(api);
+
+      vi.mocked(api.sharePropertyPendingListGet).mockResolvedValueOnce({
+        pendingList: {
+          links: { link: [] },
+        },
+      } as never);
+
+      await expect(pm.getPendingPropertyShares()).resolves.toEqual([]);
+    });
+
+    it("getPendingMeterShares handles missing meter list", async () => {
+      const api = createExtendedMockApi();
+      const pm = new PortfolioManager(api);
+
+      vi.mocked(api.shareMeterPendingListGet).mockResolvedValueOnce({
+        pendingList: {
+          links: { link: [] },
+        },
+      } as never);
+
+      await expect(pm.getPendingMeterShares()).resolves.toEqual([]);
+    });
+
+    it("getCustomerList handles error, empty, populated, and fallback responses", async () => {
+      const api = createExtendedMockApi();
+      const pm = new PortfolioManager(api);
+
+      vi.mocked(api.customerListGet)
+        .mockResolvedValueOnce({
+          response: { "@_status": "Error" },
+        } as never)
+        .mockResolvedValueOnce({
+          response: {
+            "@_status": "Ok",
+            links: "",
+          },
+        } as never)
+        .mockResolvedValueOnce({
+          response: {
+            "@_status": "Ok",
+            links: {
+              link: [
+                { "@_id": "42", "@_hint": "Org 42" },
+                { "@_hint": "" },
+              ],
+            },
+          },
+        } as never)
+        .mockResolvedValueOnce({
+          response: {
+            "@_status": "Ok",
+            links: {},
+          },
+        } as never);
+
+      await expect(pm.getCustomerList()).rejects.toThrow("Request Error");
+      await expect(pm.getCustomerList()).resolves.toEqual([]);
+      await expect(pm.getCustomerList()).resolves.toEqual([
+        { id: 42, organizationName: "Org 42" },
+        { id: 0, organizationName: "" },
+      ]);
+      await expect(pm.getCustomerList()).resolves.toEqual([]);
+    });
+
+    it("getNotifications handles missing notification arrays and date fallback", async () => {
+      const api = createExtendedMockApi();
+      const pm = new PortfolioManager(api);
+
+      vi.mocked(api.notificationListGet)
+        .mockResolvedValueOnce({
+          notificationList: {
+            notification: [
+              {
+                notificationId: 123,
+                notificationTypeCode: "UNSHARE",
+                description: "Unshared",
+              },
+            ],
+          },
+        } as never)
+        .mockResolvedValueOnce({
+          notificationList: {},
+        } as never);
+
+      await expect(pm.getNotifications()).resolves.toEqual([
+        {
+          id: 123,
+          type: "UNSHARE",
+          date: "",
+          description: "Unshared",
+          accountId: undefined,
+          propertyId: undefined,
+          meterId: undefined,
+          createdByUsername: undefined,
+          createdByAccountId: undefined,
+        },
+      ]);
+
+      await expect(pm.getNotifications({ markAsRead: false })).resolves.toEqual(
+        []
+      );
+    });
 });

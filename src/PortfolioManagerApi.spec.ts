@@ -35,7 +35,9 @@ import {
   isIEmptyResponse,
   isIPropertyMonthlyMetric,
   isIPopulatedResponse,
-  isIPropertyAnnualMetric
+  isIPropertyAnnualMetric,
+  ITerminateSharingResponsePayload,
+  ISharingResponsePayload
 } from "./types/xml/index.js";
 import {
   ensureStandardProperties,
@@ -51,6 +53,9 @@ const BASE_URL = "https://portfoliomanager.energystar.gov/wstest/";
 const USERNAME = process.env.PM_USERNAME;
 const PASSWORD = process.env.PM_PASSWORD;
 const HAS_PM_CREDENTIALS = Boolean(USERNAME && PASSWORD);
+const USERNAME2 = process.env.PM_USERNAME2;
+const PASSWORD2 = process.env.PM_PASSWORD2;
+const HAS_PM_SECONDARY_CREDENTIALS = Boolean(USERNAME2 && PASSWORD2);
 const RUN_ID = `${Date.now()}-${Math.round(Math.random() * 1000000)}`;
 
 function withRunId(base: string): string {
@@ -59,8 +64,62 @@ function withRunId(base: string): string {
 
 const api = new PortfolioManagerApi(BASE_URL, USERNAME || "", PASSWORD || "");
 const pm = new PortfolioManager(api);
+const api2 = new PortfolioManagerApi(BASE_URL, USERNAME2 || "", PASSWORD2 || "");
+const pm2 = new PortfolioManager(api2);
 let standardPropertyIds: number[] = [];
 let metricsFixture: IStandardMetricsFixture;
+
+type PendingFromPrimary = {
+  accountId: number;
+  propertyId: number;
+  meterId: number;
+};
+
+async function findPendingFromPrimaryOrUndefined(): Promise<
+  PendingFromPrimary | undefined
+> {
+  const pendingAccounts = await api2.connectAccountPendingListGet();
+  const pendingProperties = await api2.sharePropertyPendingListGet();
+  const pendingMeters = await api2.shareMeterPendingListGet();
+
+  const accountItems = pendingAccounts.pendingList.account || [];
+  const propertyItems = pendingProperties.pendingList.property || [];
+  const meterItems = pendingMeters.pendingList.meter || [];
+
+  const account = accountItems.find((item) => item.username === USERNAME);
+  const property = propertyItems.find((item) => item.username === USERNAME);
+  const meter = meterItems.find((item) => item.username === USERNAME);
+
+  if (!account || !property || !meter) {
+    return undefined;
+  }
+
+  return {
+    accountId: account.accountId,
+    propertyId: property.propertyId,
+    meterId: meter.meterId,
+  };
+}
+
+let hasPendingConnectionSharingFixtures = false;
+let pendingConnectionSharingSkipReason =
+  "No pending connection/share requests found from PM_USERNAME to PM_USERNAME2.";
+
+if (HAS_PM_CREDENTIALS && HAS_PM_SECONDARY_CREDENTIALS) {
+  try {
+    const pending = await findPendingFromPrimaryOrUndefined();
+    hasPendingConnectionSharingFixtures = Boolean(pending);
+    if (!pending) {
+      pendingConnectionSharingSkipReason =
+        "No pending connection/share requests found from PM_USERNAME to PM_USERNAME2. Connection & Sharing integration tests are skipped.";
+    }
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unknown preflight failure";
+    pendingConnectionSharingSkipReason =
+      `Pending preflight failed: ${message}. Connection & Sharing integration tests are skipped.`;
+  }
+}
 
 async function ensureTestFixtures(): Promise<void> {
   const { account } = await api.accountAccountGet();
@@ -617,6 +676,136 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
     expect(period["@_month"]).to.match(/^\d{1,2}$/);
     expect(period["@_year"]).to.match(/^\d{4}$/);
   }, 60000);
+
+
+
+  const describeConnectionSharing =
+    HAS_PM_SECONDARY_CREDENTIALS && hasPendingConnectionSharingFixtures
+      ? describe
+      : describe.skip;
+
+  describeConnectionSharing("Connection & Sharing", () => {
+    let acceptedConnectionId: number | undefined;
+    let acceptedPropertyId: number | undefined;
+    let acceptedMeterId: number | undefined;
+
+    async function clearTransientNotifications(): Promise<void> {
+      await api.notificationListGet(true);
+      await api2.notificationListGet(true);
+    }
+
+    async function cleanupAcceptedState(): Promise<void> {
+      const terminatePayload: ITerminateSharingResponsePayload = {
+        terminateSharingResponse: { note: `Test cleanup ${RUN_ID}` },
+      };
+
+      if (acceptedMeterId) {
+        try {
+          await api2.unshareMeterPost(acceptedMeterId, terminatePayload);
+        } catch {
+          // Best effort cleanup for shared test environment.
+        }
+      }
+
+      if (acceptedPropertyId) {
+        try {
+          await api2.unsharePropertyPost(acceptedPropertyId, terminatePayload);
+        } catch {
+          // Best effort cleanup for shared test environment.
+        }
+      }
+
+      if (acceptedConnectionId) {
+        try {
+          await api2.disconnectAccountPost(acceptedConnectionId, terminatePayload);
+        } catch {
+          // Best effort cleanup for shared test environment.
+        }
+      }
+
+      acceptedConnectionId = undefined;
+      acceptedPropertyId = undefined;
+      acceptedMeterId = undefined;
+    }
+
+    beforeAll(async () => {
+      // Validate both accounts and start with drained notifications.
+      await pm.getAccount();
+      await pm2.getAccount();
+      await clearTransientNotifications();
+
+      if (!hasPendingConnectionSharingFixtures) {
+        console.warn(pendingConnectionSharingSkipReason);
+      }
+    }, 60000);
+
+    afterEach(async () => {
+      await cleanupAcceptedState();
+      await clearTransientNotifications();
+    }, 120000);
+
+    it("account2 accepts pending connection and shares from account1 and cleans up", async () => {
+      const pending = await findPendingFromPrimaryOrUndefined();
+      if (!pending) {
+        throw new Error(
+          "Pending requests were expected by preflight but were not found at runtime. Re-seed pending requests and retry."
+        );
+      }
+      const acceptPayload: ISharingResponsePayload = {
+        sharingResponse: {
+          action: "Accept",
+          note: `Accepted in test run ${RUN_ID}`,
+        },
+      };
+
+      const accountResponse = await api2.connectAccountPost(
+        pending.accountId,
+        acceptPayload
+      );
+      expect(accountResponse.response["@_status"]).to.equal("Ok");
+
+      const propertyResponse = await api2.sharePropertyPost(
+        pending.propertyId,
+        acceptPayload
+      );
+      expect(propertyResponse.response["@_status"]).to.equal("Ok");
+
+      const meterResponse = await api2.shareMeterPost(
+        pending.meterId,
+        acceptPayload
+      );
+      expect(meterResponse.response["@_status"]).to.equal("Ok");
+
+      acceptedConnectionId = pending.accountId;
+      acceptedPropertyId = pending.propertyId;
+      acceptedMeterId = pending.meterId;
+
+      const pendingAccountsAfter = await api2.connectAccountPendingListGet();
+      const pendingPropertiesAfter = await api2.sharePropertyPendingListGet();
+      const pendingMetersAfter = await api2.shareMeterPendingListGet();
+
+      expect(
+        pendingAccountsAfter.pendingList.account.some(
+          (item) => item.accountId === pending.accountId
+        )
+      ).to.equal(false);
+      expect(
+        pendingPropertiesAfter.pendingList.property.some(
+          (item) => item.propertyId === pending.propertyId
+        )
+      ).to.equal(false);
+      expect(
+        pendingMetersAfter.pendingList.meter.some(
+          (item) => item.meterId === pending.meterId
+        )
+      ).to.equal(false);
+
+      const notifs = await api2.notificationListGet(false);
+      expect(notifs.notificationList).to.be.an("object");
+      expect(notifs.notificationList.notification).to.be.an("array");
+    }, 120000);
+  });
+
 });
 
 describe("PortfolioManagerApi (unit coverage paths)", () => {
@@ -908,6 +1097,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     await unitApi.propertyMetricsGet(11, 2024, 1, ["score"], "METRIC");
     await unitApi.propertyMetricsMonthlyGet(11, 2024, 1, ["score"]);
     await unitApi.propertyMetricsMonthlyGet(11, 2024, 1, ["score"], "METRIC");
+    await unitApi.customerListGet();
 
     expect(getSpy).toHaveBeenCalledWith("account");
     expect(getSpy).toHaveBeenCalledWith("meter/1");
@@ -925,6 +1115,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     expect(getSpy).toHaveBeenCalledWith(
       "/property/11/design/metrics?measurementSystem=METRIC"
     );
+    expect(getSpy).toHaveBeenCalledWith("customer/list");
 
     expect(postSpy).toHaveBeenCalledWith("account/3/property", {
       property: { name: "P" },
@@ -948,3 +1139,5 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     });
   });
 });
+
+
