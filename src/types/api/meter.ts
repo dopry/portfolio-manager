@@ -3,11 +3,12 @@ import {
   IMeterData,
   IMeterPropertyAssociationList,
   IResponse,
+  IPendingMeterList,
 } from "../xml/index.js";
 import {
   IAdditionalIdentifier,
   IAdditionalIdentifierTypes,
-  IAdditionalIdentifiers
+  IAdditionalIdentifiers,
 } from "../xml/property/AdditionalIdentifier.js";
 import { IParsedXml } from "./IParsedXML.js";
 
@@ -61,4 +62,12 @@ export interface IMeterPropertyAssociationGetResponse extends IParsedXml {
 
 export interface IMeterPropertyAssociationPostResponse extends IParsedXml {
   response: IResponse;
+}
+
+/**
+ * The response structure for a pending meter shares list request.
+ * @see https://portfoliomanager.energystar.gov/webservices/home/api/share/meter/pending/list/get
+ */
+export interface IGetPendingMeterSharesResponse extends IParsedXml {
+  pendingList: IPendingMeterList;
 }

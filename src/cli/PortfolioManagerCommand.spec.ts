@@ -453,6 +453,273 @@ describe("PortfolioManagerCommand (parse)", () => {
     ).rejects.toThrow("Expected entity to be a record");
   });
 
+  it("parses and executes connection list-pending", async () => {
+    harness.fakeClient.getPendingConnections.mockResolvedValueOnce([
+      {
+        accountId: 41,
+        username: "sender",
+        email: "sender@example.test",
+      },
+    ]);
+
+    await harness.parseCli(["connection", "list-pending"]);
+
+    expect(harness.fakeClient.getPendingConnections).toHaveBeenCalledTimes(1);
+    expect(console.log).toHaveBeenCalledWith(
+      JSON.stringify(
+        [
+          {
+            accountId: 41,
+            username: "sender",
+            email: "sender@example.test",
+          },
+        ],
+        null,
+        0
+      )
+    );
+  });
+
+  it("shows empty message for connection list-pending", async () => {
+    harness.fakeClient.getPendingConnections.mockResolvedValueOnce([]);
+
+    await harness.parseCli(["connection", "list-pending"]);
+
+    expect(console.error).toHaveBeenCalledWith(
+      "No pending connection requests found."
+    );
+  });
+
+  it("parses and executes connection accept with optional note", async () => {
+    await harness.parseCli([
+      "connection",
+      "accept",
+      "--accountId",
+      "512",
+      "--note",
+      "approved",
+    ]);
+
+    expect(harness.fakeClient.acceptConnection).toHaveBeenCalledWith(
+      "512",
+      "approved"
+    );
+  });
+
+  it("parses and executes connection reject", async () => {
+    await harness.parseCli([
+      "connection",
+      "reject",
+      "--accountId",
+      "700",
+    ]);
+
+    expect(harness.fakeClient.rejectConnection).toHaveBeenCalledWith(
+      "700",
+      undefined
+    );
+  });
+
+  it("parses and executes connection disconnect with keep-shares", async () => {
+    await harness.parseCli([
+      "connection",
+      "disconnect",
+      "--accountId",
+      "700",
+      "--keep-shares",
+      "--note",
+      "done",
+    ]);
+
+    expect(harness.fakeClient.disconnect).toHaveBeenCalledWith("700", {
+      keepShares: true,
+      note: "done",
+    });
+  });
+
+  it("parses and executes share list-pending", async () => {
+    harness.fakeClient.getPendingPropertyShares.mockResolvedValueOnce([
+      { type: "property", id: 1001 },
+    ]);
+    harness.fakeClient.getPendingMeterShares.mockResolvedValueOnce([
+      { type: "meter", id: 2001 },
+    ]);
+
+    await harness.parseCli(["share", "list-pending"]);
+
+    expect(harness.fakeClient.getPendingPropertyShares).toHaveBeenCalledTimes(1);
+    expect(harness.fakeClient.getPendingMeterShares).toHaveBeenCalledTimes(1);
+    expect(console.log).toHaveBeenCalledWith(
+      JSON.stringify(
+        [
+          { type: "property", id: 1001 },
+          { type: "meter", id: 2001 },
+        ],
+        null,
+        0
+      )
+    );
+  });
+
+  it("shows empty message for share list-pending", async () => {
+    harness.fakeClient.getPendingPropertyShares.mockResolvedValueOnce([]);
+    harness.fakeClient.getPendingMeterShares.mockResolvedValueOnce([]);
+
+    await harness.parseCli(["share", "list-pending"]);
+
+    expect(console.error).toHaveBeenCalledWith("No pending share requests found.");
+  });
+
+  it("parses and executes share accept for property", async () => {
+    await harness.parseCli([
+      "share",
+      "accept",
+      "--type",
+      "property",
+      "--id",
+      "321",
+      "--note",
+      "accepted",
+    ]);
+
+    expect(harness.fakeClient.acceptPropertyShare).toHaveBeenCalledWith(
+      "321",
+      "accepted"
+    );
+    expect(harness.fakeClient.acceptMeterShare).not.toHaveBeenCalled();
+  });
+
+  it("parses and executes share accept for meter", async () => {
+    await harness.parseCli([
+      "share",
+      "accept",
+      "--type",
+      "meter",
+      "--id",
+      "322",
+      "--note",
+      "accepted-meter",
+    ]);
+
+    expect(harness.fakeClient.acceptMeterShare).toHaveBeenCalledWith(
+      "322",
+      "accepted-meter"
+    );
+    expect(harness.fakeClient.acceptPropertyShare).not.toHaveBeenCalled();
+  });
+
+  it("parses and executes share reject for meter", async () => {
+    await harness.parseCli([
+      "share",
+      "reject",
+      "--type",
+      "meter",
+      "--id",
+      "654",
+    ]);
+
+    expect(harness.fakeClient.rejectMeterShare).toHaveBeenCalledWith(
+      "654",
+      undefined
+    );
+    expect(harness.fakeClient.rejectPropertyShare).not.toHaveBeenCalled();
+  });
+
+  it("parses and executes share reject for property", async () => {
+    await harness.parseCli([
+      "share",
+      "reject",
+      "--type",
+      "property",
+      "--id",
+      "655",
+      "--note",
+      "reject-property",
+    ]);
+
+    expect(harness.fakeClient.rejectPropertyShare).toHaveBeenCalledWith(
+      "655",
+      "reject-property"
+    );
+    expect(harness.fakeClient.rejectMeterShare).not.toHaveBeenCalled();
+  });
+
+  it("parses and executes share remove for property", async () => {
+    await harness.parseCli([
+      "share",
+      "remove",
+      "--type",
+      "property",
+      "--id",
+      "777",
+      "--note",
+      "cleanup",
+    ]);
+
+    expect(harness.fakeClient.unshareProperty).toHaveBeenCalledWith(
+      "777",
+      "cleanup"
+    );
+    expect(harness.fakeClient.unshareMeter).not.toHaveBeenCalled();
+  });
+
+  it("parses and executes share remove for meter", async () => {
+    await harness.parseCli([
+      "share",
+      "remove",
+      "--type",
+      "meter",
+      "--id",
+      "778",
+      "--note",
+      "cleanup-meter",
+    ]);
+
+    expect(harness.fakeClient.unshareMeter).toHaveBeenCalledWith(
+      "778",
+      "cleanup-meter"
+    );
+    expect(harness.fakeClient.unshareProperty).not.toHaveBeenCalled();
+  });
+
+  it("parses and executes notifications list with --no-clear", async () => {
+    harness.fakeClient.getNotifications.mockResolvedValueOnce([
+      { id: 11, type: "DISCONNECT" },
+    ]);
+
+    await harness.parseCli(["notifications", "list", "--no-clear"]);
+
+    expect(harness.fakeClient.getNotifications).toHaveBeenCalledWith({
+      markAsRead: false,
+    });
+    expect(console.log).toHaveBeenCalledWith(
+      JSON.stringify([{ id: 11, type: "DISCONNECT" }], null, 0)
+    );
+  });
+
+  it("uses default notification clear behavior", async () => {
+    harness.fakeClient.getNotifications.mockResolvedValueOnce([
+      { id: 12, type: "UNSHARE" },
+    ]);
+
+    await harness.parseCli(["notifications", "list"]);
+
+    expect(harness.fakeClient.getNotifications).toHaveBeenCalledWith({
+      markAsRead: true,
+    });
+    expect(console.log).toHaveBeenCalledWith(
+      JSON.stringify([{ id: 12, type: "UNSHARE" }], null, 0)
+    );
+  });
+
+  it("shows empty message for notifications list", async () => {
+    harness.fakeClient.getNotifications.mockResolvedValueOnce([]);
+
+    await harness.parseCli(["notifications", "list"]);
+
+    expect(console.error).toHaveBeenCalledWith("No new notifications found.");
+  });
+
   it("uses the real base client construction path", async () => {
     vi.restoreAllMocks();
     vi.spyOn(console, "log").mockImplementation(() => undefined);

@@ -26,6 +26,14 @@ import {
   isIPropertyMetricValueNull,
   IClientMetricMonthly,
   IClientMetricMonthlyValue,
+  IClientPendingConnectionRequest,
+  IClientPendingShareRequest,
+  IClientNotification,
+  ICustomer,
+  INotification,
+  ShareLevel,
+  AcceptRejectAction,
+  IGetCustomerListResponse,
 } from "./types/index.js";
 
 /**
@@ -653,5 +661,288 @@ export class PortfolioManager {
       }
       return acc;
     }, {});
+  }
+  /**
+   * Fetches all pending connection requests from other Portfolio Manager users.
+   * This method handles pagination automatically.
+   * @returns A promise that resolves to an array of simplified pending connection request objects.
+   */
+  async getPendingConnections(): Promise<IClientPendingConnectionRequest[]> {
+    const connections: IClientPendingConnectionRequest[] = [];
+    let page = 1;
+    let hasMore = true;
+
+    while (hasMore) {
+      const response = await this.api.connectAccountPendingListGet(page);
+      const pendingAccounts = response.pendingList.account || [];
+
+      for (const account of pendingAccounts) {
+        connections.push({
+          accountId: account.accountId,
+          username: account.username,
+          firstName: account.accountInfo.firstName,
+          lastName: account.accountInfo.lastName,
+          email: account.accountInfo.email,
+          organization: account.accountInfo.organization,
+          requestedDate: account.connectionAudit?.createdDate || "",
+          customFields: account.customFieldList?.customField
+            ? (Array.isArray(account.customFieldList.customField)
+                ? account.customFieldList.customField
+                : [account.customFieldList.customField]
+              )
+                .filter(Boolean)
+                .reduce((acc, field) => {
+                  if (
+                    field &&
+                    field["@_name"] &&
+                    field["#text"] !== undefined
+                  ) {
+                    acc[field["@_name"]] = field["#text"];
+                  }
+                  return acc;
+                }, {} as Record<string, string | number>)
+            : undefined,
+        });
+      }
+
+      // Check for a 'next page' link to continue pagination
+      const nextLink = response.pendingList.links?.link.find(
+        (l) => l["@_linkDescription"] === "next page"
+      );
+      hasMore = !!nextLink;
+      page++;
+    }
+    return connections;
+  }
+
+  /**
+   * Accepts a pending connection request from another user.
+   * @param accountId The ID of the account whose connection request you want to accept.
+   * @param note An optional note to include with the acceptance.
+   * @returns A promise that resolves on successful acceptance.
+   */
+  async acceptConnection(accountId: number, note?: string): Promise<void> {
+    const body = {
+      sharingResponse: { action: "Accept" as AcceptRejectAction, note },
+    };
+    await this.api.connectAccountPost(accountId, body);
+  }
+
+  /**
+   * Rejects a pending connection request from another user.
+   * @param accountId The ID of the account whose connection request you want to reject.
+   * @param note An optional note to include with the rejection.
+   * @returns A promise that resolves on successful rejection.
+   */
+  async rejectConnection(accountId: number, note?: string): Promise<void> {
+    const body = {
+      sharingResponse: { action: "Reject" as AcceptRejectAction, note },
+    };
+    await this.api.connectAccountPost(accountId, body);
+  }
+
+  /**
+   * Disconnects from a user's account, optionally keeping existing shares.
+   * @param accountId The ID of the account to disconnect from.
+   * @param options Configuration for the disconnect action.
+   * @param options.keepShares If true, existing property and meter shares will not be removed. Defaults to false.
+   * @param options.note An optional note to include with the disconnection.
+   * @returns A promise that resolves on successful disconnection.
+   */
+  async disconnect(
+    accountId: number,
+    options: { keepShares?: boolean; note?: string } = {}
+  ): Promise<void> {
+    const body = { terminateSharingResponse: { note: options.note } };
+    await this.api.disconnectAccountPost(accountId, body, options.keepShares);
+  }
+
+  /**
+   * Fetches all pending property share requests.
+   * This method handles pagination automatically.
+   * @returns A promise that resolves to an array of simplified pending property share request objects.
+   */
+  async getPendingPropertyShares(): Promise<IClientPendingShareRequest[]> {
+    const shares: IClientPendingShareRequest[] = [];
+    let page = 1;
+    let hasMore = true;
+
+    while (hasMore) {
+      const response = await this.api.sharePropertyPendingListGet(page);
+      const pendingProperties = response.pendingList.property || [];
+
+      for (const prop of pendingProperties) {
+        shares.push({
+          type: "property",
+          id: prop.propertyId,
+          propertyId: prop.propertyId,
+          propertyName: prop.propertyInfo.name,
+          sharerUsername: prop.username,
+          sharerAccountId: prop.accountId,
+          accessLevel: prop.accessLevel as ShareLevel,
+          requestedDate: prop.shareAudit?.createdDate || "",
+        });
+      }
+      const nextLink = response.pendingList.links?.link.find(
+        (l) => l["@_linkDescription"] === "next page"
+      );
+      hasMore = !!nextLink;
+      page++;
+    }
+    return shares;
+  }
+
+  /**
+   * Fetches all pending meter share requests.
+   * This method handles pagination automatically.
+   * @returns A promise that resolves to an array of simplified pending meter share request objects.
+   */
+  async getPendingMeterShares(): Promise<IClientPendingShareRequest[]> {
+    const shares: IClientPendingShareRequest[] = [];
+    let page = 1;
+    let hasMore = true;
+
+    while (hasMore) {
+      const response = await this.api.shareMeterPendingListGet(page);
+      const pendingMeters = response.pendingList.meter || [];
+
+      for (const meter of pendingMeters) {
+        shares.push({
+          type: "meter",
+          id: meter.meterId,
+          propertyId: meter.propertyId,
+          propertyName: meter.propertyInfo.name,
+          sharerUsername: meter.username,
+          sharerAccountId: meter.accountId,
+          accessLevel: meter.accessLevel as ShareLevel,
+          requestedDate: meter.shareAudit?.createdDate || "",
+        });
+      }
+      const nextLink = response.pendingList.links?.link.find(
+        (l) => l["@_linkDescription"] === "next page"
+      );
+      hasMore = !!nextLink;
+      page++;
+    }
+    return shares;
+  }
+
+  /**
+   * Accepts a pending property share request.
+   * @param propertyId The ID of the property share to accept.
+   * @param note An optional note to include with the acceptance.
+   */
+  async acceptPropertyShare(propertyId: number, note?: string): Promise<void> {
+    const body = {
+      sharingResponse: { action: "Accept" as AcceptRejectAction, note },
+    };
+    await this.api.sharePropertyPost(propertyId, body);
+  }
+
+  /**
+   * Rejects a pending property share request.
+   * @param propertyId The ID of the property share to reject.
+   * @param note An optional note to include with the rejection.
+   */
+  async rejectPropertyShare(propertyId: number, note?: string): Promise<void> {
+    const body = {
+      sharingResponse: { action: "Reject" as AcceptRejectAction, note },
+    };
+    await this.api.sharePropertyPost(propertyId, body);
+  }
+
+  /**
+   * Accepts a pending meter share request.
+   * @param meterId The ID of the meter share to accept.
+   * @param note An optional note to include with the acceptance.
+   */
+  async acceptMeterShare(meterId: number, note?: string): Promise<void> {
+    const body = {
+      sharingResponse: { action: "Accept" as AcceptRejectAction, note },
+    };
+    await this.api.shareMeterPost(meterId, body);
+  }
+
+  /**
+   * Rejects a pending meter share request.
+   * @param meterId The ID of the meter share to reject.
+   * @param note An optional note to include with the rejection.
+   */
+  async rejectMeterShare(meterId: number, note?: string): Promise<void> {
+    const body = {
+      sharingResponse: { action: "Reject" as AcceptRejectAction, note },
+    };
+    await this.api.shareMeterPost(meterId, body);
+  }
+
+  /**
+   * Removes an existing share to a property.
+   * @param propertyId The ID of the property to unshare.
+   * @param note An optional note explaining the reason for unsharing.
+   */
+  async unshareProperty(propertyId: number, note?: string): Promise<void> {
+    const body = { terminateSharingResponse: { note } };
+    await this.api.unsharePropertyPost(propertyId, body);
+  }
+
+  /**
+   * Removes an existing share to a meter.
+   * @param meterId The ID of the meter to unshare.
+   * @param note An optional note explaining the reason for unsharing.
+   */
+  async unshareMeter(meterId: number, note?: string): Promise<void> {
+    const body = { terminateSharingResponse: { note } };
+    await this.api.unshareMeterPost(meterId, body);
+  }
+
+  /**
+   * Fetches notifications from the system, such as disconnect or unshare events.
+   * By default, this action marks the notifications as "read" on the server.
+   * @param options Configuration for fetching notifications.
+   * @param options.markAsRead If true, notifications are marked as read after being fetched. Defaults to true.
+   * @returns A promise that resolves to an array of simplified notification objects.
+   */
+  async getNotifications(
+    options: { markAsRead?: boolean } = { markAsRead: true }
+  ): Promise<IClientNotification[]> {
+    const response = await this.api.notificationListGet(options.markAsRead);
+    const notifications = response.notificationList.notification || [];
+
+    return notifications.map((n: INotification) => ({
+      id: n.notificationId,
+      type: n.notificationTypeCode,
+      date: n.notificationCreatedDate || "",
+      description: n.description,
+      accountId: n.accountId,
+      propertyId: n.propertyId,
+      meterId: n.meterId,
+      createdByUsername: n.notificationCreatedBy,
+      createdByAccountId: n.notificationCreatedByAccountId,
+    }));
+  }
+
+  /**
+   * Fetches a list of customers that you are connected to.
+   * @returns A promise that resolves to an array of simplified customer objects.
+   */
+  async getCustomerList(): Promise<ICustomer[]> {
+    const response = await this.api.customerListGet();
+
+    if (response.response["@_status"] != "Ok") {
+      throw new Error(
+        "Request Error, response: " + JSON.stringify(response, null, 2)
+      );
+    }
+
+    if (isIEmptyResponse(response.response)) {
+      return [];
+    }
+    if (isIPopulatedResponse(response.response)) {
+      return response.response.links.link.map((link: any) => ({
+        id: parseInt(link["@_id"] || "0"),
+        organizationName: link["@_hint"] || "",
+      }));
+    }
+    return [];
   }
 }

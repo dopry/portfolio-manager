@@ -21,6 +21,19 @@ export type FakeClient = {
   getMeterAdditionalIdentifiers: ReturnType<typeof vi.fn>;
   getMeters: ReturnType<typeof vi.fn>;
   getPropertyLinks: ReturnType<typeof vi.fn>;
+  getPendingConnections: ReturnType<typeof vi.fn>;
+  acceptConnection: ReturnType<typeof vi.fn>;
+  rejectConnection: ReturnType<typeof vi.fn>;
+  disconnect: ReturnType<typeof vi.fn>;
+  getPendingPropertyShares: ReturnType<typeof vi.fn>;
+  getPendingMeterShares: ReturnType<typeof vi.fn>;
+  acceptPropertyShare: ReturnType<typeof vi.fn>;
+  rejectPropertyShare: ReturnType<typeof vi.fn>;
+  acceptMeterShare: ReturnType<typeof vi.fn>;
+  rejectMeterShare: ReturnType<typeof vi.fn>;
+  unshareProperty: ReturnType<typeof vi.fn>;
+  unshareMeter: ReturnType<typeof vi.fn>;
+  getNotifications: ReturnType<typeof vi.fn>;
 };
 
 export function createFakeClient(): FakeClient {
@@ -35,6 +48,19 @@ export function createFakeClient(): FakeClient {
     getMeterAdditionalIdentifiers: vi.fn(),
     getMeters: vi.fn(),
     getPropertyLinks: vi.fn(),
+    getPendingConnections: vi.fn(),
+    acceptConnection: vi.fn(),
+    rejectConnection: vi.fn(),
+    disconnect: vi.fn(),
+    getPendingPropertyShares: vi.fn(),
+    getPendingMeterShares: vi.fn(),
+    acceptPropertyShare: vi.fn(),
+    rejectPropertyShare: vi.fn(),
+    acceptMeterShare: vi.fn(),
+    rejectMeterShare: vi.fn(),
+    unshareProperty: vi.fn(),
+    unshareMeter: vi.fn(),
+    getNotifications: vi.fn(),
   };
 }
 
