@@ -3,7 +3,7 @@
   "version": "0.0.0-semantic-release",
   "description": "Unofficial CLI Tool and SDK for Energy Star Portfolio Manager",
   "engines": {
-    "node": ">=20 <=25"
+    "node": ">=20"
   },
   "files": [
     "dist/"
