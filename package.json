@@ -9,7 +9,7 @@
     "dist/"
   ],
   "bin": {
-    "portfolio-manager": "dist/cjs/index.js"
+    "portfolio-manager": "dist/index.js"
   },
   "type": "module",
   "main": "dist/index.js",
