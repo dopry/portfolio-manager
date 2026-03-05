@@ -2,10 +2,37 @@ version: 2.1
 orbs:
   node: circleci/node@5.0.2
 jobs:
+  test:
+    parameters:
+      node-version:
+        type: string
+    docker:
+      - image: node:<< parameters.node-version >>
+
+    steps:
+      - checkout
+      - node/install-packages: # Install and automatically cache packages
+          override-ci-command: npm install
+      - run: npm run build
+      - run: node ./dist/index.js --help # Run the CLI to ensure it works, we had some test releases where this was broken during the esm migration
+      - run: npm test
+
+  nightly:
+    docker:
+      - image: node:nightly
+
+    steps:
+      - checkout
+      - run: npm install
+      - run: npm run build
+      - run: node ./dist/index.js --help # Run the CLI to ensure it works, we had some test releases where this was broken during the esm migration
+      - run: npm test
+
   release:
     executor:
       name: node/default
       tag: "lts"
+      
     steps:
       - checkout
       - node/install-packages: # Install and automatically cache packages
@@ -19,7 +46,35 @@ workflows:
   test_and_release:
     # Run the test jobs first, then the release only when all the test jobs are successful
     jobs:
+      - test:
+          matrix:
+            alias: test-node-versions
+            parameters:
+              node-version: ["20", "22", "lts", "current"]
+          context:
+            - dopry-portfoliomanager-epa
+
       - release:
+          requires:
+            - test-node-versions
+          filters:
+            branches:
+              only:
+                - main
+                - next
           context:
             - dopry-npm-packages
+            - dopry-portfoliomanager-epa
+
+  nightly_bleeding_edge:
+    triggers:
+      - schedule:
+          cron: "0 3 * * *"
+          filters:
+            branches:
+              only:
+                - next
+    jobs:
+      - nightly:
+          context:
             - dopry-portfoliomanager-epa
