@@ -20,6 +20,7 @@ export class PortfolioManagerMeterListLinksCommand extends PortfolioManagerBaseC
       "property id to fetch meters for"
     )
       .option("--myAccessOnly", "only fetch meters that I have access to")
+      .addPortfolioManagerOptions()
       .addFieldsOption(this.fields, ["@_id", "@_hint"]);
   }
 

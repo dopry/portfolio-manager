@@ -15,6 +15,7 @@ export class PortfolioManagerMeterAssociationGetCommand extends PortfolioManager
 
   constructor() {
     super("get");
+    this.addPortfolioManagerOptions();
     this.requiredOption(
       "--propertyId <propertyId>",
       "property to fetch associated meters for"

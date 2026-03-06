@@ -27,6 +27,7 @@ export class PortfolioManagerMeterListEntitiesCommand extends PortfolioManagerBa
   }
   constructor() {
     super("entities");
+    this.addPortfolioManagerOptions();
     this.addFieldsOption(this.fields, ["id", "name"]);
     this.requiredOption(
       "--propertyId <propertyId>",

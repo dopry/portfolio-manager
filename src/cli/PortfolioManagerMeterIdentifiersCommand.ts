@@ -19,6 +19,7 @@ export class PortfolioManagerMeterIdentifiersCommand extends PortfolioManagerBas
       "meter id to fetch additional identifiers for"
     )
       .option("--myAccessOnly", "only fetch meters that I have access to")
+      .addPortfolioManagerOptions()
       .addFieldsOption(this.fields, ["@_id", "value", "description"]);
   }
 

@@ -15,6 +15,7 @@ export class PortfolioManagerPropertyMetricsAnnualCommand extends PortfolioManag
   constructor() {
     super("annual");
     const cmdMetrics = METRICS.filter((m) => m[7]).map((m) => [m[0]]);
+    this.addPortfolioManagerOptions();
     this.addFieldsOption(this.fields, this.defaultFields)
     this.requiredOption(
       "--propertyId <propertyId>",

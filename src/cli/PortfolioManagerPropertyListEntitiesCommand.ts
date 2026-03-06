@@ -26,6 +26,7 @@ export class PortfolioManagerPropertyListEntitiesCommand extends PortfolioManage
   _description = "List Properties"
   constructor() {
     super("entities");
+    this.addPortfolioManagerOptions();
     this.addFieldsOption(this.fields, this.defaultFields)
 
   }
