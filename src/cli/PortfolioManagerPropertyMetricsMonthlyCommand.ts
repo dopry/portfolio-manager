@@ -40,7 +40,7 @@ export class PortfolioManagerPropertyMetricsMonthlyCommand extends PortfolioMana
       include_null,
       metrics = undefined,
       fields,
-      _indent,
+      indent,
     } = this.opts();
     const pmClient = this.getPortfolioManagerClient();
 
@@ -60,7 +60,6 @@ export class PortfolioManagerPropertyMetricsMonthlyCommand extends PortfolioMana
           return acc;
         }, {});
       });
-      const indent = parseInt(_indent);
       console.log(JSON.stringify(mapped, null, indent));
     }
     catch (e) {

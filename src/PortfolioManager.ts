@@ -190,7 +190,12 @@ export class PortfolioManager {
     );
     // upsert the identifier if it exists.
     if (identifier) {
-      const id = parseInt(identifier["@_id"]);
+      const id = parseInt(identifier["@_id"], 10);
+      if (Number.isNaN(id)) {
+        throw new Error(
+          `Invalid additional identifier id for meter ${meterId}: ${identifier["@_id"]}`
+        );
+      }
       // update the identifier
       await this.putMeterAdditionalIdentifier(meterId, id, {
         ...identifier,
@@ -283,9 +288,16 @@ export class PortfolioManager {
           : undefined;
 
       const nextLinkUrl = nextLink ? nextLink["@_link"] : undefined;
-      const nextPageStr =
-        (nextLinkUrl && nextLinkUrl.split("=").pop()) || "NaN";
-      nextPage = parseInt(nextPageStr);
+      if (!nextLinkUrl) {
+        nextPage = NaN;
+      } else {
+        const nextPageStr = nextLinkUrl.split("=").pop() || "";
+        const parsedNextPage = parseInt(nextPageStr, 10);
+        if (Number.isNaN(parsedNextPage)) {
+          throw new Error(`Invalid next page link for meter ${meterId}: ${nextLinkUrl}`);
+        }
+        nextPage = parsedNextPage;
+      }
     } while (!isNaN(nextPage));
     // console.error("getMeterConsumption", {length: meterData.length})
     return meterData;
@@ -331,7 +343,10 @@ export class PortfolioManager {
     const meters = await Promise.all(
       links.map(async (link) => {
         const idStr = link["@_id"] || link["@_link"].split("/").pop() || "";
-        const id = parseInt(idStr);
+        const id = parseInt(idStr, 10);
+        if (Number.isNaN(id)) {
+          throw new Error(`Invalid meter id in link: ${JSON.stringify(link)}`);
+        }
         return await this.getMeter(id);
       })
     );
@@ -465,7 +480,10 @@ export class PortfolioManager {
     const properties = await Promise.all(
       links.map(async (link) => {
         const idStr = link["@_id"] || link["@_link"].split("/").pop() || "";
-        const id = parseInt(idStr);
+        const id = parseInt(idStr, 10);
+        if (Number.isNaN(id)) {
+          throw new Error(`Invalid property id in link: ${JSON.stringify(link)}`);
+        }
         return await this.getProperty(id);
       })
     );
@@ -514,8 +532,11 @@ export class PortfolioManager {
             ? null
             : monthly["value"];
           if (exclude_null && !value) return acc;
-          const month = parseInt(monthly["@_month"]);
-          const year = parseInt(monthly["@_year"]);
+          const month = parseInt(monthly["@_month"], 10);
+          const year = parseInt(monthly["@_year"], 10);
+          if (Number.isNaN(month) || Number.isNaN(year)) {
+            throw new Error(`Invalid monthly metric date for property ${propertyId}`);
+          }
           const metric = { propertyId, name, uom, month, year, value };
           acc.push(metric);
           return acc;
@@ -565,8 +586,11 @@ export class PortfolioManager {
             ? null
             : monthly["value"];
           if (exclude_null && !monthtlyValue) return monthtlyAcc;
-          const month = parseInt(monthly["@_month"]);
-          const year = parseInt(monthly["@_year"]);
+          const month = parseInt(monthly["@_month"], 10);
+          const year = parseInt(monthly["@_year"], 10);
+          if (Number.isNaN(month) || Number.isNaN(year)) {
+            throw new Error(`Invalid monthly metric date for property ${propertyId}`);
+          }
           const metric: IClientMetricMonthlyValue = {
             month,
             year,

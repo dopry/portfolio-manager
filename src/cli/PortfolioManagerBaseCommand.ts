@@ -1,9 +1,19 @@
-import { Command, Option } from "commander";
+import { Command, InvalidArgumentError, Option } from "commander";
 import { formatExamplesHelpText } from "../functions/formatExamplesHelpText.js";
 import { PortfolioManager } from "../PortfolioManager.js";
 import { PortfolioManagerApi } from "../PortfolioManagerApi.js";
 
+export function parseIntArg(value: string): number {
+  const parsedValue = Number.parseInt(value, 10);
+  if (Number.isNaN(parsedValue)) {
+    throw new InvalidArgumentError(`Invalid integer: ${value}`);
+  }
+  return parsedValue;
+}
+
+
 export class PortfolioManagerBaseCommand extends Command {
+
   protected fields: string[] = [];
   protected defaultFields = this.fields;
 
@@ -34,7 +44,12 @@ export class PortfolioManagerBaseCommand extends Command {
         .env("PM_PASSWORD")
         .makeOptionMandatory()
     );
-    this.option("--indent <spaces>", "Indented output", "0");
+    this.option(
+      "--indent <spaces>",
+      "Indented output",
+      parseIntArg,
+      0
+    );
     // pass examples in a callback so they will not be evaluated
     // until the parent has been added to the command so this.getFullCommand
     // is usable in example text.

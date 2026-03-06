@@ -28,7 +28,7 @@ export class PortfolioManagerMeterAssociationGetCommand extends PortfolioManager
       await this.getPortfolioManagerClient().getAssociatedMeters(
         cmdOpts.propertyId
       );
-    const indent = cmdOpts.indent ? parseInt(cmdOpts.indent) || 2 : undefined;
+    const indent = cmdOpts.indent;
     console.log(JSON.stringify(meterAssociation, null, indent));
   }
 }

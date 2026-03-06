@@ -46,7 +46,7 @@ export class PortfolioManagerMeterListLinksCommand extends PortfolioManagerBaseC
       );
     });
 
-    const indent = cmdOpts.indent ? parseInt(cmdOpts.indent) || 2 : undefined;
+    const indent = cmdOpts.indent;
     console.log(JSON.stringify(mapped, null, indent));
   }
 }
