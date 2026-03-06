@@ -1,9 +1,10 @@
 import { expect } from "chai";
-import { describe, it } from "vitest";
+import { beforeAll, describe, it } from "vitest";
 import {
   mockIProperty,
   mockMeter
 } from "./Mocks.js";
+import { PortfolioManager } from "./PortfolioManager.js";
 import { PortfolioManagerApi } from "./PortfolioManagerApi.js";
 import {
   ILink,
@@ -12,8 +13,12 @@ import {
   isIPopulatedResponse,
   isIPropertyAnnualMetric
 } from "./types/xml/index.js";
+import {
+  ensureStandardProperties,
+  STANDARD_PROPERTY_NAMES,
+} from "./test/ensureStandardProperties.js";
 
-const BASE_URL = process.env.PM_ENDPOINT || "https://portfoliomanager.energystar.gov/wstest/";
+const BASE_URL = "https://portfoliomanager.energystar.gov/wstest/";
 
 const USERNAME = process.env.PM_USERNAME;
 const PASSWORD = process.env.PM_PASSWORD;
@@ -22,18 +27,38 @@ if (!USERNAME || !PASSWORD) {
     "Please set PM_USERNAME and PM_PASSWORD environment variables"
   );
 }
+const RUN_ID = `${Date.now()}-${Math.round(Math.random() * 1000000)}`;
+
+function withRunId(base: string): string {
+  return `${base} ${RUN_ID}`;
+}
 
 const api = new PortfolioManagerApi(BASE_URL, USERNAME, PASSWORD);
+const pm = new PortfolioManager(api);
+let standardPropertyIds: number[] = [];
+
+async function ensureTestFixtures(): Promise<void> {
+  const { account } = await api.accountAccountGet();
+  standardPropertyIds = await ensureStandardProperties(
+    api,
+    account.id || 0,
+    STANDARD_PROPERTY_NAMES
+  );
+}
 
 describe("PortfolioManagerApi", () => {
+  beforeAll(async () => {
+    await ensureTestFixtures();
+  }, 60000);
+
   it("can be constucted", () => {
     expect(api).to.be.an.instanceof(PortfolioManagerApi);
   });
 
-  // since the PM Test UI became available and we aren't starting from a test account
-  // we can no longer setup this test case without potentially conflicting with other
-  // test runners that may be running at the same time. skip for now until we come up
-  // with a strategy to handle this.
+  // since the PM Test UI became available and we aren't starting from an empty test 
+  // account we can no longer setup this test case without potentially conflicting with
+  // other test runners that may be running at the same time. skip for now until we come
+  // up with a strategy to handle this.
   it.skip("can query an account without properties", async () => {
     const { account } = await api.accountAccountGet();
     const listPropertyResponse = await api.propertyPropertyListGet(
@@ -45,7 +70,10 @@ describe("PortfolioManagerApi", () => {
   }, 60000);
 
   it("can create a test property", async () => {
-    const property = mockIProperty();
+    const property = {
+      ...mockIProperty(),
+      name: withRunId("Test Property"),
+    };
     const { account } = await api.accountAccountGet();
     const postPropertyResponse = await api.propertyPropertyPost(
       property,
@@ -117,7 +145,7 @@ describe("PortfolioManagerApi", () => {
     );
     expect(getPropertyResponse.property.grossFloorArea.value).to.equal(8000);
     expect(getPropertyResponse.property.isFederalProperty).to.equal(false);
-    expect(getPropertyResponse.property.name).to.equal("Test Property");
+    expect(getPropertyResponse.property.name).to.equal(property.name);
     expect(getPropertyResponse.property.numberOfBuildings).to.equal(1);
     expect(getPropertyResponse.property.occupancyPercentage).to.equal(80);
     expect(getPropertyResponse.property.primaryFunction).to.equal(
@@ -154,7 +182,7 @@ describe("PortfolioManagerApi", () => {
       propFromList,
       "created property not found in list response"
     ).to.be.an("object");
-    expect(propFromList["@_hint"]).to.equal("Test Property");
+    expect(propFromList["@_hint"]).to.equal(property.name);
     expect(propFromList["@_httpMethod"]).to.equal("GET");
 
     expect(propFromList["@_link"]).to.match(/^\/property\/\d+$/);
@@ -166,21 +194,9 @@ describe("PortfolioManagerApi", () => {
   it.skip("can create a property design metric", async () => {});
 
   it("can create a meter", async () => {
-    const { account } = await api.accountAccountGet();
-    const getPropertyListResponse = await api.propertyPropertyListGet(
-      account.id || 0
-    );
-    const listResponse = getPropertyListResponse.response;
-    const propertyLink = listResponse.links.link as ILink[];
+    const propertyId = standardPropertyIds[0];
 
-    let propertyIdStr = propertyLink[0]["@_id"] || null;
-    if (!propertyIdStr) {
-      throw new Error("Expected IResponseMultiple or IResponse");
-    }
-
-    const propertyId = parseInt(propertyIdStr, 10);
-
-    const meter = mockMeter();
+    const meter = mockMeter(withRunId("Test Meter"));
     const postMeterResponse = await api.meterMeterPost(propertyId, meter);
     expect(postMeterResponse.response["@_status"]).to.equal("Ok");
     if (!isIPopulatedResponse(postMeterResponse.response)) {
@@ -208,26 +224,39 @@ describe("PortfolioManagerApi", () => {
     );
   }, 60000);
 
+  it("can associate a meter to a property", async () => {
+    const propertyId = standardPropertyIds[0];
+
+    const meter = mockMeter(withRunId("Association Meter"));
+    const postMeterResponse = await api.meterMeterPost(propertyId, meter);
+    const meterId = postMeterResponse.response.id;
+    if (!meterId) {
+      throw new Error("Expected created meter to include id");
+    }
+
+    const associationPostResponse = await api.meterPropertyAssociationSinglePost(
+      propertyId,
+      meterId
+    );
+    expect(associationPostResponse.response["@_status"]).to.equal("Ok");
+
+    const association = await pm.getAssociatedMeters(propertyId);
+    const isAssociated =
+      (association.energyMeterAssociation?.meters || []).includes(meterId) ||
+      (association.waterMeterAssociation?.meters || []).includes(meterId) ||
+      (association.wasteMeterAssociation?.meters || []).includes(meterId);
+
+    expect(isAssociated).to.equal(true);
+  }, 60000);
+
   it.skip("can create a meter consumption record", async () => {});
   it.skip("can create a meter delivery record", async () => {});
 
   it("can create manage custom meter identifiers", async () => {
-    const { account } = await api.accountAccountGet();
-    const getPropertyListResponse = await api.propertyPropertyListGet(
-      account.id || 0
-    );
-    const listResponse = getPropertyListResponse.response;
-    const propertyLink = listResponse.links.link as ILink[];
-
-    let propertyIdStr = propertyLink[0]["@_id"] || null;
-    if (!propertyIdStr) {
-      throw new Error("Expected IResponseMultiple or IResponse");
-    }
-
-    const propertyId = parseInt(propertyIdStr, 10);
+    const propertyId = standardPropertyIds[0];
 
     const meter: IMeter = {
-      name: "Test Meter",
+      name: withRunId("Test Meter"),
       unitOfMeasure: "kWh (thousand Watt-hours)",
       type: "Electric",
       firstBillDate: new Date(2019, 0, 1),

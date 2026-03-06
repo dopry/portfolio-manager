@@ -6,7 +6,11 @@ import {
 } from "./Mocks.js";
 import { PortfolioManager } from "./PortfolioManager.js";
 import { PortfolioManagerApi } from "./PortfolioManagerApi.js";
-import { IAccount, IMeter, IProperty } from "./types/index.js";
+import { IAccount, IMeter } from "./types/index.js";
+import {
+  ensureStandardProperties,
+  STANDARD_PROPERTY_NAMES,
+} from "./test/ensureStandardProperties.js";
 
 const BASE_URL = "https://portfoliomanager.energystar.gov/wstest/";
 const USERNAME = process.env.PM_USERNAME || '';
@@ -21,15 +25,20 @@ describe("PortfolioManager", () => {
   let api: PortfolioManagerApi;
   let pm: PortfolioManager;
   let account: IAccount;
-  let testProperty: IProperty;
+  let testPropertyIds: number[];
   let testMeter: IMeter;
 
   async function ensureTestFixtures() {
     api = new PortfolioManagerApi(BASE_URL, USERNAME, PASSWORD);
     pm = new PortfolioManager(api);
     account = await pm.getAccount();
-    testProperty = await pm.createProperty(mockIProperty());
-    testMeter = await pm.createMeter(testProperty.id, mockMeter());
+
+    testPropertyIds = await ensureStandardProperties(
+      api,
+      account.id || 0,
+      STANDARD_PROPERTY_NAMES
+    );
+    testMeter = await pm.createMeter(testPropertyIds[0], mockMeter());
   }
 
   beforeAll(async () => {
