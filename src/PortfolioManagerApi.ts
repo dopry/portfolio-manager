@@ -21,6 +21,7 @@ import {
   IMeterIdentifierPutResponse,
   IMeterIdentifierTypesListGetResponse,
   IMeterMeterGetResponse,
+  IMeterMeterDeleteResponse,
   IMeterMeterListGetResponse,
   IMeterMeterPostResponse,
   IMeterPropertyAssociationGetResponse,
@@ -29,6 +30,7 @@ import {
   IPropertyMetricsGetResponse,
   IPropertyMetricsMonthlyGetResponse,
   IPropertyPropertyGetResponse,
+  IPropertyPropertyDeleteResponse,
   IPropertyPropertyListGetResponse,
   IPropertyPropertyPostResponse,
   MeasurementSystem,
@@ -198,6 +200,10 @@ export class PortfolioManagerApi {
     return this.fetch<RESP>(path, options);
   }
 
+  async delete<RESP>(path: string, options: RequestInit = {}): Promise<RESP> {
+    return this.fetch<RESP>(path, { ...options, method: "DELETE" });
+  }
+
   // https://portfoliomanager.energystar.gov/webservices/home/test/api/account/account/get
   async accountAccountGet(): Promise<IAccountAccountGetResponse> {
     return this.get<IAccountAccountGetResponse>("account");
@@ -208,11 +214,21 @@ export class PortfolioManagerApi {
     return this.get<IMeterMeterGetResponse>(`meter/${meterId}`);
   }
 
+  async meterMeterDelete(meterId: number): Promise<IMeterMeterDeleteResponse> {
+    return this.delete<IMeterMeterDeleteResponse>(`meter/${meterId}`);
+  }
+
   // https://portfoliomanager.energystar.gov/webservices/home/api/property/property/get
   async propertyPropertyGet(
     propertyId: number
   ): Promise<IPropertyPropertyGetResponse> {
     return this.get<IPropertyPropertyGetResponse>(`property/${propertyId}`);
+  }
+
+  async propertyPropertyDelete(
+    propertyId: number
+  ): Promise<IPropertyPropertyDeleteResponse> {
+    return this.delete<IPropertyPropertyDeleteResponse>(`property/${propertyId}`);
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/property/property/post
