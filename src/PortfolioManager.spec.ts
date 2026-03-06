@@ -2,7 +2,6 @@ import { expect } from "chai";
 import { beforeAll, describe, it } from "vitest";
 import {
   mockIProperty,
-  mockMeter,
 } from "./Mocks.js";
 import { PortfolioManager } from "./PortfolioManager.js";
 import { PortfolioManagerApi } from "./PortfolioManagerApi.js";
@@ -11,6 +10,7 @@ import {
   ensureStandardProperties,
   STANDARD_PROPERTY_NAMES,
 } from "./test/ensureStandardProperties.js";
+import { ensureStandardMeterFixture } from "./test/ensureStandardMeterFixture.js";
 
 const BASE_URL = "https://portfoliomanager.energystar.gov/wstest/";
 const USERNAME = process.env.PM_USERNAME || '';
@@ -38,7 +38,7 @@ describe("PortfolioManager", () => {
       account.id || 0,
       STANDARD_PROPERTY_NAMES
     );
-    testMeter = await pm.createMeter(testPropertyIds[0], mockMeter());
+    testMeter = await ensureStandardMeterFixture(api, testPropertyIds[0]);
   }
 
   beforeAll(async () => {
@@ -52,34 +52,40 @@ describe("PortfolioManager", () => {
 
   it("can set a meter additionalIdentifier", async () => {
     if (!testMeter.id) throw new Error("testMeter.id is undefined");
+
+    const identifierA = "Integration Fixture Identifier A";
+    const identifierB = "Integration Fixture Identifier B";
+
     const identifiers = await pm.getMeterAdditionalIdentifiers(testMeter.id);
     expect(identifiers).to.be.an("array");
-    expect(identifiers).to.have.lengthOf(0);
-    await pm.upsertMeterAdditionalIdentifier(testMeter.id, "Test", "Test");
+    await pm.upsertMeterAdditionalIdentifier(testMeter.id, identifierA, "Value 1");
     const identifiersNew = await pm.getMeterAdditionalIdentifiers(testMeter.id);
     expect(identifiersNew).to.be.an("array");
-    expect(identifiersNew).to.have.lengthOf(1);
-    expect(identifiersNew[0].description).to.equal("Test");
-    expect(identifiersNew[0].value).to.equal("Test");
+    const entryA1 = identifiersNew.find((item) => item.description === identifierA);
+    expect(entryA1).to.be.an("object");
+    expect(entryA1?.value).to.equal("Value 1");
 
-    await pm.upsertMeterAdditionalIdentifier(testMeter.id, "Test", "Test2");
+    await pm.upsertMeterAdditionalIdentifier(testMeter.id, identifierA, "Value 2");
     const identifiersUpdated = await pm.getMeterAdditionalIdentifiers(
       testMeter.id
     );
     expect(identifiersUpdated).to.be.an("array");
-    expect(identifiersUpdated).to.have.lengthOf(1);
-    expect(identifiersUpdated[0].description).to.equal("Test");
-    expect(identifiersUpdated[0].value).to.equal("Test2");
+    const entryA2 = identifiersUpdated.find(
+      (item) => item.description === identifierA
+    );
+    expect(entryA2).to.be.an("object");
+    expect(entryA2?.value).to.equal("Value 2");
 
-    await pm.upsertMeterAdditionalIdentifier(testMeter.id, "Test2", "Test");
+    await pm.upsertMeterAdditionalIdentifier(testMeter.id, identifierB, "Value 3");
     const identifiersNew2 = await pm.getMeterAdditionalIdentifiers(
       testMeter.id
     );
     expect(identifiersNew2).to.be.an("array");
-    expect(identifiersNew2).to.have.lengthOf(2);
-    expect(identifiersNew2[0].description).to.equal("Test");
-    expect(identifiersNew2[0].value).to.equal("Test2");
-    expect(identifiersNew2[1].description).to.equal("Test2");
-    expect(identifiersNew2[1].value).to.equal("Test");
+    const entryA3 = identifiersNew2.find((item) => item.description === identifierA);
+    const entryB = identifiersNew2.find((item) => item.description === identifierB);
+    expect(entryA3).to.be.an("object");
+    expect(entryA3?.value).to.equal("Value 2");
+    expect(entryB).to.be.an("object");
+    expect(entryB?.value).to.equal("Value 3");
   }, 60000); // testing api can be slow so we'll be liberal with the timeouts
 });
