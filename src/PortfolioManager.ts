@@ -2,6 +2,7 @@ import {
   PortfolioManagerApi,
   isPortfolioManagerApiError,
 } from "./PortfolioManagerApi.js";
+import { parseLinkId } from "./functions/parseLinkId.js";
 import {
   IAccount,
   IAdditionalIdentifier,
@@ -336,9 +337,8 @@ export class PortfolioManager {
     const links = await this.getMeterLinks(propertyId);
     const meters = await Promise.all(
       links.map(async (link) => {
-        const idStr = link["@_id"] || link["@_link"].split("/").pop() || "";
-        const id = parseInt(idStr, 10);
-        if (Number.isNaN(id)) {
+        const id = parseLinkId(link);
+        if (id === undefined) {
           throw new Error(`Invalid meter id in link: ${JSON.stringify(link)}`);
         }
         return await this.getMeter(id);
@@ -466,9 +466,8 @@ export class PortfolioManager {
     const links = await this.getPropertyLinks(accountId);
     const properties = await Promise.all(
       links.map(async (link) => {
-        const idStr = link["@_id"] || link["@_link"].split("/").pop() || "";
-        const id = parseInt(idStr, 10);
-        if (Number.isNaN(id)) {
+        const id = parseLinkId(link);
+        if (id === undefined) {
           throw new Error(`Invalid property id in link: ${JSON.stringify(link)}`);
         }
         return await this.getProperty(id);

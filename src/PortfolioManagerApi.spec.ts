@@ -1,40 +1,72 @@
-import { expect } from "chai";
+import { beforeAll, describe, expect, it } from "vitest";
 import {
   mockIProperty,
   mockMeter
 } from "./Mocks.js";
+import { PortfolioManager } from "./PortfolioManager.js";
 import { PortfolioManagerApi } from "./PortfolioManagerApi.js";
+import { METRICS } from "./types/index.js";
 import {
   ILink,
   IMeter,
   isIEmptyResponse,
+  isIPropertyMonthlyMetric,
   isIPopulatedResponse,
   isIPropertyAnnualMetric
 } from "./types/xml/index.js";
+import {
+  ensureStandardProperties,
+  STANDARD_PROPERTY_NAMES,
+} from "./test/ensureStandardProperties.js";
+import {
+  ensureStandardMetricsFixture,
+  IStandardMetricsFixture,
+} from "./test/ensureStandardMetricsFixture.js";
 
 const BASE_URL = "https://portfoliomanager.energystar.gov/wstest/";
 
 const USERNAME = process.env.PM_USERNAME;
 const PASSWORD = process.env.PM_PASSWORD;
-
 if (!USERNAME || !PASSWORD) {
   throw new Error(
     "Please set PM_USERNAME and PM_PASSWORD environment variables"
   );
 }
+const RUN_ID = `${Date.now()}-${Math.round(Math.random() * 1000000)}`;
+
+function withRunId(base: string): string {
+  return `${base} ${RUN_ID}`;
+}
 
 const api = new PortfolioManagerApi(BASE_URL, USERNAME, PASSWORD);
+const pm = new PortfolioManager(api);
+let standardPropertyIds: number[] = [];
+let metricsFixture: IStandardMetricsFixture;
+
+async function ensureTestFixtures(): Promise<void> {
+  const { account } = await api.accountAccountGet();
+  standardPropertyIds = await ensureStandardProperties(
+    api,
+    account.id || 0,
+    STANDARD_PROPERTY_NAMES
+  );
+  metricsFixture = await ensureStandardMetricsFixture(api, standardPropertyIds[0]);
+}
 
 describe("PortfolioManagerApi", () => {
-  it("can be constucted", () => {
+  beforeAll(async () => {
+    await ensureTestFixtures();
+  }, 60000);
+
+  it("constructs PortfolioManagerApi", () => {
     expect(api).to.be.an.instanceof(PortfolioManagerApi);
   });
 
-  // since the PM Test UI became available and we aren't starting from a test account
-  // we can no longer setup this test case without potentially conflicting with other
-  // test runners that may be running at the same time. skip for now until we come up
-  // with a strategy to handle this.
-  it.skip("can query an account without properties", async () => {
+  // since the PM Test UI became available and we aren't starting from an empty test 
+  // account we can no longer setup this test case without potentially conflicting with
+  // other test runners that may be running at the same time. skip for now until we come
+  // up with a strategy to handle this.
+  it.skip("accountAccountGet + propertyPropertyListGet handles empty account", async () => {
     const { account } = await api.accountAccountGet();
     const listPropertyResponse = await api.propertyPropertyListGet(
       account.id || 0
@@ -42,10 +74,13 @@ describe("PortfolioManagerApi", () => {
     expect(listPropertyResponse.response["@_status"]).to.equal("Ok");
     expect(listPropertyResponse.response.links).to.be.an("string");
     expect(isIEmptyResponse(listPropertyResponse.response)).to.equal(true);
-  }).timeout(60000);
+  }, 60000);
 
-  it("can create a test property", async () => {
-    const property = mockIProperty();
+  it("propertyPropertyPost + propertyPropertyGet + propertyPropertyListGet", async () => {
+    const property = {
+      ...mockIProperty(),
+      name: withRunId("Test Property"),
+    };
     const { account } = await api.accountAccountGet();
     const postPropertyResponse = await api.propertyPropertyPost(
       property,
@@ -117,7 +152,7 @@ describe("PortfolioManagerApi", () => {
     );
     expect(getPropertyResponse.property.grossFloorArea.value).to.equal(8000);
     expect(getPropertyResponse.property.isFederalProperty).to.equal(false);
-    expect(getPropertyResponse.property.name).to.equal("Test Property");
+    expect(getPropertyResponse.property.name).to.equal(property.name);
     expect(getPropertyResponse.property.numberOfBuildings).to.equal(1);
     expect(getPropertyResponse.property.occupancyPercentage).to.equal(80);
     expect(getPropertyResponse.property.primaryFunction).to.equal(
@@ -154,33 +189,19 @@ describe("PortfolioManagerApi", () => {
       propFromList,
       "created property not found in list response"
     ).to.be.an("object");
-    expect(propFromList["@_hint"]).to.equal("Test Property");
+    expect(propFromList["@_hint"]).to.equal(property.name);
     expect(propFromList["@_httpMethod"]).to.equal("GET");
 
     expect(propFromList["@_link"]).to.match(/^\/property\/\d+$/);
     expect(propFromList["@_linkDescription"]).to.equal(
       "This is the GET url for this Property."
     );
-  }).timeout(60000);
+  }, 60000);
 
-  it.skip("can create a property design metric", async () => {});
+  it("meterMeterPost + meterMeterListGet", async () => {
+    const propertyId = standardPropertyIds[0];
 
-  it("can create a meter", async () => {
-    const { account } = await api.accountAccountGet();
-    const getPropertyListResponse = await api.propertyPropertyListGet(
-      account.id || 0
-    );
-    const listResponse = getPropertyListResponse.response;
-    const propertyLink = listResponse.links.link as ILink[];
-
-    let propertyIdStr = propertyLink[0]["@_id"] || null;
-    if (!propertyIdStr) {
-      throw new Error("Expected IResponseMultiple or IResponse");
-    }
-
-    const propertyId = parseInt(propertyIdStr, 10);
-
-    const meter = mockMeter();
+    const meter = mockMeter(withRunId("Test Meter"));
     const postMeterResponse = await api.meterMeterPost(propertyId, meter);
     expect(postMeterResponse.response["@_status"]).to.equal("Ok");
     if (!isIPopulatedResponse(postMeterResponse.response)) {
@@ -206,28 +227,104 @@ describe("PortfolioManagerApi", () => {
     expect(meterFromList["@_id"]).to.equal(
       postMeterResponse.response.id.toString()
     );
-  }).timeout(60000);
+  }, 60000);
 
-  it.skip("can create a meter consumption record", async () => {});
-  it.skip("can create a meter delivery record", async () => {});
+  it("meterPropertyAssociationSinglePost + getAssociatedMeters", async () => {
+    const propertyId = standardPropertyIds[0];
 
-  it("can create manage custom meter identifiers", async () => {
-    const { account } = await api.accountAccountGet();
-    const getPropertyListResponse = await api.propertyPropertyListGet(
-      account.id || 0
-    );
-    const listResponse = getPropertyListResponse.response;
-    const propertyLink = listResponse.links.link as ILink[];
-
-    let propertyIdStr = propertyLink[0]["@_id"] || null;
-    if (!propertyIdStr) {
-      throw new Error("Expected IResponseMultiple or IResponse");
+    const meter = mockMeter(withRunId("Association Meter"));
+    const postMeterResponse = await api.meterMeterPost(propertyId, meter);
+    const meterId = postMeterResponse.response.id;
+    if (!meterId) {
+      throw new Error("Expected created meter to include id");
     }
 
-    const propertyId = parseInt(propertyIdStr, 10);
+    const associationPostResponse = await api.meterPropertyAssociationSinglePost(
+      propertyId,
+      meterId
+    );
+    expect(associationPostResponse.response["@_status"]).to.equal("Ok");
+
+    const association = await pm.getAssociatedMeters(propertyId);
+    const isAssociated =
+      (association.energyMeterAssociation?.meters || []).includes(meterId) ||
+      (association.waterMeterAssociation?.meters || []).includes(meterId) ||
+      (association.wasteMeterAssociation?.meters || []).includes(meterId);
+
+    expect(isAssociated).to.equal(true);
+  }, 60000);
+
+  it("meterConsumptionDataPost + meterConsumptionDataGet (consumption)", async () => {
+    const propertyId = standardPropertyIds[0];
+    const meter = mockMeter(withRunId("Consumption Meter"));
+    const postMeterResponse = await api.meterMeterPost(propertyId, meter);
+    const meterId = postMeterResponse.response.id;
+    if (!meterId) {
+      throw new Error("Expected created meter to include id");
+    }
+
+    const consumptionPayload = {
+      meterData: {
+        meterConsumption: [
+          {
+            startDate: "2024-01-01",
+            endDate: "2024-01-31",
+            usage: 123.45,
+            cost: 67.89,
+          },
+        ],
+      },
+    };
+
+    await api.meterConsumptionDataPost(meterId, consumptionPayload);
+
+    const getConsumptionResponse = await api.meterConsumptionDataGet(meterId);
+    expect(getConsumptionResponse.meterData.meterConsumption).to.be.an("array");
+    const consumptions = getConsumptionResponse.meterData.meterConsumption || [];
+    const fetchedMatch = consumptions.find((entry) => entry.usage === 123.45);
+    expect(fetchedMatch).to.be.an("object");
+  }, 60000);
+
+  it("meterConsumptionDataPost + meterConsumptionDataGet (delivery)", async () => {
+    const propertyId = standardPropertyIds[0];
+    const meter = {
+      ...mockMeter(withRunId("Delivery Meter")),
+      metered: false,
+      unitOfMeasure: "Gallons (US)" as const,
+      type: "Fuel Oil No 2" as const,
+    };
+    const postMeterResponse = await api.meterMeterPost(propertyId, meter);
+    const meterId = postMeterResponse.response.id;
+    if (!meterId) {
+      throw new Error("Expected created meter to include id");
+    }
+
+    const deliveryPayload = {
+      meterData: {
+        meterDelivery: [
+          {
+            deliveryDate: "2024-02-01",
+            quantity: 88.5,
+            cost: 40.25,
+          },
+        ],
+      },
+    };
+
+    await api.meterConsumptionDataPost(meterId, deliveryPayload);
+
+    const getDeliveryResponse = await api.meterConsumptionDataGet(meterId);
+    expect(getDeliveryResponse.meterData.meterDelivery).to.be.an("array");
+    const deliveries = getDeliveryResponse.meterData.meterDelivery || [];
+    const fetchedMatch = deliveries.find((entry) => entry.quantity === 88.5);
+    expect(fetchedMatch).to.be.an("object");
+  }, 60000);
+
+  it("meterIdentifierPost + meterIdentifierGet + meterIdentifierPut", async () => {
+    const propertyId = standardPropertyIds[0];
 
     const meter: IMeter = {
-      name: "Test Meter",
+      name: withRunId("Test Meter"),
       unitOfMeasure: "kWh (thousand Watt-hours)",
       type: "Electric",
       firstBillDate: new Date(2019, 0, 1),
@@ -308,9 +405,9 @@ describe("PortfolioManagerApi", () => {
     // console.log({ got2Identifier })
     expect(got2Identifier).to.be.an("object");
     expect(got2Identifier.value).to.eq("New Value");
-  }).timeout(60000);
+  }, 60000);
 
-  it("can query meter identifier types", async () => {
+  it("meterIdentifierTypesListGet", async () => {
     const meterIdentifierTypesResponse =
       await api.meterIdentifierTypesListGet();
 
@@ -324,21 +421,10 @@ describe("PortfolioManagerApi", () => {
     expect(meterIdentifierType["@_standardApproved"]).to.be.a("string");
     expect(meterIdentifierType["@_name"]).to.be.a("string");
     expect(meterIdentifierType["@_description"]).to.be.a("string");
-  }).timeout(60000);
+  }, 60000);
 
-  it.skip("can query property design metrics", async () => {
-    const { account } = await api.accountAccountGet();
-    const getPropertyListResponse = await api.propertyPropertyListGet(
-      account.id || 0
-    );
-    if (!isIPopulatedResponse(getPropertyListResponse.response)) {
-      throw new Error("Expected isIPopoulatedResponse");
-    }
-    // console.log({ getPropertyListResponse });
-    const propertyId = parseInt(
-      getPropertyListResponse.response.links.link[0]["@_id"] || "0",
-      10
-    );
+  it("propertyDesignMetricsGet", async () => {
+    const propertyId = standardPropertyIds[0];
 
     const designMetricsResponse = await api.propertyDesignMetricsGet(
       propertyId
@@ -355,5 +441,68 @@ describe("PortfolioManagerApi", () => {
     }
     expect(metric["@_name"]).to.be.a("string");
     expect(metric["@_dataType"]).to.be.a("string");
-  });
+  }, 60000);
+
+  it("propertyMetricsGet", async () => {
+    const { propertyId } = metricsFixture;
+
+    const requestedMetrics = ["siteTotal", "sourceTotal", "score"];
+    const metricsResponse = await api.propertyMetricsGet(
+      propertyId,
+      2024,
+      1,
+      requestedMetrics
+    );
+
+    expect(metricsResponse.propertyMetrics).to.be.an("object");
+    expect(metricsResponse.propertyMetrics["@_propertyId"]).to.equal(
+      propertyId.toString()
+    );
+    expect(metricsResponse.propertyMetrics.metric).to.be.an("array");
+
+    const returnedRequested = metricsResponse.propertyMetrics.metric.filter(
+      (metric) => requestedMetrics.includes(metric["@_name"])
+    );
+    expect(returnedRequested.length).to.be.greaterThan(0);
+
+    const annualMetric = returnedRequested.find(isIPropertyAnnualMetric);
+    if (!annualMetric) {
+      throw new Error("Expected at least one annual property metric");
+    }
+    expect(annualMetric["@_name"]).to.be.a("string");
+    expect(annualMetric["@_dataType"]).to.be.a("string");
+  }, 60000);
+
+  it("propertyMetricsMonthlyGet", async () => {
+    const { propertyId } = metricsFixture;
+    const requestedMetrics = ["siteElectricityUseMonthly"];
+    const monthlyMetricsResponse = await api.propertyMetricsMonthlyGet(
+      propertyId,
+      2024,
+      1,
+      requestedMetrics
+    );
+
+    expect(monthlyMetricsResponse.propertyMetrics).to.be.an("object");
+    expect(monthlyMetricsResponse.propertyMetrics["@_propertyId"]).to.equal(
+      propertyId.toString()
+    );
+    expect(monthlyMetricsResponse.propertyMetrics.metric).to.be.an("array");
+
+    const requestedSeries = monthlyMetricsResponse.propertyMetrics.metric.find(
+      (metric) => requestedMetrics.includes(metric["@_name"])
+    );
+    expect(requestedSeries).to.be.an("object");
+    if (!requestedSeries) {
+      throw new Error("Expected requested monthly metric series");
+    }
+    expect(isIPropertyMonthlyMetric(requestedSeries)).to.equal(true);
+    if (!isIPropertyMonthlyMetric(requestedSeries)) {
+      throw new Error("Expected monthly metric series");
+    }
+    expect(requestedSeries.monthlyMetric.length).to.be.greaterThan(0);
+    const period = requestedSeries.monthlyMetric[0];
+    expect(period["@_month"]).to.match(/^\d{1,2}$/);
+    expect(period["@_year"]).to.match(/^\d{4}$/);
+  }, 60000);
 });

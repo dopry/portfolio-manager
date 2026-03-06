@@ -1,11 +1,15 @@
 import { IAudit } from "../common/audit.js";
 
-export interface IMeterDelivery {
-  id: number;
-  deliveryDate: Date;
+export interface IMeterDeliveryPost {
+  deliveryDate: string | Date;
   quantity: number;
   cost?: number;
   "@_estimatedValue"?: boolean;
+}
+
+export interface IMeterDelivery extends IMeterDeliveryPost {
+  id: number;
+  deliveryDate: Date;
   audit: IAudit;
 }
 
