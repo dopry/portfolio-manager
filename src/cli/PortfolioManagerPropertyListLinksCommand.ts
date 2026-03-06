@@ -4,10 +4,10 @@ export class PortfolioManagerPropertyListLinksCommand extends PortfolioManagerBa
   get examples() {
     return [
       "# customizing the output",
-      `${this.getFullCommand()} property list links --indent 2  --fields @_id @_hint`,
+      `${this.getFullCommand()} --indent 2  --fields @_id @_hint`,
       "",
       "# using with JQ to map the output to shell scripting friendlier output",
-      `${this.getFullCommand()} property list links  | jq -r  '[.[] | ."@_id"] | @sh'`,
+      `${this.getFullCommand()}  | jq -r  '[.[] | ."@_id"] | @sh'`,
     ];
   }
 
