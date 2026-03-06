@@ -24,12 +24,7 @@ export class PortfolioManagerMeterIdentifiersCommand extends PortfolioManagerBas
 
   protected async _action(): Promise<void> {
     const cmdOpts = this.opts();
-    cmdOpts.fields.forEach((field: string) => {
-      this.fields.includes(field) ||
-        console.error(
-          `${field} is not a valid field, options: ${this.fields.join(", ")}`
-        );
-    });
+    this.validateSelectedFields(cmdOpts.fields, this.fields);
 
     const additionalIdentifiers = await this.getPortfolioManagerClient().getMeterAdditionalIdentifiers(cmdOpts.meterId);
     const mapped = additionalIdentifiers.map((meter) =>

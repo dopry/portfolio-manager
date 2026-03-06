@@ -25,12 +25,7 @@ export class PortfolioManagerMeterListLinksCommand extends PortfolioManagerBaseC
 
   protected async _action(): Promise<void> {
     const cmdOpts = this.opts();
-    cmdOpts.fields.forEach((field: string) => {
-      this.fields.includes(field) ||
-        console.error(
-          `${field} is not a valid field, options: ${this.fields.join(", ")}`
-        );
-    });
+    this.validateSelectedFields(cmdOpts.fields, this.fields);
     const meters = await this.getPortfolioManagerClient().getMeterLinks(
       cmdOpts.propertyId,
       cmdOpts.myAccessOnly

@@ -92,6 +92,17 @@ export class PortfolioManagerBaseCommand extends Command {
     }, {});
   }
 
+  protected validateSelectedFields(selectedFields: string[], allowedFields: string[]): void {
+    const invalidFields = selectedFields.filter(
+      (field) => !allowedFields.includes(field)
+    );
+    if (invalidFields.length > 0) {
+      throw new InvalidArgumentError(
+        `Invalid field(s): ${invalidFields.join(", ")}. Available fields: ${allowedFields.join(", ")}`
+      );
+    }
+  }
+
   protected getFullCommand(): string {
     return this._getCommandAndParents()
       .reverse()

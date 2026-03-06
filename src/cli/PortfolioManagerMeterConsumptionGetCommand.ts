@@ -54,12 +54,7 @@ export class PortfolioManagerMeterConsumptionGetCommand extends PortfolioManager
 
   protected async _action(): Promise<void> {
     const cmdOpts = this.opts();
-    cmdOpts.fields.forEach((field: string) => {
-      this.fields.includes(field) ||
-        console.error(
-          `${field} is not a valid field, options: ${this.fields.join(", ")}`
-        );
-    });
+    this.validateSelectedFields(cmdOpts.fields, this.fields);
     const { start = undefined, end = undefined } = cmdOpts;
     const client = this.getPortfolioManagerClient();
     const meterConsumption = await client.getMeterConsumption(
