@@ -23,8 +23,7 @@
     "target": "ES2015",
     "traceResolution": false,
     "types": [
-      "node",
-      "mocha"
+      "node"
     ],
   },
   "compileOnSave": false,
