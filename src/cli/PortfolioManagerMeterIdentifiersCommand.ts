@@ -16,7 +16,7 @@ export class PortfolioManagerMeterIdentifiersCommand extends PortfolioManagerBas
     super("identifiers");
     this.requiredOption(
       "--meterId <meterId>",
-      "space seperated list of meter ids to fetch additional identifiers for"
+      "space separated list of meter ids to fetch additional identifiers for"
     )
       .option("--myAccessOnly", "only fetch meters that I have access to")
       .addFieldsOption(this.fields, ["@_id", "value", "description"]);

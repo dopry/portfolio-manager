@@ -30,7 +30,7 @@ export class PortfolioManagerMeterListEntitiesCommand extends PortfolioManagerBa
     this.addFieldsOption(this.fields, ["id", "name"]);
     this.requiredOption(
       "--propertyId <propertyIds...>",
-      "space seperated list of Property ids to fetch meters for"
+      "space separated list of property ids to fetch meters for"
     );
   }
   protected async _action(): Promise<void> {

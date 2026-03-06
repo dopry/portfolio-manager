@@ -2,7 +2,7 @@ import { PortfolioManagerBaseCommand } from "./PortfolioManagerBaseCommand.js";
 
 export class PortfolioManagerMeterListLinksCommand extends PortfolioManagerBaseCommand {
   _description =
-    "List all meters the belong to a property, they are not necessarily included in the properties metrics";
+    "List all meters that belong to a property; they are not necessarily included in the property's metrics";
   fields = ["@_id", "@_hint", "@_linkDescription", "@_link", "@_httpMethod"];
   get examples() {
     return [
@@ -17,7 +17,7 @@ export class PortfolioManagerMeterListLinksCommand extends PortfolioManagerBaseC
     super("links");
     this.requiredOption(
       "--propertyId <propertyIds...>",
-      "space seperated list of Property ids to fetch meters for"
+      "space separated list of property ids to fetch meters for"
     )
       .option("--myAccessOnly", "only fetch meters that I have access to")
       .addFieldsOption(this.fields, ["@_id", "@_hint"]);

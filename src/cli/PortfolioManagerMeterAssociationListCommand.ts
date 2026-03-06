@@ -6,10 +6,10 @@ export class PortfolioManagerMeterAssociationListCommand extends PortfolioManage
   protected get examples() {
     return [
       "# customizing the output",
-      `${this.name} meter asscociation list --propertyIds <propertyId...> --indent 2`,
+      `${this.name} meter association list --propertyIds <propertyId...> --indent 2`,
       "",
       "# using with JQ to map the output to shell scripting friendlier output",
-      `${this.name} meter asscociation list --propertyIds <propertyId...> | jq -r '[.[] | .id] | @sh'`,
+      `${this.name} meter association list --propertyIds <propertyId...> | jq -r '[.[] | .id] | @sh'`,
     ];
   }
   constructor() {

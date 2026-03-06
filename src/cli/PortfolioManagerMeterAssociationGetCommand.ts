@@ -9,7 +9,7 @@ export class PortfolioManagerMeterAssociationGetCommand extends PortfolioManager
       `${this.getFullCommand()} --propertyId <propertyId> --indent 2`,
       "",
       "# using with JQ to map the output to shell scripting friendlier output",
-      `portfolio-manager meter asscociation get --propertyId <propertyId> | jq -r '[.[] | .id] | @sh'`,
+      `portfolio-manager meter association get --propertyId <propertyId> | jq -r '[.[] | .id] | @sh'`,
     ];
   }
 
