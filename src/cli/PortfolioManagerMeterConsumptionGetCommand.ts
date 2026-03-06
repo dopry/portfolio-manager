@@ -43,6 +43,7 @@ export class PortfolioManagerMeterConsumptionGetCommand extends PortfolioManager
 
   constructor() {
     super("get");
+    this.addPortfolioManagerOptions();
     this.requiredOption(
       "--meterId <meterId>",
       "meter to fetch consumption for"

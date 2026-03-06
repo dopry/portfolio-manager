@@ -2,7 +2,7 @@ import { InvalidArgumentError } from "commander";
 import { describe, expect, beforeEach, afterEach, it, vi } from "vitest";
 import { PortfolioManager } from "../PortfolioManager.js";
 import { PortfolioManagerApiError } from "../PortfolioManagerApi.js";
-import { parseIntArg } from "./PortfolioManagerBaseCommand.js";
+import { parseIntArg, PortfolioManagerBaseCommand } from "./PortfolioManagerBaseCommand.js";
 import { setupCliHarness, type CliHarness } from "../test/cli/cliTestHarness.js";
 
 describe("parseIntArg", () => {
@@ -12,6 +12,18 @@ describe("parseIntArg", () => {
 
   it("throws InvalidArgumentError on invalid integers", () => {
     expect(() => parseIntArg("abc")).to.throw(InvalidArgumentError);
+  });
+});
+
+describe("PortfolioManagerBaseCommand.getPortfolioManagerClient", () => {
+  it("throws InvalidArgumentError when addPortfolioManagerOptions was not called", () => {
+    class TestCommand extends PortfolioManagerBaseCommand {
+      constructor() {
+        super("test");
+      }
+    }
+    const cmd = new TestCommand();
+    expect(() => cmd.getPortfolioManagerClient()).to.throw(InvalidArgumentError);
   });
 });
 

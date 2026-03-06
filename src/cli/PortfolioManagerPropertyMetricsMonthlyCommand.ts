@@ -15,6 +15,7 @@ export class PortfolioManagerPropertyMetricsMonthlyCommand extends PortfolioMana
   constructor() {
     super("monthly");
     const MONTHLY_METRICS = METRICS.filter((m) => m[14]).map((m) => [m[0]]);
+    this.addPortfolioManagerOptions();
     this.addFieldsOption(this.fields, this.defaultFields)
     this.requiredOption(
       "--propertyId <propertyId>",

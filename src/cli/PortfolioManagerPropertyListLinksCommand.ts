@@ -17,6 +17,7 @@ export class PortfolioManagerPropertyListLinksCommand extends PortfolioManagerBa
   constructor() {
     super("links");
     this.description("List property links")
+    this.addPortfolioManagerOptions();
     this.addFieldsOption(this.fields, this.defaultFields)
 
   }
