@@ -163,11 +163,29 @@ export class PortfolioManagerApi {
     }
 
     const xmlResp = await response.text();
-    const parser = new XMLParser(this.xmlParserOptions);
-    const parsed = parser.parse(xmlResp) as RESP;
+    if (xmlResp.trim().length === 0) {
+      throw new PortfolioManagerApiError(
+        response.status,
+        response.statusText,
+        "Empty response body",
+        response.url
+      );
+    }
 
-    // console.log("response", {response, xmlResp, parsed});
-    return parsed;
+    const parser = new XMLParser(this.xmlParserOptions);
+    try {
+      return parser.parse(xmlResp) as RESP;
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unknown XML parse failure";
+      const snippet = xmlResp.slice(0, 500);
+      throw new PortfolioManagerApiError(
+        response.status,
+        response.statusText,
+        `XML parse failure: ${message}\nResponse snippet: ${snippet}`,
+        response.url
+      );
+    }
   }
 
   async post<REQ, RESP>(path: string, data: REQ): Promise<RESP> {
