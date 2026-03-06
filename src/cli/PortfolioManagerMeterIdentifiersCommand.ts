@@ -6,7 +6,7 @@ export class PortfolioManagerMeterIdentifiersCommand extends PortfolioManagerBas
   get examples() {
     return [
       "# customizing the output",
-      `${this.getFullCommand()} --meterId <meterId> --indent 2  --fields @_id @_hint`,
+      `${this.getFullCommand()} --meterId <meterId> --indent 2  --fields @_id additionalIdentifierType.@_description`,
       "",
       "# using with JQ to map the output to shell scripting friendlier output",
       `${this.getFullCommand()} --meterId <meterId> | jq -r  '[.[] | ."@_id"] | @sh'`,
