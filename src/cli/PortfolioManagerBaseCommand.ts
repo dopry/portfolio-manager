@@ -2,6 +2,7 @@ import { Command, InvalidArgumentError, Option } from "commander";
 import { formatExamplesHelpText } from "../functions/formatExamplesHelpText.js";
 import { PortfolioManager } from "../PortfolioManager.js";
 import { PortfolioManagerApi } from "../PortfolioManagerApi.js";
+import { isRecord } from "../types/xml/response/IResponse.js";
 
 export function parseIntArg(value: string): number {
   const parsedValue = Number.parseInt(value, 10);
@@ -83,13 +84,20 @@ export class PortfolioManagerBaseCommand extends Command {
     return client;
   }
 
-  protected pickFields(entity: object, fields: string[]): Record<string, unknown> {
-    const entries = Object.entries(entity);
-    return fields.reduce((acc: Record<string, unknown>, field: string) => {
-      const entry = entries.find(([key]) => key === field);
-      acc[field] = entry ? entry[1] : undefined;
-      return acc;
-    }, {});
+  protected pickFields(entity: unknown, fields: string[]): Record<string, unknown> {
+    if (!isRecord(entity)) {
+      throw new Error("Expected entity to be a record");
+    }
+    const result: Record<string, unknown> = {};
+    for (const field of fields) {
+     if (field in entity) {
+        result[field] = entity[field];
+      }
+      else {
+        result[field] = undefined;
+      }
+    }
+    return result;
   }
 
   protected validateSelectedFields(selectedFields: string[], allowedFields: string[]): void {

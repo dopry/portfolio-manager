@@ -16,7 +16,7 @@ export type Warnings = IWarning[];
 
 export type Status = "Ok" | "Error";
 
-function isRecord(obj: unknown): obj is Record<string, unknown> {
+export function isRecord(obj: unknown): obj is Record<string, unknown> {
   return !!obj && typeof obj === "object";
 }
 
