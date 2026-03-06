@@ -73,6 +73,7 @@ workflows:
                 - main
                 - next
           context:
+            - dopry-npm-packages
             - dopry-portfoliomanager-epa
 
   nightly_bleeding_edge:
