@@ -1,16 +1,12 @@
-import { expect } from "chai";
-import { beforeAll, describe, it } from "vitest";
-import {
-  mockIProperty,
-} from "./Mocks.js";
+import { beforeAll, describe, expect, it } from "vitest";
 import { PortfolioManager } from "./PortfolioManager.js";
 import { PortfolioManagerApi } from "./PortfolioManagerApi.js";
-import { IAccount, IMeter } from "./types/index.js";
+import { ensureStandardMeterFixture } from "./test/ensureStandardMeterFixture.js";
 import {
   ensureStandardProperties,
   STANDARD_PROPERTY_NAMES,
 } from "./test/ensureStandardProperties.js";
-import { ensureStandardMeterFixture } from "./test/ensureStandardMeterFixture.js";
+import { IAccount, IMeter } from "./types/index.js";
 
 const BASE_URL = "https://portfoliomanager.energystar.gov/wstest/";
 const USERNAME = process.env.PM_USERNAME || '';

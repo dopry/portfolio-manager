@@ -28,10 +28,8 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@types/chai": "^4.3.10",
     "@types/node": "^20.9.1",
     "@vitest/coverage-v8": "^4.0.18",
-    "chai": "^4.3.10",
     "semantic-release": "^24.2.1",
     "tsx": "^4.20.3",
     "typescript": "^5.2.2",
