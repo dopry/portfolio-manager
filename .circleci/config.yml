@@ -28,7 +28,7 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
       - run: node ./dist/index.js --help # Run the CLI to ensure it works, we had some test releases where this was broken during the esm migration
-      - run: npm test
+      - run: npm test:coverage # Run tests with coverage to ensure we fail if there are uncovered lines (e.g. due to a new file missing tests)
 
   release:
     executor:
@@ -42,7 +42,7 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
       - run: node ./dist/index.js --help # Run the CLI to ensure it works, we had some test releases where this was broken during the esm migration
-      - run: npm test
+      - run: npm test:coverage # Run tests with coverage to ensure we fail if there are uncovered lines (e.g. due to a new file missing tests)
       - run: 
           name: Semantic Release with Trusted Publishing via OIDC
           command: |

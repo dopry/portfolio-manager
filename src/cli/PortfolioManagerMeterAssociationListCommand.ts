@@ -24,7 +24,7 @@ export class PortfolioManagerMeterAssociationListCommand extends PortfolioManage
     const cmdOpts = this.opts();
     const meterAssociation =
       await this.getPortfolioManagerClient().getMetersPropertiesAssociation(
-        cmdOpts.propertyIds || []
+        cmdOpts.propertyIds
       );
     const indent = cmdOpts.indent;
     console.log(JSON.stringify(meterAssociation, null, indent));
