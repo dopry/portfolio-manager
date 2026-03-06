@@ -92,7 +92,6 @@ export class PortfolioManagerApi {
     isArray: (name, jpath, isLeafNode, isAttribute): boolean => {
       // ensure response.links.link is always an array even when there
       // is only one link which results in  object by default
-      // console.log(jpath);
       return (
         jpath === "response.links.link" ||
         jpath === "propertyMetrics.metric" ||
@@ -143,21 +142,10 @@ export class PortfolioManagerApi {
     const defaults = { method: "GET", headers } as RequestInit;
     const init: RequestInit = deepmerge({}, defaults, options);
     const url = this.endpoint + path;
-    // console.log('PortfolioManagerApi.fetch', { url, init })
     const response = await fetch(url, init);
-
-    // console.log('PortfolioManagerApi.fetch::response.status', response.status)
 
     // raise exception on 400-599 status codes
     if (response.status >= 400 && response.status < 600) {
-      // console.log(
-      //   "response",
-      //   response.status,
-      //   response.statusText,
-      //   await response.text(),
-      //   options,
-      //   path
-      // );
       const error = await PortfolioManagerApiError.fromResponse(response);
       throw error;
     }
