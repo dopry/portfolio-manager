@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^set -a && source \\.env\\.test\\.sh && set \\+a && npm run test$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}
