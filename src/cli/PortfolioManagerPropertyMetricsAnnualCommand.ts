@@ -30,7 +30,6 @@ export class PortfolioManagerPropertyMetricsAnnualCommand extends PortfolioManag
   }
 
   protected async _action(): Promise<void> {
-    const cmdOpts = this.opts();
     const {
       propertyId,
       year,
