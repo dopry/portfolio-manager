@@ -9,12 +9,11 @@ export interface IDemandTrackingType {
   demandCost?: OptionalCost;
 }
 
-export interface IMeterConsumption {
-  id: number;
+export interface IMeterConsumptionPost {
   "@_estimatedValue"?: boolean;
   "@_isGreenPower"?: boolean;
-  startDate: Date;
-  endDate: Date;
+  startDate: string | Date;
+  endDate: string | Date;
   usage: number;
   cost?: OptionalCost;
   energyExportedOffSite?: number;
@@ -22,6 +21,12 @@ export interface IMeterConsumption {
   // For Onsite Solar or Onsite Wind energy, whether the RECs have been retained by the property owner.
   RECOwnership?: "Owned" | "Sold" | "Arbitrage";
   demandTracking?: IDemandTrackingType;
+}
+
+export interface IMeterConsumption extends IMeterConsumptionPost {
+  id: number;
+  startDate: Date;
+  endDate: Date;
   audit: IAudit;
 }
 

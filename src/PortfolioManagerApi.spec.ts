@@ -271,10 +271,7 @@ describe("PortfolioManagerApi", () => {
       },
     };
 
-    await api.meterConsumptionDataPost(
-      meterId,
-      consumptionPayload as any
-    );
+    await api.meterConsumptionDataPost(meterId, consumptionPayload);
 
     const getConsumptionResponse = await api.meterConsumptionDataGet(meterId);
     expect(getConsumptionResponse.meterData.meterConsumption).to.be.an("array");

@@ -38,7 +38,7 @@ import {
   IMeter,
   IMeterConsumption,
   IMeterData,
-  IMeterDataPost,
+  IMeterDataPostRequest,
   IProperty,
   toXmlDateString
 } from "./types/xml/index.js";
@@ -238,9 +238,9 @@ export class PortfolioManagerApi {
   // https://portfoliomanager.energystar.gov/webservices/home/api/meter/consumptionData/post
   async meterConsumptionDataPost(
     meterId: number,
-    meterConsumption: IMeterDataPost
+    meterConsumption: IMeterDataPostRequest
   ): Promise<IMeterData> {
-    return this.post<IMeterDataPost, IMeterData>(
+    return this.post<IMeterDataPostRequest, IMeterData>(
       `meter/${meterId}/consumptionData`,
       meterConsumption
     );
