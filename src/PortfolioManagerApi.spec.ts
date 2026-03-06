@@ -1,6 +1,15 @@
 import { XMLParser } from "fast-xml-parser";
 import fetch, { Response } from "node-fetch";
-import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 
 vi.mock("node-fetch", async (importOriginal) => {
   const actual = await importOriginal<typeof import("node-fetch")>();
@@ -66,9 +75,44 @@ async function ensureTestFixtures(): Promise<void> {
 const describeIntegration = HAS_PM_CREDENTIALS ? describe : describe.skip;
 
 describeIntegration("PortfolioManagerApi (integration)", () => {
+  const createdPropertyIds: number[] = [];
+  const createdFixturePropertyMeterIds: number[] = [];
+
+  function untrackId(ids: number[], id?: number): void {
+    if (!id) return;
+    const idx = ids.lastIndexOf(id);
+    if (idx >= 0) {
+      ids.splice(idx, 1);
+    }
+  }
+
   beforeAll(async () => {
     await ensureTestFixtures();
   }, 60000);
+
+  afterAll(async () => {
+    // Meters created on fixture properties must be explicitly deleted.
+    const uniqueFixtureMeters = Array.from(
+      new Set(createdFixturePropertyMeterIds)
+    ).reverse();
+    for (const meterId of uniqueFixtureMeters) {
+      try {
+        await api.meterMeterDelete(meterId);
+      } catch {
+        // Best effort cleanup for shared test environment.
+      }
+    }
+
+    // Delete properties created during tests.
+    const uniqueProperties = Array.from(new Set(createdPropertyIds)).reverse();
+    for (const propertyId of uniqueProperties) {
+      try {
+        await api.propertyPropertyDelete(propertyId);
+      } catch {
+        // Best effort cleanup for shared test environment.
+      }
+    }
+  }, 120000);
 
   it("constructs PortfolioManagerApi", () => {
     expect(api).to.be.an.instanceof(PortfolioManagerApi);
@@ -108,6 +152,7 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
     if (!id) {
       throw new Error("Posted property missing id");
     }
+    createdPropertyIds.push(id);
     expect(postPropertyResponse.response.id).to.be.a("number");
     expect(postPropertyResponse.response.links).to.be.an("object");
     const link = postPropertyResponse.response.links.link as ILink[];
@@ -219,6 +264,7 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
     if (!isIPopulatedResponse(postMeterResponse.response)) {
       throw new Error("Expected isIPopoulatedResponse");
     }
+    createdFixturePropertyMeterIds.push(postMeterResponse.response.id);
     expect(postMeterResponse.response.id).to.be.a("number");
     expect(postMeterResponse.response.links).to.be.an("object");
     expect(postMeterResponse.response.links.link).to.be.an("array");
@@ -241,6 +287,52 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
     );
   }, 60000);
 
+  it("meterMeterDelete + propertyPropertyDelete", async () => {
+    const property = {
+      ...mockIProperty(),
+      name: withRunId("Delete Wrapper Property"),
+    };
+    const { account } = await api.accountAccountGet();
+    const postPropertyResponse = await api.propertyPropertyPost(
+      property,
+      account.id || 0
+    );
+    if (!isIPopulatedResponse(postPropertyResponse.response)) {
+      throw new Error("Expected isIPopoulatedResponse");
+    }
+    const propertyId = postPropertyResponse.response.id;
+    if (!propertyId) {
+      throw new Error("Posted property missing id");
+    }
+    createdPropertyIds.push(propertyId);
+
+    const postMeterResponse = await api.meterMeterPost(
+      propertyId,
+      mockMeter(withRunId("Delete Wrapper Meter"))
+    );
+    if (!isIPopulatedResponse(postMeterResponse.response)) {
+      throw new Error("Expected isIPopoulatedResponse");
+    }
+    const meterId = postMeterResponse.response.id;
+    if (!meterId) {
+      throw new Error("Posted meter missing id");
+    }
+
+    const meterDeleteResponse = await api.meterMeterDelete(meterId);
+    expect(meterDeleteResponse.response["@_status"]).to.equal("Ok");
+    untrackId(createdFixturePropertyMeterIds, meterId);
+    await expect(api.meterMeterGet(meterId)).rejects.toMatchObject({
+      status: 404,
+    });
+
+    const propertyDeleteResponse = await api.propertyPropertyDelete(propertyId);
+    expect(propertyDeleteResponse.response["@_status"]).to.equal("Ok");
+    untrackId(createdPropertyIds, propertyId);
+    await expect(api.propertyPropertyGet(propertyId)).rejects.toMatchObject({
+      status: 404,
+    });
+  }, 90000);
+
   it("meterPropertyAssociationSinglePost + getAssociatedMeters", async () => {
     const propertyId = standardPropertyIds[0];
 
@@ -250,6 +342,7 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
     if (!meterId) {
       throw new Error("Expected created meter to include id");
     }
+    createdFixturePropertyMeterIds.push(meterId);
 
     const associationPostResponse = await api.meterPropertyAssociationSinglePost(
       propertyId,
@@ -274,6 +367,7 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
     if (!meterId) {
       throw new Error("Expected created meter to include id");
     }
+    createdFixturePropertyMeterIds.push(meterId);
 
     const consumptionPayload = {
       meterData: {
@@ -310,6 +404,7 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
     if (!meterId) {
       throw new Error("Expected created meter to include id");
     }
+    createdFixturePropertyMeterIds.push(meterId);
 
     const deliveryPayload = {
       meterData: {
@@ -347,6 +442,7 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
     if (!meterId) {
       throw new Error("Expected meterId");
     }
+    createdFixturePropertyMeterIds.push(meterId);
 
     const additionalIdentifier = {
       additionalIdentifierType: {
