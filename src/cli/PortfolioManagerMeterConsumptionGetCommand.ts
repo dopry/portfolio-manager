@@ -54,7 +54,6 @@ export class PortfolioManagerMeterConsumptionGetCommand extends PortfolioManager
 
   protected async _action(): Promise<void> {
     const cmdOpts = this.opts();
-    console.error("get meter consumption", cmdOpts);
     cmdOpts.fields.forEach((field: string) => {
       this.fields.includes(field) ||
         console.error(

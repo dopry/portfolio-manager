@@ -23,8 +23,6 @@ export class PortfolioManagerPropertyListLinksCommand extends PortfolioManagerBa
 
   protected async _action(): Promise<void> {
     const cmdOpts = this.opts();
-    // write help text we don't want in output pipes to stderr
-    console.error("list property links", cmdOpts);
     const propertyLinks =
       await this.getPortfolioManagerClient().getPropertyLinks();
     const mapped = Object.values(propertyLinks).map((property) =>

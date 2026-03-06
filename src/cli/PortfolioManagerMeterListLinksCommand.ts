@@ -25,7 +25,6 @@ export class PortfolioManagerMeterListLinksCommand extends PortfolioManagerBaseC
 
   protected async _action(): Promise<void> {
     const cmdOpts = this.opts();
-    console.error("list meters", cmdOpts);
     cmdOpts.fields.forEach((field: string) => {
       this.fields.includes(field) ||
         console.error(

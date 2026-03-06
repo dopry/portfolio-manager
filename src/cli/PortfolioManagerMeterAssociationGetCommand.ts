@@ -23,7 +23,6 @@ export class PortfolioManagerMeterAssociationGetCommand extends PortfolioManager
 
   protected async _action(): Promise<void> {
     const cmdOpts = this.opts();
-    console.error("get meter association", cmdOpts);
     const meterAssociation =
       await this.getPortfolioManagerClient().getAssociatedMeters(
         cmdOpts.propertyId

@@ -31,8 +31,6 @@ export class PortfolioManagerPropertyMetricsMonthlyCommand extends PortfolioMana
 
   protected async _action(): Promise<void> {
     const cmdOpts = this.opts();
-    // write help text we don't want in output pipes to stderr
-    console.error("list property metrics monthly", cmdOpts);
     const {
       propertyId,
       year,
@@ -58,6 +56,7 @@ export class PortfolioManagerPropertyMetricsMonthlyCommand extends PortfolioMana
       console.log(JSON.stringify(mapped, null, indent));
     }
     catch (e) {
+      process.exitCode = 1;
       if (e instanceof PortfolioManagerApiError) {
         console.error('api error', e.message, e.status, e.statusText, e.responseText);
       }

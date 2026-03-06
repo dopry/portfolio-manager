@@ -24,7 +24,6 @@ export class PortfolioManagerMeterIdentifiersCommand extends PortfolioManagerBas
 
   protected async _action(): Promise<void> {
     const cmdOpts = this.opts();
-    console.error("meter identifiers", cmdOpts);
     cmdOpts.fields.forEach((field: string) => {
       this.fields.includes(field) ||
         console.error(

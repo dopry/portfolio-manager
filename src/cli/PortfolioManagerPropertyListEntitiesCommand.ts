@@ -32,8 +32,6 @@ export class PortfolioManagerPropertyListEntitiesCommand extends PortfolioManage
 
   protected async _action(): Promise<void> {
     const cmdOpts = this.opts();
-    // write help text we don't want in output pipes to stderr
-    console.error("list property entities", cmdOpts);
 
     const properties = await this.getPortfolioManagerClient().getProperties();
     const mapped = properties.map((property) =>
