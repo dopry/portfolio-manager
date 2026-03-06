@@ -279,7 +279,41 @@ describe("PortfolioManagerApi", () => {
     const fetchedMatch = consumptions.find((entry) => entry.usage === 123.45);
     expect(fetchedMatch).to.be.an("object");
   }, 60000);
-  it.skip("can create a meter delivery record", async () => {});
+
+  it("can create a meter delivery record", async () => {
+    const propertyId = standardPropertyIds[0];
+    const meter = {
+      ...mockMeter(withRunId("Delivery Meter")),
+      metered: false,
+      unitOfMeasure: "Gallons (US)" as const,
+      type: "Fuel Oil No 2" as const,
+    };
+    const postMeterResponse = await api.meterMeterPost(propertyId, meter);
+    const meterId = postMeterResponse.response.id;
+    if (!meterId) {
+      throw new Error("Expected created meter to include id");
+    }
+
+    const deliveryPayload = {
+      meterData: {
+        meterDelivery: [
+          {
+            deliveryDate: "2024-02-01",
+            quantity: 88.5,
+            cost: 40.25,
+          },
+        ],
+      },
+    };
+
+    await api.meterConsumptionDataPost(meterId, deliveryPayload);
+
+    const getDeliveryResponse = await api.meterConsumptionDataGet(meterId);
+    expect(getDeliveryResponse.meterData.meterDelivery).to.be.an("array");
+    const deliveries = getDeliveryResponse.meterData.meterDelivery || [];
+    const fetchedMatch = deliveries.find((entry) => entry.quantity === 88.5);
+    expect(fetchedMatch).to.be.an("object");
+  }, 60000);
 
   it("can create manage custom meter identifiers", async () => {
     const propertyId = standardPropertyIds[0];
