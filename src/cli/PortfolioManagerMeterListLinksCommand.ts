@@ -17,7 +17,7 @@ export class PortfolioManagerMeterListLinksCommand extends PortfolioManagerBaseC
     super("links");
     this.requiredOption(
       "--propertyId <propertyId>",
-      "space separated list of property ids to fetch meters for"
+      "property id to fetch meters for"
     )
       .option("--myAccessOnly", "only fetch meters that I have access to")
       .addFieldsOption(this.fields, ["@_id", "@_hint"]);
