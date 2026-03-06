@@ -28,6 +28,30 @@ Notes:
 - Tests run from compiled output via `.mocharc.cjs`.
 - Some integration tests are intentionally pending depending on upstream API/data behavior.
 
+## Testing Methodology
+
+We optimize for early detection of upstream Portfolio Manager API changes.
+
+- Default strategy: live API-first integration tests.
+- Lifecycle focus: test real create/update/fetch/delete flows for entities.
+- Mocking policy: keep mocking minimal and only for branches that are not reliably reproducible with live API calls (for example malformed transport payloads or synthetic timeout branches).
+
+### Test Data Isolation
+
+- Use deterministic, per-run unique names for created entities to avoid collisions between concurrent test runs.
+- Avoid relying on pre-existing shared test entities where possible.
+
+### Cleanup Expectations
+
+- Tests that create entities must clean them up in teardown paths.
+- Cleanup should still run when assertions fail to avoid orphaned resources in shared test accounts.
+
+### Runtime Expectations
+
+- Live tests can be slower; use explicit timeouts where needed.
+- `npm test` is expected to run live API tests by default.
+- Required environment variables: `PM_USERNAME` and `PM_PASSWORD`.
+
 ## CI Source Of Truth
 
 CircleCI is the authoritative pipeline.
