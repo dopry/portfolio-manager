@@ -48,11 +48,14 @@ npm test
 
 ## Test Environment
 
-Integration tests rely on Portfolio Manager credentials and endpoint access:
+Integration tests rely on Portfolio Manager credentials and run against the test endpoint (`wstest`) only:
 
 - `PM_USERNAME`
 - `PM_PASSWORD`
-- `PM_ENDPOINT` (optional; defaults to production endpoint)
+
+Test endpoint used by the integration suite:
+
+- `https://portfoliomanager.energystar.gov/wstest/`
 
 Some tests are intentionally marked pending when setup or upstream capabilities are unavailable.
 

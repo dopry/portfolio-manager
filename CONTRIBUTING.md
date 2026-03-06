@@ -8,11 +8,10 @@ Thanks for contributing to `portfolio-manager`.
 - npm (uses lockfile; prefer `npm ci`)
 - Portfolio Manager credentials for integration tests
 
-Environment variables used by CLI/tests:
+Environment variables used by tests:
 
 - `PM_USERNAME` (required)
 - `PM_PASSWORD` (required)
-- `PM_ENDPOINT` (optional; defaults to production endpoint)
 
 ## Local Workflow
 
@@ -25,7 +24,7 @@ npm test
 
 Notes:
 
-- Tests run from compiled output via `.mocharc.cjs`.
+- Tests run via `vitest` from source specs in `src/**/*.spec.ts`.
 - Some integration tests are intentionally pending depending on upstream API/data behavior.
 
 ## Testing Methodology
@@ -50,6 +49,7 @@ We optimize for early detection of upstream Portfolio Manager API changes.
 
 - Live tests can be slower; use explicit timeouts where needed.
 - `npm test` is expected to run live API tests by default.
+- Test endpoint is fixed to `https://portfoliomanager.energystar.gov/wstest/`.
 - Required environment variables: `PM_USERNAME` and `PM_PASSWORD`.
 
 ## CI Source Of Truth
