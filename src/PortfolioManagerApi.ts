@@ -65,7 +65,7 @@ export class PortfolioManagerApiError extends Error {
 }
 
 export function isPortfolioManagerApiError(
-  obj: any
+  obj: unknown
 ): obj is PortfolioManagerApiError {
   return obj instanceof PortfolioManagerApiError;
 }
@@ -131,7 +131,7 @@ export class PortfolioManagerApi {
     private readonly password: string
   ) {}
 
-  async fetch<RESP>(path: string, options: RequestInit = {}): Promise<any> {
+  async fetch<RESP>(path: string, options: RequestInit = {}): Promise<RESP> {
     const headers: Record<string, string> = {
       "Content-Type": "application/xml",
     };
