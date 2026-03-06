@@ -1,4 +1,5 @@
 import { mockIProperty } from "../Mocks.js";
+import { parseLinkId } from "../functions/parseLinkId.js";
 import { PortfolioManager } from "../PortfolioManager.js";
 import { PortfolioManagerApi } from "../PortfolioManagerApi.js";
 import { ILink } from "../types/index.js";
@@ -23,11 +24,6 @@ async function listPropertyLinks(
     }
     throw error;
   }
-}
-
-function parseLinkId(link: ILink): number | undefined {
-  const parsed = parseInt(link["@_id"] || "", 10);
-  return Number.isNaN(parsed) ? undefined : parsed;
 }
 
 export async function ensureStandardProperties(
@@ -58,7 +54,7 @@ export async function ensureStandardProperties(
       throw new Error(`Expected standard property '${propertyName}' to exist`);
     }
     const id = parseLinkId(link);
-    if (!id) {
+    if (id === undefined) {
       throw new Error(`Expected numeric id for standard property '${propertyName}'`);
     }
     return id;
