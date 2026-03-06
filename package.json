@@ -28,12 +28,9 @@
     "@types/chai": "^4.3.10",
     "@types/mocha": "^10.0.4",
     "@types/node": "^20.9.1",
-    "@types/node-fetch": "^2.6.9",
     "chai": "^4.3.10",
     "mocha": "^11.7.5",
-    "node-fetch": "^3.3.2",
     "semantic-release": "^24.2.1",
-    "should": "^13.2.3",
     "source-map-support": "^0.5.21",
     "tsx": "^4.20.3",
     "typescript": "^5.2.2"
@@ -42,6 +39,7 @@
     "commander": "^11.1.0",
     "deepmerge-ts": "^5.1.0",
     "fast-xml-parser": "^4.3.2",
+    "node-fetch": "^3.3.2",
     "type-guards": "^0.15.0"
   },
   "release": {
