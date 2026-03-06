@@ -19,6 +19,7 @@
     "test": "vitest run",
     "test:vitest": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "wipe:test-environment": "tsx ./scripts/wipeTestEnvironment.ts",
     "semantic-release": "semantic-release",
     "src-bin": "tsx ./src/index.ts",
     "build-bin": "node ./dist/index.js"

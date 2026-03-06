@@ -6,10 +6,13 @@ export default defineConfig({
     include: ["src/**/*.spec.ts"],
     testTimeout: 60000,
     hookTimeout: 60000,
+    maxWorkers: 1,
+    maxConcurrency: 1,
     fileParallelism: false,
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "lcov"],
+      exclude: ["src/test/**"],
     },
   },
 });

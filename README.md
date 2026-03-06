@@ -59,6 +59,17 @@ Test endpoint used by the integration suite:
 
 Some tests are intentionally marked pending when setup or upstream capabilities are unavailable.
 
+To wipe all properties in the test environment account:
+
+```bash
+npm run wipe:test-environment -- --yes
+```
+
+Safety checks in the script:
+
+- requires `--yes`
+- refuses non-`/wstest/` endpoints unless `--allow-non-test-endpoint` is set
+
 ## CI and Release
 
 CircleCI is the current source of truth for the pipeline:

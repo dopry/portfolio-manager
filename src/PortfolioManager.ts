@@ -28,9 +28,6 @@ import {
   IClientMetricMonthlyValue,
 } from "./types/index.js";
 
-async function sleep(seconds: number) {
-  return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
-}
 /**
  * A developer friendly Facade for interacting with Energy Star Portfolio Manager.
  *
@@ -60,9 +57,8 @@ export class PortfolioManager {
   async getAccount(cached = true): Promise<IAccount> {
     if (!this._accountPromise || !cached) {
       const promise = this._getAccount();
-      promise.catch((e) => {
+      promise.catch(() => {
         this._accountPromise = undefined;
-        throw e;
       });
       this._accountPromise = promise;
     }
@@ -333,6 +329,14 @@ export class PortfolioManager {
     throw new Error("Failed to create meter: " + JSON.stringify(response));
   }
 
+  async deleteMeter(meterId: number): Promise<boolean> {
+    const response = await this.api.meterMeterDelete(meterId);
+    if (response.response?.["@_status"] === "Ok") {
+      return true;
+    }
+    throw new Error("Failed to delete meter: " + JSON.stringify(response));
+  }
+
   async getMeters(propertyId: number): Promise<IMeter[]> {
     const links = await this.getMeterLinks(propertyId);
     const meters = await Promise.all(
@@ -432,6 +436,14 @@ export class PortfolioManager {
     } else {
       throw new Error("Failed to create property: " + JSON.stringify(response));
     }
+  }
+
+  async deleteProperty(propertyId: number): Promise<boolean> {
+    const response = await this.api.propertyPropertyDelete(propertyId);
+    if (response.response?.["@_status"] === "Ok") {
+      return true;
+    }
+    throw new Error("Failed to delete property: " + JSON.stringify(response));
   }
 
   async getProperty(propertyId: number): Promise<IClientProperty> {

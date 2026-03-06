@@ -47,6 +47,10 @@ export interface IMeterMeterPostResponse extends IParsedXml {
   response: IResponse;
 }
 
+export interface IMeterMeterDeleteResponse extends IParsedXml {
+  response: IResponse;
+}
+
 export interface IMeterMeterListGetResponse extends IParsedXml {
   response: IResponse;
 }

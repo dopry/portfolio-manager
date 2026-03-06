@@ -3,6 +3,10 @@
         "/^set -a && source \\.env\\.test\\.sh && set \\+a && npm run test$/": {
             "approve": true,
             "matchCommandLine": true
+        },
+        "/^source \\.env\\.test\\.sh && npm run test:coverage$/": {
+            "approve": true,
+            "matchCommandLine": true
         }
     }
 }
