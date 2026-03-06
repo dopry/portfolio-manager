@@ -13,9 +13,18 @@ async function main() {
   cli.parse(process.argv);
 }
 
-if (import.meta.url.startsWith("file:")) {
-  const modulePath = url.fileURLToPath(import.meta.url);
-  if (process.argv[1] === modulePath) {
-    main();
+export function shouldRunMain(
+  importMetaUrl: string,
+  argv1: string | undefined,
+  toFilePath: (path: string) => string = url.fileURLToPath
+): boolean {
+  if (!importMetaUrl.startsWith("file:")) {
+    return false;
   }
+  const modulePath = toFilePath(importMetaUrl);
+  return argv1 === modulePath;
+}
+
+if (shouldRunMain(import.meta.url, process.argv[1])) {
+  main();
 }
