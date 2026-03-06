@@ -1,10 +1,24 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { XMLParser } from "fast-xml-parser";
+import fetch, { Response } from "node-fetch";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("node-fetch", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("node-fetch")>();
+  return {
+    ...actual,
+    default: vi.fn(actual.default),
+  };
+});
 import {
   mockIProperty,
   mockMeter
 } from "./Mocks.js";
 import { PortfolioManager } from "./PortfolioManager.js";
-import { PortfolioManagerApi } from "./PortfolioManagerApi.js";
+import {
+  isPortfolioManagerApiError,
+  PortfolioManagerApi,
+  PortfolioManagerApiError,
+} from "./PortfolioManagerApi.js";
 import { METRICS } from "./types/index.js";
 import {
   ILink,
@@ -27,18 +41,14 @@ const BASE_URL = "https://portfoliomanager.energystar.gov/wstest/";
 
 const USERNAME = process.env.PM_USERNAME;
 const PASSWORD = process.env.PM_PASSWORD;
-if (!USERNAME || !PASSWORD) {
-  throw new Error(
-    "Please set PM_USERNAME and PM_PASSWORD environment variables"
-  );
-}
+const HAS_PM_CREDENTIALS = Boolean(USERNAME && PASSWORD);
 const RUN_ID = `${Date.now()}-${Math.round(Math.random() * 1000000)}`;
 
 function withRunId(base: string): string {
   return `${base} ${RUN_ID}`;
 }
 
-const api = new PortfolioManagerApi(BASE_URL, USERNAME, PASSWORD);
+const api = new PortfolioManagerApi(BASE_URL, USERNAME || "", PASSWORD || "");
 const pm = new PortfolioManager(api);
 let standardPropertyIds: number[] = [];
 let metricsFixture: IStandardMetricsFixture;
@@ -53,7 +63,9 @@ async function ensureTestFixtures(): Promise<void> {
   metricsFixture = await ensureStandardMetricsFixture(api, standardPropertyIds[0]);
 }
 
-describe("PortfolioManagerApi", () => {
+const describeIntegration = HAS_PM_CREDENTIALS ? describe : describe.skip;
+
+describeIntegration("PortfolioManagerApi (integration)", () => {
   beforeAll(async () => {
     await ensureTestFixtures();
   }, 60000);
@@ -505,4 +517,334 @@ describe("PortfolioManagerApi", () => {
     expect(period["@_month"]).to.match(/^\d{1,2}$/);
     expect(period["@_year"]).to.match(/^\d{4}$/);
   }, 60000);
+});
+
+describe("PortfolioManagerApi (unit coverage paths)", () => {
+  const unitApi = new PortfolioManagerApi(
+    "https://example.test/",
+    "test-user",
+    "test-pass"
+  );
+
+  beforeEach(() => {
+    vi.mocked(fetch).mockReset();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("PortfolioManagerApiError.fromResponse copies response details", async () => {
+    const response = new Response("<error>fail</error>", {
+      status: 404,
+      statusText: "Not Found",
+    });
+    Object.defineProperty(response, "url", {
+      value: "https://example.test/missing",
+      configurable: true,
+    });
+
+    const error = await PortfolioManagerApiError.fromResponse(response);
+
+    expect(error).to.be.an.instanceOf(PortfolioManagerApiError);
+    expect(error.status).to.equal(404);
+    expect(error.statusText).to.equal("Not Found");
+    expect(error.responseText).to.equal("<error>fail</error>");
+    expect(error.url).to.equal("https://example.test/missing");
+  });
+
+  it("isPortfolioManagerApiError narrows typed errors", () => {
+    const typed = new PortfolioManagerApiError(500, "Boom", "body", "/url");
+    const regular = new Error("Boom");
+
+    expect(isPortfolioManagerApiError(typed)).to.equal(true);
+    expect(isPortfolioManagerApiError(regular)).to.equal(false);
+    expect(isPortfolioManagerApiError({})).to.equal(false);
+  });
+
+  it("fetch throws PortfolioManagerApiError on 5xx responses", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response("<response status='Error' />", {
+        status: 500,
+        statusText: "Internal Server Error",
+      })
+    );
+
+    await expect(unitApi.fetch("property/1")).rejects.toBeInstanceOf(
+      PortfolioManagerApiError
+    );
+  });
+
+  it("fetch throws on empty response bodies", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response("   \n  ", {
+        status: 200,
+        statusText: "OK",
+      })
+    );
+
+    await expect(unitApi.fetch("property/2")).rejects.toMatchObject({
+      status: 200,
+      statusText: "OK",
+      responseText: "Empty response body",
+    });
+  });
+
+  it("fetch wraps XML parser errors", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response("<response><broken></response>", {
+        status: 200,
+        statusText: "OK",
+      })
+    );
+    vi.spyOn(XMLParser.prototype, "parse").mockImplementation(() => {
+      throw new Error("forced parser error");
+    });
+
+    await expect(unitApi.fetch("property/3")).rejects.toMatchObject({
+      status: 200,
+      statusText: "OK",
+      responseText: expect.stringContaining("XML parse failure: forced parser error"),
+    });
+  });
+
+  it("fetch handles non-Error parser throws", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response("<response />", {
+        status: 200,
+        statusText: "OK",
+      })
+    );
+    vi.spyOn(XMLParser.prototype, "parse").mockImplementation(() => {
+      throw "boom";
+    });
+
+    await expect(unitApi.fetch("property/4")).rejects.toMatchObject({
+      status: 200,
+      statusText: "OK",
+      responseText: expect.stringContaining("Unknown XML parse failure"),
+    });
+  });
+
+  it("fetch omits auth header for POST account and includes it otherwise", async () => {
+    const fetchMock = vi.mocked(fetch).mockImplementation(async () => {
+      return new Response("<response><status>Ok</status></response>", {
+        status: 200,
+        statusText: "OK",
+      });
+    });
+
+    await unitApi.fetch("account", { method: "POST" });
+    const postAccountInit = fetchMock.mock.calls[0][1] as
+      | Record<string, unknown>
+      | undefined;
+    const postAccountHeaders = postAccountInit?.headers as
+      | Record<string, string>
+      | undefined;
+    expect(postAccountHeaders?.Authorization).to.equal(undefined);
+
+    await unitApi.fetch("account", { method: "GET" });
+    const getAccountInit = fetchMock.mock.calls[1][1] as
+      | Record<string, unknown>
+      | undefined;
+    const getAccountHeaders = getAccountInit?.headers as
+      | Record<string, string>
+      | undefined;
+    expect(getAccountHeaders?.Authorization).to.be.a("string");
+
+    await unitApi.fetch("property/1", {
+      method: "GET",
+      headers: { "X-Test": "yes" },
+    });
+    const getPropertyInit = fetchMock.mock.calls[2][1] as
+      | Record<string, unknown>
+      | undefined;
+    const getPropertyHeaders = getPropertyInit?.headers as
+      | Record<string, string>
+      | undefined;
+    expect(getPropertyHeaders?.Authorization).to.be.a("string");
+    expect(getPropertyHeaders?.["X-Test"]).to.equal("yes");
+    expect(getPropertyHeaders?.["Content-Type"]).to.equal("application/xml");
+  });
+
+  it("post, put, and get delegate to fetch with expected init", async () => {
+    const fetchSpy = vi.spyOn(unitApi, "fetch").mockResolvedValue({} as never);
+
+    await unitApi.post("meter/1", {
+      meter: {
+        name: "Meter A",
+        firstBillDate: "2024-01-01",
+      },
+    } as never);
+    await unitApi.put("meter/1", {
+      meter: {
+        name: "Meter B",
+        firstBillDate: { invalid: true },
+      },
+    } as never);
+    await unitApi.get("meter/1");
+    await unitApi.get("meter/2", { method: "GET", headers: { "X-Trace": "1" } });
+
+    expect(fetchSpy).toHaveBeenNthCalledWith(
+      1,
+      "meter/1",
+      expect.objectContaining({
+        method: "POST",
+        body: expect.stringMatching(/<firstBillDate>\d{4}-\d{2}-\d{2}<\/firstBillDate>/),
+      })
+    );
+    expect(fetchSpy).toHaveBeenNthCalledWith(
+      2,
+      "meter/1",
+      expect.objectContaining({
+        method: "PUT",
+        body: expect.stringContaining("<firstBillDate><invalid>true</invalid></firstBillDate>"),
+      })
+    );
+    expect(fetchSpy).toHaveBeenNthCalledWith(3, "meter/1", {});
+    expect(fetchSpy).toHaveBeenNthCalledWith(
+      4,
+      "meter/2",
+      expect.objectContaining({
+        method: "GET",
+        headers: { "X-Trace": "1" },
+      })
+    );
+  });
+
+  it("xmlBuilderOptions.tagValueProcessor handles string/date/number/non-date values", () => {
+    const processor = unitApi.xmlBuilderOptions.tagValueProcessor;
+    if (!processor) {
+      throw new Error("Expected xmlBuilderOptions.tagValueProcessor");
+    }
+
+    const fromString = processor("firstBillDate", "2024-01-01") as string;
+    const fromDate = processor("firstBillDate", new Date("2024-01-01")) as string;
+    const fromNumber = processor("firstBillDate", Date.UTC(2024, 0, 1)) as string;
+    const passthrough = processor("firstBillDate", { invalid: true } as never) as unknown;
+    const defaultTag = processor("name", "Meter Name") as string;
+
+    expect(fromString).to.match(/^\d{4}-\d{2}-\d{2}$/);
+    expect(fromDate).to.match(/^\d{4}-\d{2}-\d{2}$/);
+    expect(fromNumber).to.match(/^\d{4}-\d{2}-\d{2}$/);
+    expect(passthrough).to.deep.equal({ invalid: true });
+    expect(defaultTag).to.equal("Meter Name");
+  });
+
+  it("meterConsumptionDataPut delegates to put with expected path", async () => {
+    const putSpy = vi.spyOn(unitApi, "put").mockResolvedValue({} as never);
+
+    await unitApi.meterConsumptionDataPut(42, {
+      usage: 123,
+      startDate: "2024-01-01",
+      endDate: "2024-01-31",
+    } as never);
+
+    expect(putSpy).toHaveBeenCalledWith("consumptionData/42", expect.anything());
+  });
+
+  it("meterConsumptionDataGet builds query string for optional params", async () => {
+    const getSpy = vi.spyOn(unitApi, "get").mockResolvedValue({} as never);
+
+    await unitApi.meterConsumptionDataGet(10);
+    await unitApi.meterConsumptionDataGet(10, 2);
+    await unitApi.meterConsumptionDataGet(10, undefined, "2024-01-01", "2024-12-31");
+    await unitApi.meterConsumptionDataGet(10, 1, "2024-01-01", "2024-12-31");
+
+    expect(getSpy).toHaveBeenNthCalledWith(1, "/meter/10/consumptionData?");
+    expect(getSpy).toHaveBeenNthCalledWith(2, "/meter/10/consumptionData?page=2");
+    expect(getSpy).toHaveBeenNthCalledWith(
+      3,
+      "/meter/10/consumptionData?startDate=2024-01-01&endDate=2024-12-31"
+    );
+    expect(getSpy).toHaveBeenNthCalledWith(
+      4,
+      "/meter/10/consumptionData?page=1&startDate=2024-01-01&endDate=2024-12-31"
+    );
+  });
+
+  it("propertyCreateSamplePropertiesPOST uses defaults and explicit args", async () => {
+    const postSpy = vi.spyOn(unitApi, "post").mockResolvedValue({} as never);
+
+    await unitApi.propertyCreateSamplePropertiesPOST();
+    await unitApi.propertyCreateSamplePropertiesPOST("CA", 5);
+
+    expect(postSpy).toHaveBeenNthCalledWith(
+      1,
+      "property/createSampleProperties?countryCode=US&createCount=10",
+      undefined
+    );
+    expect(postSpy).toHaveBeenNthCalledWith(
+      2,
+      "property/createSampleProperties?countryCode=CA&createCount=5",
+      undefined
+    );
+  });
+
+  it("endpoint wrapper methods delegate to get/post/put with expected paths", async () => {
+    const getSpy = vi.spyOn(unitApi, "get").mockResolvedValue({} as never);
+    const postSpy = vi.spyOn(unitApi, "post").mockResolvedValue({} as never);
+    const putSpy = vi.spyOn(unitApi, "put").mockResolvedValue({} as never);
+
+    await unitApi.accountAccountGet();
+    await unitApi.meterMeterGet(1);
+    await unitApi.propertyPropertyGet(2);
+    await unitApi.propertyPropertyPost({ name: "P" } as never, 3);
+    await unitApi.propertyPropertyListGet(3);
+    await unitApi.meterConsumptionDataPost(4, { meterData: {} } as never);
+    await unitApi.meterIdentifierGet(5, 6);
+    await unitApi.meterIdentifierPost(5, { value: "abc" } as never);
+    await unitApi.meterIdentifierPut(5, 6, { value: "def" } as never);
+    await unitApi.meterIdentifierListGet(5);
+    await unitApi.meterIdentifierTypesListGet();
+    await unitApi.meterMeterPost(7, { name: "M" } as never);
+    await unitApi.meterPropertyAssociationGet(8);
+    await unitApi.meterPropertyAssociationSinglePost(8, 9);
+    await unitApi.meterMeterListGet(10);
+    await unitApi.meterMeterListGet(10, true);
+    await unitApi.propertyDesignMetricsGet(11);
+    await unitApi.propertyDesignMetricsGet(11, "METRIC");
+    await unitApi.propertyMetricsGet(11, 2024, 1, ["score"]);
+    await unitApi.propertyMetricsGet(11, 2024, 1, ["score"], "METRIC");
+    await unitApi.propertyMetricsMonthlyGet(11, 2024, 1, ["score"]);
+    await unitApi.propertyMetricsMonthlyGet(11, 2024, 1, ["score"], "METRIC");
+
+    expect(getSpy).toHaveBeenCalledWith("account");
+    expect(getSpy).toHaveBeenCalledWith("meter/1");
+    expect(getSpy).toHaveBeenCalledWith("property/2");
+    expect(getSpy).toHaveBeenCalledWith("account/3/property/list");
+    expect(getSpy).toHaveBeenCalledWith("meter/5/identifier/6");
+    expect(getSpy).toHaveBeenCalledWith("meter/5/identifier/list");
+    expect(getSpy).toHaveBeenCalledWith("meter/identifier/list");
+    expect(getSpy).toHaveBeenCalledWith("/association/property/8/meter");
+    expect(getSpy).toHaveBeenCalledWith("property/10/meter/list?myAccessOnly=false");
+    expect(getSpy).toHaveBeenCalledWith("property/10/meter/list?myAccessOnly=true");
+    expect(getSpy).toHaveBeenCalledWith(
+      "/property/11/design/metrics?measurementSystem=EPA"
+    );
+    expect(getSpy).toHaveBeenCalledWith(
+      "/property/11/design/metrics?measurementSystem=METRIC"
+    );
+
+    expect(postSpy).toHaveBeenCalledWith("account/3/property", {
+      property: { name: "P" },
+    });
+    expect(postSpy).toHaveBeenCalledWith("meter/4/consumptionData", {
+      meterData: {},
+    });
+    expect(postSpy).toHaveBeenCalledWith("meter/5/identifier", {
+      additionalIdentifier: { value: "abc" },
+    });
+    expect(postSpy).toHaveBeenCalledWith("property/7/meter/", {
+      meter: { name: "M" },
+    });
+    expect(postSpy).toHaveBeenCalledWith(
+      "/association/property/8/meter/9",
+      undefined
+    );
+
+    expect(putSpy).toHaveBeenCalledWith("meter/5/identifier/6", {
+      additionalIdentifier: { value: "def" },
+    });
+  });
 });
