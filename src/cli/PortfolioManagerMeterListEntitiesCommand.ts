@@ -29,33 +29,20 @@ export class PortfolioManagerMeterListEntitiesCommand extends PortfolioManagerBa
     super("entities");
     this.addFieldsOption(this.fields, ["id", "name"]);
     this.requiredOption(
-      "--propertyId <propertyIds...>",
-      "space seperated list of Property ids to fetch meters for"
+      "--propertyId <propertyId>",
+      "property id to fetch meters for"
     );
   }
   protected async _action(): Promise<void> {
     const cmdOpts = this.opts();
-    // write help text we don't want in output pipes to stderr
-    console.error("list meter entities", cmdOpts);
-    cmdOpts.fields.forEach((field: string) => {
-      this.fields.includes(field) ||
-        console.error(
-          `${field} is not a valid field, options: ${this.fields.join(", ")}`
-        );
-    });
+    this.validateSelectedFields(cmdOpts.fields, this.fields);
     const meters = await this.getPortfolioManagerClient().getMeters(
       cmdOpts.propertyId
     );
-    const mapped = meters.map((meter: Record<string, any>) => {
-      return cmdOpts.fields.reduce(
-        (acc: Record<string, any>, field: string) => {
-          acc[field] = meter[field];
-          return acc;
-        },
-        {}
-      );
-    });
-    const indent = cmdOpts.indent ? parseInt(cmdOpts.indent) || 2 : undefined;
+    const mapped = meters.map((meter) =>
+      this.pickFields(meter, cmdOpts.fields)
+    );
+    const indent = cmdOpts.indent;
     console.log(JSON.stringify(mapped, null, indent));
   }
 }

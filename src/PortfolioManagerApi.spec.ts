@@ -178,7 +178,7 @@ describe("PortfolioManagerApi", () => {
       throw new Error("Expected IResponseMultiple or IResponse");
     }
 
-    const propertyId = parseInt(propertyIdStr);
+    const propertyId = parseInt(propertyIdStr, 10);
 
     const meter = mockMeter();
     const postMeterResponse = await api.meterMeterPost(propertyId, meter);
@@ -224,7 +224,7 @@ describe("PortfolioManagerApi", () => {
       throw new Error("Expected IResponseMultiple or IResponse");
     }
 
-    const propertyId = parseInt(propertyIdStr);
+    const propertyId = parseInt(propertyIdStr, 10);
 
     const meter: IMeter = {
       name: "Test Meter",
@@ -293,7 +293,7 @@ describe("PortfolioManagerApi", () => {
     expect(gotIdentifier.description).to.equal("RossEnergy");
 
     gotIdentifier.value = "New Value";
-    const putId = parseInt(gotIdentifier["@_id"] || "");
+    const putId = parseInt(gotIdentifier["@_id"] || "", 10);
     if (!putId) {
       throw new Error("Expected putId");
     }
@@ -336,7 +336,8 @@ describe("PortfolioManagerApi", () => {
     }
     // console.log({ getPropertyListResponse });
     const propertyId = parseInt(
-      getPropertyListResponse.response.links.link[0]["@_id"] || "0"
+      getPropertyListResponse.response.links.link[0]["@_id"] || "0",
+      10
     );
 
     const designMetricsResponse = await api.propertyDesignMetricsGet(

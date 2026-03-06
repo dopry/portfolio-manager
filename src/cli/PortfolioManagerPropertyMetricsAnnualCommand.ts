@@ -3,10 +3,10 @@ import { METRICS } from "../types/index.js";
 import { PortfolioManagerBaseCommand } from "./PortfolioManagerBaseCommand.js";
 
 export class PortfolioManagerPropertyMetricsAnnualCommand extends PortfolioManagerBaseCommand {
-  protected _description = "Get monthly metrics for a property";
+  protected _description = "Get annual metrics for a property";
   protected get examples() { return [
     "# customizing the output",
-    `${this.getFullCommand()} property metrics annual  --propertyId <propertyId> --fields name year month value --indent 2`,
+    `${this.getFullCommand()} --propertyId <propertyId> --fields name year month value --indent 2`,
   ];
   }
   protected fields = ["propertyId", "name", "uom", "year", "month", "value"];
@@ -30,9 +30,6 @@ export class PortfolioManagerPropertyMetricsAnnualCommand extends PortfolioManag
   }
 
   protected async _action(): Promise<void> {
-    const cmdOpts = this.opts();
-    // write help text we don't want in output pipes to stderr
-    console.error("list property metrics annual", cmdOpts);
     const {
       propertyId,
       year,
@@ -40,7 +37,7 @@ export class PortfolioManagerPropertyMetricsAnnualCommand extends PortfolioManag
       include_null,
       metrics = undefined,
       fields,
-      _indent,
+      indent,
     } = this.opts();
     const pmClient = this.getPortfolioManagerClient();
 
@@ -54,16 +51,13 @@ export class PortfolioManagerPropertyMetricsAnnualCommand extends PortfolioManag
         exclude_null
       );
 
-      const mapped = Object.values(items).map((item: Record<string, any>) => {
-        return fields.reduce((acc: Record<string, any>, field: string) => {
-          acc[field] = item[field];
-          return acc;
-        }, {});
-      });
-      const indent = parseInt(_indent);
+      const mapped = Object.values(items).map((item) =>
+        this.pickFields(item, fields)
+      );
       console.log(JSON.stringify(mapped, null, indent));
     }
     catch (e) {
+      process.exitCode = 1;
       if (e instanceof PortfolioManagerApiError) {
         console.error('api error', e.message, e.status, e.statusText, e.responseText);
       }

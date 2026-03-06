@@ -54,13 +54,7 @@ export class PortfolioManagerMeterConsumptionGetCommand extends PortfolioManager
 
   protected async _action(): Promise<void> {
     const cmdOpts = this.opts();
-    console.error("get meter consumption", cmdOpts);
-    cmdOpts.fields.forEach((field: string) => {
-      this.fields.includes(field) ||
-        console.error(
-          `${field} is not a valid field, options: ${this.fields.join(", ")}`
-        );
-    });
+    this.validateSelectedFields(cmdOpts.fields, this.fields);
     const { start = undefined, end = undefined } = cmdOpts;
     const client = this.getPortfolioManagerClient();
     const meterConsumption = await client.getMeterConsumption(
@@ -68,16 +62,10 @@ export class PortfolioManagerMeterConsumptionGetCommand extends PortfolioManager
       start,
       end
     );
-    const mapped = meterConsumption.map((consumption: Record<string, any>) => {
-      return cmdOpts.fields.reduce(
-        (acc: Record<string, any>, field: string) => {
-          acc[field] = consumption[field];
-          return acc;
-        },
-        {}
-      );
-    });
-    const indent = cmdOpts.indent ? parseInt(cmdOpts.indent) || 2 : undefined;
+    const mapped = meterConsumption.map((consumption) =>
+      this.pickFields(consumption, cmdOpts.fields)
+    );
+    const indent = cmdOpts.indent;
     console.log(JSON.stringify(mapped, null, indent));
   }
 }

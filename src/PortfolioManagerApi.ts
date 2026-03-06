@@ -65,7 +65,7 @@ export class PortfolioManagerApiError extends Error {
 }
 
 export function isPortfolioManagerApiError(
-  obj: any
+  obj: unknown
 ): obj is PortfolioManagerApiError {
   return obj instanceof PortfolioManagerApiError;
 }
@@ -92,7 +92,6 @@ export class PortfolioManagerApi {
     isArray: (name, jpath, isLeafNode, isAttribute): boolean => {
       // ensure response.links.link is always an array even when there
       // is only one link which results in  object by default
-      // console.log(jpath);
       return (
         jpath === "response.links.link" ||
         jpath === "propertyMetrics.metric" ||
@@ -131,7 +130,7 @@ export class PortfolioManagerApi {
     private readonly password: string
   ) {}
 
-  async fetch<RESP>(path: string, options: RequestInit = {}): Promise<any> {
+  async fetch<RESP>(path: string, options: RequestInit = {}): Promise<RESP> {
     const headers: Record<string, string> = {
       "Content-Type": "application/xml",
     };
@@ -143,31 +142,38 @@ export class PortfolioManagerApi {
     const defaults = { method: "GET", headers } as RequestInit;
     const init: RequestInit = deepmerge({}, defaults, options);
     const url = this.endpoint + path;
-    // console.log('PortfolioManagerApi.fetch', { url, init })
     const response = await fetch(url, init);
-
-    // console.log('PortfolioManagerApi.fetch::response.status', response.status)
 
     // raise exception on 400-599 status codes
     if (response.status >= 400 && response.status < 600) {
-      // console.log(
-      //   "response",
-      //   response.status,
-      //   response.statusText,
-      //   await response.text(),
-      //   options,
-      //   path
-      // );
       const error = await PortfolioManagerApiError.fromResponse(response);
       throw error;
     }
 
     const xmlResp = await response.text();
-    const parser = new XMLParser(this.xmlParserOptions);
-    const parsed = parser.parse(xmlResp) as RESP;
+    if (xmlResp.trim().length === 0) {
+      throw new PortfolioManagerApiError(
+        response.status,
+        response.statusText,
+        "Empty response body",
+        response.url
+      );
+    }
 
-    // console.log("response", {response, xmlResp, parsed});
-    return parsed;
+    const parser = new XMLParser(this.xmlParserOptions);
+    try {
+      return parser.parse(xmlResp) as RESP;
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Unknown XML parse failure";
+      const snippet = xmlResp.slice(0, 500);
+      throw new PortfolioManagerApiError(
+        response.status,
+        response.statusText,
+        `XML parse failure: ${message}\nResponse snippet: ${snippet}`,
+        response.url
+      );
+    }
   }
 
   async post<REQ, RESP>(path: string, data: REQ): Promise<RESP> {

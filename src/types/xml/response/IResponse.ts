@@ -8,30 +8,41 @@ export interface IError {
 export type Errors = IError[];
 
 export interface IWarning {
-  warningNumber: string; // The number of the error.
-  warningDescription: string; // The description of the error.
+  warningNumber: string; // The number of the warning.
+  warningDescription: string; // The description of the warning.
 }
 
-export type Warnings = IError[];
+export type Warnings = IWarning[];
 
 export type Status = "Ok" | "Error";
 
-export function isIResponse(obj: any): obj is IResponse {
+export function isRecord(obj: unknown): obj is Record<string, unknown> {
+  return !!obj && typeof obj === "object";
+}
+
+export function isIResponse(obj: unknown): obj is IResponse {
   return isIEmptyResponse(obj) || isIPopulatedResponse(obj);
 }
 
-export function isIPopulatedResponse(obj: any): obj is IPopoulatedResponse {
+export function isIPopulatedResponse(obj: unknown): obj is IPopoulatedResponse {
+  if (!isRecord(obj)) return false;
+  if (!Object.hasOwn(obj, "links")) return false;
+
+  const links = obj["links"];
+  if (!isRecord(links)) return false;
+  if (!Object.hasOwn(links, "link")) return false;
+
   return (
-    obj &&
-    obj.hasOwnProperty("links") &&
-    typeof obj.links === "object" &&
-    obj.links.hasOwnProperty("link") &&
-    Array.isArray(obj.links.link)
+    Array.isArray(links["link"])
   );
 }
 
-export function isIEmptyResponse(obj: any): obj is IEmptyResponse {
-  return obj && obj.hasOwnProperty("links") && typeof obj.links === "string";
+export function isIEmptyResponse(obj: unknown): obj is IEmptyResponse {
+  return (
+    isRecord(obj) &&
+    Object.hasOwn(obj, "links") &&
+    typeof obj["links"] === "string"
+  );
 }
 
 export interface IResponse {
