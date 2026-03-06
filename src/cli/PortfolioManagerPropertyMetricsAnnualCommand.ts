@@ -54,12 +54,9 @@ export class PortfolioManagerPropertyMetricsAnnualCommand extends PortfolioManag
         exclude_null
       );
 
-      const mapped = Object.values(items).map((item: Record<string, any>) => {
-        return fields.reduce((acc: Record<string, any>, field: string) => {
-          acc[field] = item[field];
-          return acc;
-        }, {});
-      });
+      const mapped = Object.values(items).map((item) =>
+        this.pickFields(item, fields)
+      );
       console.log(JSON.stringify(mapped, null, indent));
     }
     catch (e) {

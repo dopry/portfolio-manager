@@ -33,15 +33,9 @@ export class PortfolioManagerMeterIdentifiersCommand extends PortfolioManagerBas
     });
 
     const additionalIdentifiers = await this.getPortfolioManagerClient().getMeterAdditionalIdentifiers(cmdOpts.meterId);
-    const mapped = additionalIdentifiers.map((meter: Record<string, any>) => {
-      return cmdOpts.fields.reduce(
-        (acc: Record<string, any>, field: string) => {
-          acc[field] = meter[field];
-          return acc;
-        },
-        {}
-      );
-    });
+    const mapped = additionalIdentifiers.map((meter) =>
+      this.pickFields(meter, cmdOpts.fields)
+    );
 
     const indent = cmdOpts.indent;
     console.log(JSON.stringify(mapped, null, indent));

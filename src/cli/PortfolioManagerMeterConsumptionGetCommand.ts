@@ -68,15 +68,9 @@ export class PortfolioManagerMeterConsumptionGetCommand extends PortfolioManager
       start,
       end
     );
-    const mapped = meterConsumption.map((consumption: Record<string, any>) => {
-      return cmdOpts.fields.reduce(
-        (acc: Record<string, any>, field: string) => {
-          acc[field] = consumption[field];
-          return acc;
-        },
-        {}
-      );
-    });
+    const mapped = meterConsumption.map((consumption) =>
+      this.pickFields(consumption, cmdOpts.fields)
+    );
     const indent = cmdOpts.indent;
     console.log(JSON.stringify(mapped, null, indent));
   }

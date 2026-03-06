@@ -83,6 +83,15 @@ export class PortfolioManagerBaseCommand extends Command {
     return client;
   }
 
+  protected pickFields(entity: object, fields: string[]): Record<string, unknown> {
+    const entries = Object.entries(entity);
+    return fields.reduce((acc: Record<string, unknown>, field: string) => {
+      const entry = entries.find(([key]) => key === field);
+      acc[field] = entry ? entry[1] : undefined;
+      return acc;
+    }, {});
+  }
+
   protected getFullCommand(): string {
     return this._getCommandAndParents()
       .reverse()

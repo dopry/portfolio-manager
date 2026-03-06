@@ -36,15 +36,9 @@ export class PortfolioManagerMeterListLinksCommand extends PortfolioManagerBaseC
       cmdOpts.propertyId,
       cmdOpts.myAccessOnly
     );
-    const mapped = meters.map((meter: Record<string, any>) => {
-      return cmdOpts.fields.reduce(
-        (acc: Record<string, any>, field: string) => {
-          acc[field] = meter[field];
-          return acc;
-        },
-        {}
-      );
-    });
+    const mapped = meters.map((meter) =>
+      this.pickFields(meter, cmdOpts.fields)
+    );
 
     const indent = cmdOpts.indent;
     console.log(JSON.stringify(mapped, null, indent));

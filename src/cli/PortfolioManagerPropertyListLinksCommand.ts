@@ -27,16 +27,8 @@ export class PortfolioManagerPropertyListLinksCommand extends PortfolioManagerBa
     console.error("list property links", cmdOpts);
     const propertyLinks =
       await this.getPortfolioManagerClient().getPropertyLinks();
-    const mapped = Object.values(propertyLinks).map(
-      (property: Record<string, any>) => {
-        return cmdOpts.fields.reduce(
-          (acc: Record<string, any>, field: string) => {
-            acc[field] = property[field];
-            return acc;
-          },
-          {}
-        );
-      }
+    const mapped = Object.values(propertyLinks).map((property) =>
+      this.pickFields(property, cmdOpts.fields)
     );
     const indent = cmdOpts.indent;
     console.log(JSON.stringify(mapped, null, indent));

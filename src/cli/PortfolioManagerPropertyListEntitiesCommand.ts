@@ -36,16 +36,9 @@ export class PortfolioManagerPropertyListEntitiesCommand extends PortfolioManage
     console.error("list property entities", cmdOpts);
 
     const properties = await this.getPortfolioManagerClient().getProperties();
-    console.log({properties})
-    const mapped = properties.map((property: Record<string, any>) => {
-      return cmdOpts.fields.reduce(
-        (acc: Record<string, any>, field: string) => {
-          acc[field] = property[field];
-          return acc;
-        },
-        {}
-      );
-    });
+    const mapped = properties.map((property) =>
+      this.pickFields(property, cmdOpts.fields)
+    );
     const indent = cmdOpts.indent;
     console.log(JSON.stringify(mapped, null, indent));
   }

@@ -17,7 +17,7 @@ export interface IClientMetricMonthlyValue {
 export interface IClientMetricMonthly {
   propertyId: number;
   name: string;
-  value:  IClientMetricMonthlyValue[];
+  value: IClientMetricMonthlyValue[];
   uom: string;
   year: number;
   month: number;

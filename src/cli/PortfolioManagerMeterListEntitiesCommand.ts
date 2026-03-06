@@ -46,15 +46,9 @@ export class PortfolioManagerMeterListEntitiesCommand extends PortfolioManagerBa
     const meters = await this.getPortfolioManagerClient().getMeters(
       cmdOpts.propertyId
     );
-    const mapped = meters.map((meter: Record<string, any>) => {
-      return cmdOpts.fields.reduce(
-        (acc: Record<string, any>, field: string) => {
-          acc[field] = meter[field];
-          return acc;
-        },
-        {}
-      );
-    });
+    const mapped = meters.map((meter) =>
+      this.pickFields(meter, cmdOpts.fields)
+    );
     const indent = cmdOpts.indent;
     console.log(JSON.stringify(mapped, null, indent));
   }
