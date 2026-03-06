@@ -29,7 +29,7 @@ export class PortfolioManagerMeterListEntitiesCommand extends PortfolioManagerBa
     super("entities");
     this.addFieldsOption(this.fields, ["id", "name"]);
     this.requiredOption(
-      "--propertyId <propertyIds...>",
+      "--propertyId <propertyId>",
       "space separated list of property ids to fetch meters for"
     );
   }

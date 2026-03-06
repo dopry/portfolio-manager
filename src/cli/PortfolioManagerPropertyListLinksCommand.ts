@@ -16,7 +16,7 @@ export class PortfolioManagerPropertyListLinksCommand extends PortfolioManagerBa
   defaultFields = ["@_id", "@_hint"];
   constructor() {
     super("links");
-    this.description("List Properties")
+    this.description("List property links")
     this.addFieldsOption(this.fields, this.defaultFields)
 
   }

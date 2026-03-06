@@ -7,16 +7,16 @@ export class PortfolioManagerMeterListLinksCommand extends PortfolioManagerBaseC
   get examples() {
     return [
       "# customizing the output",
-      `${this.name} meter list links --propertyId <propertyId> --indent 2  --fields @_id @_hint`,
+      `${this.getFullCommand()} --propertyId <propertyId> --indent 2  --fields @_id @_hint`,
       "",
       "# using with JQ to map the output to shell scripting friendlier output",
-      `${this.name} meter list links --propertyId <propertyId> | jq -r  '[.[] | ."@_id"] | @sh'`,
+      `${this.getFullCommand()} --propertyId <propertyId> | jq -r  '[.[] | ."@_id"] | @sh'`,
     ];
   }
   constructor() {
     super("links");
     this.requiredOption(
-      "--propertyId <propertyIds...>",
+      "--propertyId <propertyId>",
       "space separated list of property ids to fetch meters for"
     )
       .option("--myAccessOnly", "only fetch meters that I have access to")

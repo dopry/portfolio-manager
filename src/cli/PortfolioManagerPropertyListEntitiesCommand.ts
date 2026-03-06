@@ -4,10 +4,10 @@ export class PortfolioManagerPropertyListEntitiesCommand extends PortfolioManage
   get examples() {
     return [
       "# customizing the output",
-      `${this.name} property list entities --indent 2  --fields id name yearBuilt`,
+      `${this.getFullCommand()} --indent 2  --fields id name yearBuilt`,
       "",
       "# using with JQ to map the output to shell scripting friendlier output",
-      `${this.name} property list entities | jq -r '[.[] | .id] | @sh'`,
+      `${this.getFullCommand()} | jq -r '[.[] | .id] | @sh'`,
     ];
   }
   fields = [

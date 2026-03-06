@@ -6,7 +6,7 @@ export class PortfolioManagerPropertyMetricsMonthlyCommand extends PortfolioMana
   protected _description = "Get monthly metrics for a property";
   protected get examples() { return [
     "# customizing the output",
-    `${this.getFullCommand()} property metrics monthly  --propertyId <propertyId> --fields name year month value --indent 2`,
+    `${this.getFullCommand()} --propertyId <propertyId> --fields name year month value --indent 2`,
   ];
   }
   protected fields = ["propertyId", "name", "uom", "year", "month", "value"];
