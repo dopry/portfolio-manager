@@ -43,7 +43,14 @@ jobs:
       - run: npm run build
       - run: node ./dist/index.js --help # Run the CLI to ensure it works, we had some test releases where this was broken during the esm migration
       - run: npm test
-      - run: npx semantic-release
+      - run: 
+          name: Semantic Release with Trusted Publishing via OIDC
+          command: |
+            # 1. Fetch the OIDC token from CircleCI
+            # 2. Export it as NPM_ID_TOKEN for the npm CLI/semantic-release to find
+            export NPM_ID_TOKEN=$(circleci run oidc get --claims '{"aud": "npm:registry.npmjs.org"}')
+            npx semantic-release
+       
 
 workflows:
   test_and_release:
@@ -66,7 +73,6 @@ workflows:
                 - main
                 - next
           context:
-            - dopry-npm-packages
             - dopry-portfoliomanager-epa
 
   nightly_bleeding_edge:
