@@ -140,6 +140,8 @@ class PortfolioManagerApi {
 
 Contributions and sponsorship are welcome. The goal is open-source tooling that supports organizations working in energy efficiency.
 
+See `CONTRIBUTING.md` for local workflow, CI expectations, and release process details.
+
 ## Energy Star Portfolio Manager Upstream API Documentation
 
 - [Getting Started](https://portfoliomanager.energystar.gov/webservices/home)
