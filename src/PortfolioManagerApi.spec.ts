@@ -249,7 +249,39 @@ describe("PortfolioManagerApi", () => {
     expect(isAssociated).to.equal(true);
   }, 60000);
 
-  it.skip("can create a meter consumption record", async () => {});
+  it("can create a meter consumption record", async () => {
+    const propertyId = standardPropertyIds[0];
+    const meter = mockMeter(withRunId("Consumption Meter"));
+    const postMeterResponse = await api.meterMeterPost(propertyId, meter);
+    const meterId = postMeterResponse.response.id;
+    if (!meterId) {
+      throw new Error("Expected created meter to include id");
+    }
+
+    const consumptionPayload = {
+      meterData: {
+        meterConsumption: [
+          {
+            startDate: "2024-01-01",
+            endDate: "2024-01-31",
+            usage: 123.45,
+            cost: 67.89,
+          },
+        ],
+      },
+    };
+
+    await api.meterConsumptionDataPost(
+      meterId,
+      consumptionPayload as any
+    );
+
+    const getConsumptionResponse = await api.meterConsumptionDataGet(meterId);
+    expect(getConsumptionResponse.meterData.meterConsumption).to.be.an("array");
+    const consumptions = getConsumptionResponse.meterData.meterConsumption || [];
+    const fetchedMatch = consumptions.find((entry) => entry.usage === 123.45);
+    expect(fetchedMatch).to.be.an("object");
+  }, 60000);
   it.skip("can create a meter delivery record", async () => {});
 
   it("can create manage custom meter identifiers", async () => {
