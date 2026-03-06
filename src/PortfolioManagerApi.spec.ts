@@ -418,19 +418,8 @@ describe("PortfolioManagerApi", () => {
     expect(meterIdentifierType["@_description"]).to.be.a("string");
   }, 60000);
 
-  it.skip("can query property design metrics", async () => {
-    const { account } = await api.accountAccountGet();
-    const getPropertyListResponse = await api.propertyPropertyListGet(
-      account.id || 0
-    );
-    if (!isIPopulatedResponse(getPropertyListResponse.response)) {
-      throw new Error("Expected isIPopoulatedResponse");
-    }
-    // console.log({ getPropertyListResponse });
-    const propertyId = parseInt(
-      getPropertyListResponse.response.links.link[0]["@_id"] || "0",
-      10
-    );
+  it("can query property design metrics", async () => {
+    const propertyId = standardPropertyIds[0];
 
     const designMetricsResponse = await api.propertyDesignMetricsGet(
       propertyId
@@ -447,5 +436,5 @@ describe("PortfolioManagerApi", () => {
     }
     expect(metric["@_name"]).to.be.a("string");
     expect(metric["@_dataType"]).to.be.a("string");
-  });
+  }, 60000);
 });
