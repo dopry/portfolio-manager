@@ -1,4 +1,5 @@
 import { expect } from "chai";
+import { describe, it } from "vitest";
 import {
   mockIProperty,
   mockMeter
@@ -12,11 +13,10 @@ import {
   isIPropertyAnnualMetric
 } from "./types/xml/index.js";
 
-const BASE_URL = "https://portfoliomanager.energystar.gov/wstest/";
+const BASE_URL = process.env.PM_ENDPOINT || "https://portfoliomanager.energystar.gov/wstest/";
 
 const USERNAME = process.env.PM_USERNAME;
 const PASSWORD = process.env.PM_PASSWORD;
-
 if (!USERNAME || !PASSWORD) {
   throw new Error(
     "Please set PM_USERNAME and PM_PASSWORD environment variables"
@@ -42,7 +42,7 @@ describe("PortfolioManagerApi", () => {
     expect(listPropertyResponse.response["@_status"]).to.equal("Ok");
     expect(listPropertyResponse.response.links).to.be.an("string");
     expect(isIEmptyResponse(listPropertyResponse.response)).to.equal(true);
-  }).timeout(60000);
+  }, 60000);
 
   it("can create a test property", async () => {
     const property = mockIProperty();
@@ -161,7 +161,7 @@ describe("PortfolioManagerApi", () => {
     expect(propFromList["@_linkDescription"]).to.equal(
       "This is the GET url for this Property."
     );
-  }).timeout(60000);
+  }, 60000);
 
   it.skip("can create a property design metric", async () => {});
 
@@ -206,7 +206,7 @@ describe("PortfolioManagerApi", () => {
     expect(meterFromList["@_id"]).to.equal(
       postMeterResponse.response.id.toString()
     );
-  }).timeout(60000);
+  }, 60000);
 
   it.skip("can create a meter consumption record", async () => {});
   it.skip("can create a meter delivery record", async () => {});
@@ -308,7 +308,7 @@ describe("PortfolioManagerApi", () => {
     // console.log({ got2Identifier })
     expect(got2Identifier).to.be.an("object");
     expect(got2Identifier.value).to.eq("New Value");
-  }).timeout(60000);
+  }, 60000);
 
   it("can query meter identifier types", async () => {
     const meterIdentifierTypesResponse =
@@ -324,7 +324,7 @@ describe("PortfolioManagerApi", () => {
     expect(meterIdentifierType["@_standardApproved"]).to.be.a("string");
     expect(meterIdentifierType["@_name"]).to.be.a("string");
     expect(meterIdentifierType["@_description"]).to.be.a("string");
-  }).timeout(60000);
+  }, 60000);
 
   it.skip("can query property design metrics", async () => {
     const { account } = await api.accountAccountGet();

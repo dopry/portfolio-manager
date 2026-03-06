@@ -1,4 +1,5 @@
 import { expect } from "chai";
+import { beforeAll, describe, it } from "vitest";
 import {
   mockIProperty,
   mockMeter,
@@ -8,37 +9,32 @@ import { PortfolioManagerApi } from "./PortfolioManagerApi.js";
 import { IAccount, IMeter, IProperty } from "./types/index.js";
 
 const BASE_URL = "https://portfoliomanager.energystar.gov/wstest/";
+const USERNAME = process.env.PM_USERNAME || '';
+const PASSWORD = process.env.PM_PASSWORD || '';
+if (!USERNAME || !PASSWORD) {
+  throw new Error(
+    "Please set PM_USERNAME and PM_PASSWORD environment variables"
+  );
+}
 
-describe("PortfolioManager", async () => {
+describe("PortfolioManager", () => {
   let api: PortfolioManagerApi;
   let pm: PortfolioManager;
   let account: IAccount;
   let testProperty: IProperty;
   let testMeter: IMeter;
-  async function ensureTestFixtures(done: () => void) {
-    const USERNAME = process.env.PM_USERNAME;
-    const PASSWORD = process.env.PM_PASSWORD;
 
-    if (!USERNAME || !PASSWORD) {
-      throw new Error(
-        "Please set PM_USERNAME and PM_PASSWORD environment variables"
-      );
-    }
+  async function ensureTestFixtures() {
     api = new PortfolioManagerApi(BASE_URL, USERNAME, PASSWORD);
     pm = new PortfolioManager(api);
     account = await pm.getAccount();
     testProperty = await pm.createProperty(mockIProperty());
     testMeter = await pm.createMeter(testProperty.id, mockMeter());
-    done();
   }
 
-  before(function (done) {
-    // testing api can be slow, so we'll be liberal with the timeouts.
-    this.timeout(60000);
-    ensureTestFixtures(done).catch((e) => {
-      throw e;
-    });
-  });
+  beforeAll(async () => {
+    await ensureTestFixtures();
+  }, 60000);
 
   it("can be constucted", () => {
     expect(api).to.be.an.instanceof(PortfolioManagerApi);
@@ -76,5 +72,5 @@ describe("PortfolioManager", async () => {
     expect(identifiersNew2[0].value).to.equal("Test2");
     expect(identifiersNew2[1].description).to.equal("Test2");
     expect(identifiersNew2[1].value).to.equal("Test");
-  }).timeout(60000); // testing api can be slow so we'll be liberal with the timeouts
+  }, 60000); // testing api can be slow so we'll be liberal with the timeouts
 });
