@@ -191,8 +191,6 @@ describe("PortfolioManagerApi", () => {
     );
   }, 60000);
 
-  it.skip("can create a property design metric", async () => {});
-
   it("can create a meter", async () => {
     const propertyId = standardPropertyIds[0];
 
@@ -436,5 +434,55 @@ describe("PortfolioManagerApi", () => {
     }
     expect(metric["@_name"]).to.be.a("string");
     expect(metric["@_dataType"]).to.be.a("string");
+  }, 60000);
+
+  it("can query property metrics", async () => {
+    const propertyId = standardPropertyIds[0];
+
+    const meter = mockMeter(withRunId("Metrics Meter"));
+    const postMeterResponse = await api.meterMeterPost(propertyId, meter);
+    const meterId = postMeterResponse.response.id;
+    if (!meterId) {
+      throw new Error("Expected created meter to include id");
+    }
+
+    await api.meterConsumptionDataPost(meterId, {
+      meterData: {
+        meterConsumption: [
+          {
+            startDate: "2024-01-01",
+            endDate: "2024-01-31",
+            usage: 50,
+            cost: 10,
+          },
+        ],
+      },
+    });
+
+    const requestedMetrics = ["siteTotal", "sourceTotal", "score"];
+    const metricsResponse = await api.propertyMetricsGet(
+      propertyId,
+      2024,
+      1,
+      requestedMetrics
+    );
+
+    expect(metricsResponse.propertyMetrics).to.be.an("object");
+    expect(metricsResponse.propertyMetrics["@_propertyId"]).to.equal(
+      propertyId.toString()
+    );
+    expect(metricsResponse.propertyMetrics.metric).to.be.an("array");
+
+    const returnedRequested = metricsResponse.propertyMetrics.metric.filter(
+      (metric) => requestedMetrics.includes(metric["@_name"])
+    );
+    expect(returnedRequested.length).to.be.greaterThan(0);
+
+    const annualMetric = returnedRequested.find(isIPropertyAnnualMetric);
+    if (!annualMetric) {
+      throw new Error("Expected at least one annual property metric");
+    }
+    expect(annualMetric["@_name"]).to.be.a("string");
+    expect(annualMetric["@_dataType"]).to.be.a("string");
   }, 60000);
 });
