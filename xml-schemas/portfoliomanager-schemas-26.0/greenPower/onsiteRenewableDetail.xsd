@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+    <xs:include schemaLocation="../common/audit.xsd"/>
+    <xs:include schemaLocation="../common/links.xsd"/>
+    <xs:include schemaLocation="greenPowerCommon.xsd"/>
+
+    <xs:complexType name="onsiteUsageDetailType">
+        <xs:sequence>
+            <xs:element name="recOwnership" type="recOwnershipEnum">
+                <xs:annotation>
+                    <xs:documentation>The REC ownership type.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="generationLocation" type="generationLocationType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The generation location of the REC, required when recOwnership is
+                        Arbitraged. Defaults to property's facility location when recOwnership is Owned. Not applicable
+                        when recOwnership is Not Owned/Sold or Unknown.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="greenPowerType" type="greenPowerTypeEnum" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The green power type, required when the recOwnership is Arbitraged, not applicable for other recOwnership types.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="meetVintageRequirement" type="xs:boolean" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>You must attest that the unbundled RECs meet the vintage requirement when green power type is Unbundled RECs.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="certifiedByGreene" type="xs:boolean" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Flag indicate if certified by Green-e, required when the recOwnership is Arbitraged, not applicable for other recOwnership types.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="onsiteRenewableDetailType">
+        <xs:all>
+            <xs:element name="id" type="xs:long" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The id of the onsite renewable detail.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="currentAsOf" type="xs:date">
+                <xs:annotation>
+                    <xs:documentation>The time period of the onsite renewable detail.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="energyUsedOnsite" type="onsiteUsageDetailType">
+                <xs:annotation>
+                    <xs:documentation>The energy used onsite REC ownership details.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="energyExportedToGrid" type="onsiteUsageDetailType">
+                <xs:annotation>
+                    <xs:documentation>The energy exported to grid REC ownership details.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="audit" type="logType" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:element name="onsiteRenewableDetail" type="onsiteRenewableDetailType"/>
+
+    <xs:element name="onsiteRenewableDetails">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="onsiteRenewableDetail" minOccurs="0" maxOccurs="1000"/>
+                <xs:element name="links" type="linksType" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

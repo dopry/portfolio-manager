@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+    <xs:include schemaLocation="characteristics.xsd"/>
+    <xs:include schemaLocation="propertyUse.xsd"/>
+    <xs:element name="vehicleRepairServices" type="vehicleRepairServicesType">
+        <xs:annotation>
+            <xs:documentation>Vehicle Repair Services refers to buildings in which vehicle servicing and repair occurs. Vehicle types serviced are limited to buses, light-, medium- and heavy-duty cars and trucks.</xs:documentation>
+        </xs:annotation>
+    </xs:element>
+    <xs:complexType name="vehicleRepairServicesType">
+        <xs:all>
+            <xs:element name="name" type="propertyUseNameType"/>
+            <xs:element name="useDetails">
+                <xs:complexType>
+                        <xs:all>
+                            <xs:element ref="totalGrossFloorArea"/>
+                            <xs:element ref="numberOfWorkers" minOccurs="0"/>
+                            <xs:element ref="percentHeated" minOccurs="0"/>
+                            <xs:element ref="percentCooled" minOccurs="0"/>
+                            <xs:element ref="weeklyOperatingHours" minOccurs="0"/>
+                            <xs:element ref="numberOfComputers" minOccurs="0"/>
+                            <xs:element ref="numberOfPaintBays" minOccurs="0"/>
+                            <xs:element ref="numberOfRepairBays" minOccurs="0"/>
+                        </xs:all>
+                 </xs:complexType>
+            </xs:element>
+            <xs:element name="audit" type="logType" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+</xs:schema>

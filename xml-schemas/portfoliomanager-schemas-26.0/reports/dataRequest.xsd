@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="24.0">
+    <xs:include schemaLocation="timeframe.xsd"/>
+    <xs:complexType name="dataRequest">
+        <xs:all>
+            <xs:element name="name" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>The name of the data request.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="requesterDetails">
+                <xs:annotation>
+                    <xs:documentation>The main point of contact for this data request.</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="firstName" type="xs:string"/>
+                        <xs:element name="lastName" type="xs:string"/>
+                        <xs:element name="email" type="xs:string"/>
+                        <xs:element name="phone" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="instructions" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The details instructions of the data request.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="timeframe" type="timeframeType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The timeframe of the data request.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="locations" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The locations of the data request.</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="location" maxOccurs="unbounded">
+                            <xs:complexType>
+                                <xs:attribute name="country" type="xs:string"/>
+                                <xs:attribute name="state" type="xs:string"/>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="dataRequestStatus" type="dataRequestStatusType">
+                <xs:annotation>
+                    <xs:documentation>The status (OPEN or CLOSED) of the data request.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="dataRequestAcceptedBy" type="xs:string" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The user who accepted the data request.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="dataRequestAcceptedDate" type="xs:dateTime" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The date when the data request was accepted.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:all>
+        <xs:attribute name="id" type="xs:long">
+            <xs:annotation>
+                <xs:documentation>The unique identifier of the data request.</xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:element name="dataRequest" type="dataRequest"/>
+</xs:schema>

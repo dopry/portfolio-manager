@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+    <xs:simpleType name="greenPowerTypeEnum">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Community Choice Aggregation"/>
+            <xs:enumeration value="Community Solar"/>
+            <xs:enumeration value="Competitive Product (direct purchase)"/>
+            <xs:enumeration value="Financial/Virtual PPA"/>
+            <xs:enumeration value="Physical PPA"/>
+            <xs:enumeration value="Unbundled RECs"/>
+            <xs:enumeration value="Utility Green Tariff"/>
+            <xs:enumeration value="Utility Product"/>
+            <xs:enumeration value="Unknown"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="greenPowerFuelSourceEnum">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Biogas"/>
+            <xs:enumeration value="Biomass"/>
+            <xs:enumeration value="Geothermal"/>
+            <xs:enumeration value="Small Hydropower"/>
+            <xs:enumeration value="Solar"/>
+            <xs:enumeration value="Wind"/>
+            <xs:enumeration value="Other"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="renewableGenerationTechnologyEnum">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Solar PV- Carports"/>
+            <xs:enumeration value="Solar PV- Ground-mounted"/>
+            <xs:enumeration value="Solar PV- Rooftop"/>
+            <xs:enumeration value="Solar Thermal- Concentrating Solar Power"/>
+            <xs:enumeration value="Other"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="recOwnershipEnum">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Owned"/>
+            <xs:enumeration value="Not Owned/Sold"/>
+            <xs:enumeration value="Arbitraged"/>
+            <xs:enumeration value="Unknown"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="ratedCapacityUomType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="kW"/>
+            <xs:enumeration value="MW"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="generationLocationType">
+        <xs:choice>
+            <xs:element name="unknown" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>The location of the green power is unknown.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="postalCode">
+                <xs:annotation>
+                    <xs:documentation>The postal code where the green power is generated.
+                    </xs:documentation>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:minLength value="1"/>
+                        <xs:maxLength value="20"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="eGridSubRegion">
+                <xs:annotation>
+                    <xs:documentation>The eGrid subregion code of where the green power is generated.
+                    </xs:documentation>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:length value="4"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+        </xs:choice>
+    </xs:complexType>
+</xs:schema>

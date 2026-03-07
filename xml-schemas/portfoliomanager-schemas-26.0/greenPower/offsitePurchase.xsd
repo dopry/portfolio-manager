@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="24.0">
+    <xs:include schemaLocation="../common/audit.xsd"/>
+    <xs:include schemaLocation="greenPowerCommon.xsd"/>
+
+    <xs:simpleType name="percentageType">
+        <xs:restriction base="xs:decimal">
+            <xs:minExclusive value="0"/>
+            <xs:maxInclusive value="100"/>
+            <xs:fractionDigits value="1"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="energyUomType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="GJ"/>
+            <xs:enumeration value="kBtu (thousand Btu)"/>
+            <xs:enumeration value="kWh (thousand Watt-hours)"/>
+            <xs:enumeration value="MBtu (million Btu)"/>
+            <xs:enumeration value="MWh (million Watt-hours)"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="offsiteGreenPowerPurchaseType">
+        <xs:all>
+            <xs:element name="id" type="xs:long" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The id of the offsite green power purchase.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="recOwnedAndRetired" type="xs:boolean">
+                <xs:annotation>
+                    <xs:documentation>You must own and retire the RECs (or have them retired on your behalf) for them to count as green power in Portfolio Manager.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+
+            <xs:element name="startDate" type="xs:date">
+                <xs:annotation>
+                    <xs:documentation>The start date of the offsite green power purchase.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="endDate" type="xs:date">
+                <xs:annotation>
+                    <xs:documentation>The end date of the offsite green power purchase.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="amountPurchased">
+                <xs:complexType>
+                    <xs:choice>
+                        <xs:element name="quantity">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="amount">
+                                        <xs:annotation>
+                                            <xs:documentation>The amount purchased.</xs:documentation>
+                                        </xs:annotation>
+                                        <xs:simpleType>
+                                            <xs:restriction base="xs:decimal">
+                                                <xs:minInclusive value="0.1"/>
+                                                <xs:fractionDigits value="1"/>
+                                            </xs:restriction>
+                                        </xs:simpleType>
+                                    </xs:element>
+                                </xs:sequence>
+                                <xs:attribute name="uom" type="energyUomType" use="required">
+                                    <xs:annotation>
+                                        <xs:documentation>The unit of measure of the amount purchased.
+                                        </xs:documentation>
+                                    </xs:annotation>
+                                </xs:attribute>
+                            </xs:complexType>
+                        </xs:element>
+                        <xs:element name="percentage">
+                            <xs:complexType>
+                                <xs:all>
+                                    <xs:element name="value" type="percentageType">
+                                        <xs:annotation>
+                                            <xs:documentation>The percentage purchased.</xs:documentation>
+                                        </xs:annotation>
+                                    </xs:element>
+                                    <xs:element name="includeAllMeters" type="xs:boolean">
+                                        <xs:annotation>
+                                            <xs:documentation>Flag to indicate if all electric meters are included.</xs:documentation>
+                                        </xs:annotation>
+                                    </xs:element>
+                                    <xs:element name="meters" minOccurs="0">
+                                        <xs:annotation>
+                                            <xs:documentation>The list of electric meters included if includeAllMeters is false.
+                                            </xs:documentation>
+                                        </xs:annotation>
+                                        <xs:complexType>
+                                            <xs:sequence>
+                                                <xs:element name="id" type="xs:long" minOccurs="0" maxOccurs="unbounded">
+                                                    <xs:annotation>
+                                                        <xs:documentation>The unique identifier for each meter.</xs:documentation>
+                                                    </xs:annotation>
+                                                </xs:element>
+                                            </xs:sequence>
+                                        </xs:complexType>
+                                    </xs:element>
+                                </xs:all>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:choice>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="estimate" type="xs:boolean">
+                <xs:annotation>
+                    <xs:documentation>Flag to indicate if any of the amount purchased is estimate.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="generationLocation" type="generationLocationType">
+                <xs:annotation>
+                    <xs:documentation>The location (power plant, eGrid subregion, or unknown) of where the green power
+                        was generated.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="type" type="greenPowerTypeEnum">
+                <xs:annotation>
+                    <xs:documentation>The green power type of the offsite green power purchase.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="meetVintageRequirement" type="xs:boolean" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>You must attest that the unbundled RECs meet the vintage requirement when type is Unbundled RECs.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="certifiedByGreene" type="xs:boolean">
+                <xs:annotation>
+                    <xs:documentation>Flag indicate whether this green power is certified by Green-e.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="provider" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The green power provider/project owner.</xs:documentation>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:minLength value="1"/>
+                        <xs:maxLength value="500"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="facilityName" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The generation facility name.</xs:documentation>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:minLength value="1"/>
+                        <xs:maxLength value="500"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="fuelSources" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The green power fuel sources.</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="fuelSource" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                                <xs:sequence>
+                                    <xs:element name="type" type="greenPowerFuelSourceEnum">
+                                        <xs:annotation>
+                                            <xs:documentation>The type of the fuel sources.</xs:documentation>
+                                        </xs:annotation>
+                                    </xs:element>
+                                    <xs:element name="percentage" type="percentageType" minOccurs="0">
+                                        <xs:annotation>
+                                            <xs:documentation>The percentage of the fuel source.</xs:documentation>
+                                        </xs:annotation>
+                                    </xs:element>
+                                </xs:sequence>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="renewableGenerationTechnologies" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The Renewable Generation Technology types.</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="technology" type="renewableGenerationTechnologyEnum" minOccurs="0"
+                                    maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="ratedCapacity" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The rated capacity of project/offtake.</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="value">
+                            <xs:simpleType>
+                                <xs:restriction base="xs:decimal">
+                                    <xs:minExclusive value="0"/>
+                                    <xs:fractionDigits value="1"/>
+                                </xs:restriction>
+                            </xs:simpleType>
+                        </xs:element>
+                    </xs:sequence>
+                    <xs:attribute name="uom" type="ratedCapacityUomType" use="required">
+                        <xs:annotation>
+                            <xs:documentation>The unit of the value (kW or MW).</xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="operationDate" type="xs:date" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The commercial operation date.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="contractStartDate" type="xs:date" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The contract start date.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="contractEndDate" type="xs:date" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The contract start date.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="cost" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The cost of Green Power purchase.</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="value">
+                            <xs:annotation>
+                                <xs:documentation>The value of the cost.</xs:documentation>
+                            </xs:annotation>
+                            <xs:simpleType>
+                                <xs:restriction base="xs:decimal">
+                                    <xs:minExclusive value="0"/>
+                                    <xs:fractionDigits value="2"/>
+                                </xs:restriction>
+                            </xs:simpleType>
+                        </xs:element>
+                    </xs:sequence>
+                    <xs:attribute name="uom" type="energyUomType" use="required">
+                        <xs:annotation>
+                            <xs:documentation>The unit of measure of the cost.</xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="notes" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Any other information about this purchase.</xs:documentation>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:minLength value="1"/>
+                        <xs:maxLength value="4000"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="audit" type="logType" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:element name="offsiteGreenPowerPurchase" type="offsiteGreenPowerPurchaseType"/>
+</xs:schema>

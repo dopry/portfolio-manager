@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+	<!--
+        INCLUDES
+    -->
+	<xs:include schemaLocation="../common/links.xsd"/>
+	<xs:include schemaLocation="../common/audit.xsd"/>
+	<xs:include schemaLocation="../common/simpleTypes.xsd"/>
+	<xs:element name="meterData" type="meterDataType"/>
+	<xs:element name="meterConsumption" type="meterConsumptionType">
+		<xs:annotation>
+			<xs:documentation>Consumption data used for a meter that is set up to be metered.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:element name="meterDelivery" type="meterDeliveryType"/>
+	<xs:complexType name="meterDataType">
+		<xs:annotation>
+			<xs:documentation>A service type used for getting and receiving meter consumption data</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element ref="meterConsumption" minOccurs="0" maxOccurs="120"/>
+			<xs:element ref="meterDelivery" minOccurs="0" maxOccurs="120"/>
+			<xs:element name="links" type="linksType" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="meterConsumptionType">
+		<xs:annotation>
+			<xs:documentation>A service type used for representing a meter consumption entry</xs:documentation>
+		</xs:annotation>
+		<xs:all>
+			<xs:element name="id" type="xs:long" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The id of the meter consumption entry.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="startDate" type="xs:date">
+				<xs:annotation>
+					<xs:documentation>The first date of the meter consumption reading.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="endDate" type="xs:date">
+				<xs:annotation>
+					<xs:documentation>The last date of the meter consumption reading.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="usage" type="xs:decimal">
+				<xs:annotation>
+					<xs:documentation>The quantity of the meter consumption. </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="cost" type="optionalCost" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The cost of meter's consumption. </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="energyExportedOffSite" type="xs:decimal" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The amount of energy exported off site from an on-site solar or on-site wind installation.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="percentRenewableNaturalGas" type="percentDecimalPrecision" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The percentage that is renewable Natural Gas.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="demandTracking" type="demandTrackingType" minOccurs="0"/>
+			<xs:element name="audit" type="logType" minOccurs="0"/>
+		</xs:all>
+		<xs:attribute name="estimatedValue" type="xs:boolean" use="optional">
+			<xs:annotation>
+				<xs:documentation>Whether the meter consumption is an estimated value.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="meterDeliveryType">
+		<xs:annotation>
+			<xs:documentation>Delivery data used for a meter that is set up for bulk delivery. </xs:documentation>
+		</xs:annotation>
+		<xs:all>
+			<xs:element name="id" type="xs:long" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The id of the meter delivery entry.
+                    </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="deliveryDate" type="xs:date">
+				<xs:annotation>
+					<xs:documentation>Indicates the date of the delivery.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="quantity" type="xs:decimal">
+				<xs:annotation>
+					<xs:documentation>Indicates the quantity of energy delivered.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="cost" type="optionalCost" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Indicates the cost associated with the energy delivered.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="audit" type="logType" minOccurs="0"/>
+		</xs:all>
+		<xs:attribute name="estimatedValue" type="xs:boolean" use="optional"/>
+	</xs:complexType>
+
+	<xs:complexType name="demandTrackingType">
+		<xs:all>
+			<xs:element name="demand" type="optionalDemand" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Demand amount</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="demandCost" type="optionalCost" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Demand cost</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:all>
+	</xs:complexType>
+
+	<xs:simpleType name="noNegativePrecision">
+		<xs:restriction base="xs:decimal">
+			<xs:fractionDigits value="2"/>
+			<xs:minInclusive value="0"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="decimalPrecision">
+		<xs:restriction base="xs:decimal">
+			<xs:fractionDigits value="2"/>
+			<xs:minInclusive value="0"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="percentDecimalPrecision">
+		<xs:restriction base="xs:decimal">
+			<xs:fractionDigits value="2"/>
+			<xs:minInclusive value="0"/>
+			<xs:maxInclusive value="100"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="optionalCost">
+		<xs:union memberTypes="emptyString xs:decimal"/>
+	</xs:simpleType>
+
+	<xs:simpleType name="optionalDemand">
+		<xs:union memberTypes="emptyString decimalPrecision"/>
+	</xs:simpleType>
+
+	<xs:simpleType name="generationPlantType">
+		<xs:union memberTypes="emptyString xs:integer"/>
+	</xs:simpleType>
+	
+</xs:schema>

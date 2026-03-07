@@ -1,0 +1,2139 @@
+diff -u -r portfoliomanager-schemas-20.0/account/account.xsd portfoliomanager-schemas-26.0/account/account.xsd
+--- portfoliomanager-schemas-20.0/account/account.xsd	2025-08-05 14:33:40.169324400 -0400
++++ portfoliomanager-schemas-26.0/account/account.xsd	2026-03-06 20:54:51.257241400 -0500
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <!-- edited with XMLSpy v2005 rel. 3 U (http://www.altova.com) by SRA International (SRA International) -->
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<!--
+         INCLUDES
+     -->
+diff -u -r portfoliomanager-schemas-20.0/account/customer.xsd portfoliomanager-schemas-26.0/account/customer.xsd
+--- portfoliomanager-schemas-20.0/account/customer.xsd	2025-08-05 14:33:40.170326000 -0400
++++ portfoliomanager-schemas-26.0/account/customer.xsd	2026-03-06 20:54:51.261922100 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="../authorization/authorization.xsd"/>
+ 	<xs:element name="customer">
+ 		<xs:annotation>
+diff -u -r portfoliomanager-schemas-20.0/account/dataExchangeSettings.xsd portfoliomanager-schemas-26.0/account/dataExchangeSettings.xsd
+--- portfoliomanager-schemas-20.0/account/dataExchangeSettings.xsd	2025-08-05 14:33:40.170326000 -0400
++++ portfoliomanager-schemas-26.0/account/dataExchangeSettings.xsd	2026-03-06 20:54:51.268440300 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="../common/address.xsd"/>
+ 	<xs:include schemaLocation="../meter/meter.xsd"/>
+ 	<xs:element name="dataExchangeSettings">
+Only in portfoliomanager-schemas-26.0/account: searchResults.xsd
+diff -u -r portfoliomanager-schemas-20.0/assignment/edu.xsd portfoliomanager-schemas-26.0/assignment/edu.xsd
+--- portfoliomanager-schemas-20.0/assignment/edu.xsd	2025-08-05 14:33:40.172324800 -0400
++++ portfoliomanager-schemas-26.0/assignment/edu.xsd	2026-03-06 20:54:51.284599000 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="24.0">
+ 	<xs:element name="eduList">
+ 		<xs:complexType>
+ 			<xs:sequence>
+diff -u -r portfoliomanager-schemas-20.0/assignment/eGridSubregion.xsd portfoliomanager-schemas-26.0/assignment/eGridSubregion.xsd
+--- portfoliomanager-schemas-20.0/assignment/eGridSubregion.xsd	2025-08-05 14:33:40.171329100 -0400
++++ portfoliomanager-schemas-26.0/assignment/eGridSubregion.xsd	2026-03-06 20:54:51.280599900 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+     <xs:element name="eGridSubregionList">
+         <xs:complexType>
+             <xs:sequence>
+diff -u -r portfoliomanager-schemas-20.0/assignment/internationalWeatherStation.xsd portfoliomanager-schemas-26.0/assignment/internationalWeatherStation.xsd
+--- portfoliomanager-schemas-20.0/assignment/internationalWeatherStation.xsd	2025-08-05 14:33:40.172324800 -0400
++++ portfoliomanager-schemas-26.0/assignment/internationalWeatherStation.xsd	2026-03-06 20:54:51.289801200 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="../common/links.xsd"/>
+ 	<xs:element name="internationalWeatherStationList">
+ 		<xs:complexType>
+@@ -14,7 +14,7 @@
+ 			<xs:documentation>International Weather Station information</xs:documentation>
+ 		</xs:annotation>
+ 		<xs:complexType>
+-			<xs:attribute name="id" type="xs:long">
++			<xs:attribute name="id" type="xs:string">
+ 				<xs:annotation>
+ 					<xs:documentation>The station WMO id.</xs:documentation>
+ 				</xs:annotation>
+diff -u -r portfoliomanager-schemas-20.0/assignment/pgp.xsd portfoliomanager-schemas-26.0/assignment/pgp.xsd
+--- portfoliomanager-schemas-20.0/assignment/pgp.xsd	2025-08-05 14:33:40.173325400 -0400
++++ portfoliomanager-schemas-26.0/assignment/pgp.xsd	2026-03-06 20:54:51.294809300 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="24.0">
+ 	<xs:element name="pgpList">
+ 		<xs:complexType>
+ 			<xs:sequence>
+diff -u -r portfoliomanager-schemas-20.0/association/association.xsd portfoliomanager-schemas-26.0/association/association.xsd
+--- portfoliomanager-schemas-20.0/association/association.xsd	2025-08-05 14:33:40.173325400 -0400
++++ portfoliomanager-schemas-26.0/association/association.xsd	2026-03-06 20:54:51.304936600 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="24.0">
+ 	<xs:element name="meterPropertyAssociationList" type="meterPropertyAssociationListType">
+ 		<xs:annotation>
+ 			<xs:documentation>Indicates the association you want to create for a set of meters and a specific property.</xs:documentation>
+diff -u -r portfoliomanager-schemas-20.0/authorization/authorization.xsd portfoliomanager-schemas-26.0/authorization/authorization.xsd
+--- portfoliomanager-schemas-20.0/authorization/authorization.xsd	2025-08-05 14:33:40.174324900 -0400
++++ portfoliomanager-schemas-26.0/authorization/authorization.xsd	2026-03-06 20:54:51.313461300 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<!--
+         INCLUDES
+     -->
+diff -u -r portfoliomanager-schemas-20.0/building/building.xsd portfoliomanager-schemas-26.0/building/building.xsd
+--- portfoliomanager-schemas-20.0/building/building.xsd	2025-08-05 14:33:40.175325100 -0400
++++ portfoliomanager-schemas-26.0/building/building.xsd	2026-03-06 20:54:51.322617800 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="24.0">
+ 	<!--
+         INCLUDES
+     -->
+diff -u -r portfoliomanager-schemas-20.0/common/address.xsd portfoliomanager-schemas-26.0/common/address.xsd
+--- portfoliomanager-schemas-20.0/common/address.xsd	2025-08-05 14:33:40.176832300 -0400
++++ portfoliomanager-schemas-26.0/common/address.xsd	2026-03-06 20:54:51.331139700 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:complexType name="addressType">
+ 		<xs:attribute name="address1" use="required">
+ 			<xs:annotation>
+diff -u -r portfoliomanager-schemas-20.0/common/audit.xsd portfoliomanager-schemas-26.0/common/audit.xsd
+--- portfoliomanager-schemas-20.0/common/audit.xsd	2025-08-05 14:33:40.176832300 -0400
++++ portfoliomanager-schemas-26.0/common/audit.xsd	2026-03-06 20:54:51.335652800 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:element name="log" type="logType"/>
+ 	<xs:complexType name="logType">
+ 		<xs:sequence>
+diff -u -r portfoliomanager-schemas-20.0/common/customField.xsd portfoliomanager-schemas-26.0/common/customField.xsd
+--- portfoliomanager-schemas-20.0/common/customField.xsd	2025-08-05 14:33:40.177843700 -0400
++++ portfoliomanager-schemas-26.0/common/customField.xsd	2026-03-06 20:54:51.338754700 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:element name="customField">
+ 		<xs:annotation>
+ 			<xs:documentation>Additional field (outside of Portfolio Manager) that you can prompt a user to provide data through the connection/share process.</xs:documentation>
+diff -u -r portfoliomanager-schemas-20.0/common/grossFloorArea.xsd portfoliomanager-schemas-26.0/common/grossFloorArea.xsd
+--- portfoliomanager-schemas-20.0/common/grossFloorArea.xsd	2025-08-05 14:33:40.178844300 -0400
++++ portfoliomanager-schemas-26.0/common/grossFloorArea.xsd	2026-03-06 20:54:51.343764900 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 
+     <xs:include schemaLocation="../propertyUse/characteristicType.xsd"/>
+ 
+diff -u -r portfoliomanager-schemas-20.0/common/irrigatedArea.xsd portfoliomanager-schemas-26.0/common/irrigatedArea.xsd
+--- portfoliomanager-schemas-20.0/common/irrigatedArea.xsd	2025-08-05 14:33:40.178844300 -0400
++++ portfoliomanager-schemas-26.0/common/irrigatedArea.xsd	2026-03-06 20:54:51.347764900 -0500
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
+-
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
++	<xs:include schemaLocation="simpleTypes.xsd"/>
+ 	<xs:complexType name="irrigationAreaType">
+ 		<xs:annotation>
+ 			<xs:documentation>Irrigated area is the amount of outdoor vegetated area that is supplied water regularly, measured in square feet, square meters, or acres.</xs:documentation>
+@@ -29,11 +29,6 @@
+ 	<xs:simpleType name="decimalTwoPrecisionOrEmptyString">
+ 		<xs:union memberTypes="decimalTwoPrecision emptyString"/>
+ 	</xs:simpleType>
+-	<xs:simpleType name="emptyString">
+-		<xs:restriction base="xs:string">
+-			<xs:enumeration value=""/>
+-		</xs:restriction>
+-	</xs:simpleType>
+ 	<xs:simpleType name="decimalTwoPrecision">
+ 		<xs:restriction base="xs:decimal">
+ 			<xs:fractionDigits value="2"/>
+diff -u -r portfoliomanager-schemas-20.0/common/links.xsd portfoliomanager-schemas-26.0/common/links.xsd
+--- portfoliomanager-schemas-20.0/common/links.xsd	2025-08-05 14:33:40.179850500 -0400
++++ portfoliomanager-schemas-26.0/common/links.xsd	2026-03-06 20:54:51.352757300 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<!--
+         LINKS
+     -->
+@@ -33,7 +33,7 @@
+ 				<xs:documentation>The HTTP method to the web service call.</xs:documentation>
+ 			</xs:annotation>
+ 		</xs:attribute>
+-		<xs:attribute name="hint">
++		<xs:attribute name="hint" type="xs:string">
+ 			<xs:annotation>
+ 				<xs:documentation>A brief description of the information returned from the link.</xs:documentation>
+ 			</xs:annotation>
+diff -u -r portfoliomanager-schemas-20.0/common/ped.xsd portfoliomanager-schemas-26.0/common/ped.xsd
+--- portfoliomanager-schemas-20.0/common/ped.xsd	2025-08-05 14:33:40.180849900 -0400
++++ portfoliomanager-schemas-26.0/common/ped.xsd	2026-03-06 20:54:51.355762600 -0500
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ 
+-<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="24.0">
+     <xs:complexType name="ped">
+         <xs:sequence>
+             <xs:element name="month">
+Only in portfoliomanager-schemas-26.0/common: simpleTypes.xsd
+diff -u -r portfoliomanager-schemas-20.0/enum/meterCategoryType.xsd portfoliomanager-schemas-26.0/enum/meterCategoryType.xsd
+--- portfoliomanager-schemas-20.0/enum/meterCategoryType.xsd	2025-08-05 14:33:40.181850000 -0400
++++ portfoliomanager-schemas-26.0/enum/meterCategoryType.xsd	2026-03-06 20:54:51.367918700 -0500
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ 
+-<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ <xs:simpleType name="meterCategoryType">
+     <xs:restriction base="xs:string">
+         <xs:enumeration value="ENERGY"/>
+diff -u -r portfoliomanager-schemas-20.0/enum/periodTypeEnum.xsd portfoliomanager-schemas-26.0/enum/periodTypeEnum.xsd
+--- portfoliomanager-schemas-20.0/enum/periodTypeEnum.xsd	2025-08-05 14:33:40.181850000 -0400
++++ portfoliomanager-schemas-26.0/enum/periodTypeEnum.xsd	2026-03-06 20:54:51.372436900 -0500
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ 
+-<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+     <xs:simpleType name="periodType">
+         <xs:restriction base="xs:string">
+             <xs:enumeration value="CURRENT"/>
+diff -u -r portfoliomanager-schemas-20.0/enum/reportingEnums.xsd portfoliomanager-schemas-26.0/enum/reportingEnums.xsd
+--- portfoliomanager-schemas-20.0/enum/reportingEnums.xsd	2025-08-05 14:33:40.182849600 -0400
++++ portfoliomanager-schemas-26.0/enum/reportingEnums.xsd	2026-03-06 20:54:51.376434900 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="26.0">
+ 	<xs:simpleType name="reportingIntervalType">
+ 		<xs:annotation>
+ 			<xs:documentation>The interval of the timeframe (monthly, quarterly, or annual). Only applies to certain timeframes.</xs:documentation>
+@@ -25,16 +25,6 @@
+ 					<xs:documentation>ENERGY STAR reports that are pre-defined (i.e., Water Performance, Energy Performance, etc.). This type is currently not support yet.</xs:documentation>
+ 				</xs:annotation>
+ 			</xs:enumeration>
+-			<xs:enumeration value="DATA_RESPONSE">
+-				<xs:annotation>
+-					<xs:documentation>Data response. This type is currently not support yet.</xs:documentation>
+-				</xs:annotation>
+-			</xs:enumeration>
+-			<xs:enumeration value="DATA_REQUEST">
+-				<xs:annotation>
+-					<xs:documentation>Data request. This type is currently not support yet.</xs:documentation>
+-				</xs:annotation>
+-			</xs:enumeration>
+ 		</xs:restriction>
+ 	</xs:simpleType>
+ 	<xs:simpleType name="reportStatusType">
+@@ -73,6 +63,28 @@
+ 					<xs:documentation>This status is currently not support yet.</xs:documentation>
+ 				</xs:annotation>
+ 			</xs:enumeration>
++			<xs:enumeration value="GENERATED_WITH_ERRORS">
++				<xs:annotation>
++					<xs:documentation>This report is generated with errors.</xs:documentation>
++				</xs:annotation>
++			</xs:enumeration>
++			<xs:enumeration value="SENT">
++				<xs:annotation>
++					<xs:documentation>This response has been sent to the requester.</xs:documentation>
++				</xs:annotation>
++			</xs:enumeration>
++		</xs:restriction>
++	</xs:simpleType>
++
++	<xs:simpleType name="dataRequestStatusType">
++		<xs:annotation>
++			<xs:documentation>The status of the Data Request.</xs:documentation>
++		</xs:annotation>
++		<xs:restriction base="xs:string">
++			<xs:enumeration value="OPEN"/>
++			<xs:enumeration value="CLOSED"/>
++			<xs:enumeration value="ALL"/>
+ 		</xs:restriction>
+ 	</xs:simpleType>
++
+ </xs:schema>
+\ No newline at end of file
+Only in portfoliomanager-schemas-26.0/: greenPower
+diff -u -r portfoliomanager-schemas-20.0/hey/hey.xsd portfoliomanager-schemas-26.0/hey/hey.xsd
+--- portfoliomanager-schemas-20.0/hey/hey.xsd	2025-08-05 14:33:40.183850000 -0400
++++ portfoliomanager-schemas-26.0/hey/hey.xsd	2026-03-06 20:54:51.404443500 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+-<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0" >
+   <xs:include schemaLocation="../property/design.xsd"/>
+   <xs:include schemaLocation="../common/grossFloorArea.xsd"/>
+   <xs:include schemaLocation="../meter/meterConsumptionData.xsd"/>
+diff -u -r portfoliomanager-schemas-20.0/main.xsd portfoliomanager-schemas-26.0/main.xsd
+--- portfoliomanager-schemas-20.0/main.xsd	2025-08-05 14:33:40.183850000 -0400
++++ portfoliomanager-schemas-26.0/main.xsd	2026-03-06 20:54:51.838305100 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+     <!-- Response -->
+     <xs:include schemaLocation="response/response.xsd"/>
+     <xs:include schemaLocation="response/hierarchy.xsd"/>
+@@ -34,6 +34,7 @@
+     <xs:include schemaLocation="property/billboardMetricSetting.xsd"/>
+     <xs:include schemaLocation="property/verification.xsd"/>
+     <xs:include schemaLocation="property/professionalDesignation.xsd"/>
++    <xs:include schemaLocation="property/customMetrics.xsd"/>
+     <xs:include schemaLocation="property/licenseList.xsd"/>
+     <xs:include schemaLocation="meter/individual.xsd"/>
+     <xs:include schemaLocation="hey/hey.xsd"/>
+@@ -41,4 +42,12 @@
+     <xs:include schemaLocation="reports/reportTemplate.xsd"/>
+     <xs:include schemaLocation="reports/report.xsd"/>
+     <xs:include schemaLocation="reports/reportStatus.xsd"/>
++    <xs:include schemaLocation="reports/dataResponse.xsd"/>
++    <xs:include schemaLocation="reports/dataRequest.xsd"/>
++    <xs:include schemaLocation="reports/dataResponseStatus.xsd"/>
++    <xs:include schemaLocation="reports/reportError.xsd"/>
++    <xs:include schemaLocation="reports/sendDataResponse.xsd"/>
++    <xs:include schemaLocation="greenPower/offsitePurchase.xsd"/>
++    <xs:include schemaLocation="greenPower/onsiteRenewableDetail.xsd"/>
++    <xs:include schemaLocation="greenPower/onsiteRenewableOptionalInfo.xsd"/>
+ </xs:schema>
+\ No newline at end of file
+diff -u -r portfoliomanager-schemas-20.0/mapping/mapping.xsd portfoliomanager-schemas-26.0/mapping/mapping.xsd
+--- portfoliomanager-schemas-20.0/mapping/mapping.xsd	2025-08-05 14:33:40.184850400 -0400
++++ portfoliomanager-schemas-26.0/mapping/mapping.xsd	2026-03-06 20:54:51.411966200 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:element name="mapping" type="mappingType"/>
+ 	<xs:complexType name="mappingType">
+ 		<xs:sequence>
+diff -u -r portfoliomanager-schemas-20.0/meter/individual.xsd portfoliomanager-schemas-26.0/meter/individual.xsd
+--- portfoliomanager-schemas-20.0/meter/individual.xsd	2025-08-05 14:33:40.185851600 -0400
++++ portfoliomanager-schemas-26.0/meter/individual.xsd	2026-03-06 20:54:51.419718000 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="26.0">
+ 	<xs:include schemaLocation="../common/audit.xsd"/>
+ 	<xs:element name="individualMeter">
+ 		<xs:complexType>
+diff -u -r portfoliomanager-schemas-20.0/meter/meter.xsd portfoliomanager-schemas-26.0/meter/meter.xsd
+--- portfoliomanager-schemas-20.0/meter/meter.xsd	2025-08-05 14:33:40.186850600 -0400
++++ portfoliomanager-schemas-26.0/meter/meter.xsd	2026-03-06 20:54:51.423237700 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="../common/audit.xsd"/>
+ 	<xs:include schemaLocation="../authorization/authorization.xsd"/>
+ 	<xs:element name="meter" type="meterType"/>
+@@ -47,6 +47,7 @@
+ 						<xs:enumeration value="Cubic Meters per Day"/>
+ 						<xs:enumeration value="cm (Cubic meters)"/>
+ 						<xs:enumeration value="Cords"/>
++						<xs:enumeration value="eKWh (Equivalent Kilowatt hour)"/>
+ 						<xs:enumeration value="Gallons (UK)"/>
+ 						<xs:enumeration value="Gallons (US)"/>
+ 						<xs:enumeration value="GJ"/>
+diff -u -r portfoliomanager-schemas-20.0/meter/meterConsumptionData.xsd portfoliomanager-schemas-26.0/meter/meterConsumptionData.xsd
+--- portfoliomanager-schemas-20.0/meter/meterConsumptionData.xsd	2025-08-05 14:33:40.187354800 -0400
++++ portfoliomanager-schemas-26.0/meter/meterConsumptionData.xsd	2026-03-06 20:54:51.427234300 -0500
+@@ -1,10 +1,11 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<!--
+         INCLUDES
+     -->
+ 	<xs:include schemaLocation="../common/links.xsd"/>
+ 	<xs:include schemaLocation="../common/audit.xsd"/>
++	<xs:include schemaLocation="../common/simpleTypes.xsd"/>
+ 	<xs:element name="meterData" type="meterDataType"/>
+ 	<xs:element name="meterConsumption" type="meterConsumptionType">
+ 		<xs:annotation>
+@@ -57,19 +58,10 @@
+ 					<xs:documentation>The amount of energy exported off site from an on-site solar or on-site wind installation.</xs:documentation>
+ 				</xs:annotation>
+ 			</xs:element>
+-			<xs:element name="greenPower" type="greenPowerType" minOccurs="0"/>
+-			<xs:element name="RECOwnership" minOccurs="0">
++			<xs:element name="percentRenewableNaturalGas" type="percentDecimalPrecision" minOccurs="0">
+ 				<xs:annotation>
+-					<xs:documentation>For Onsite Solar or Onsite Wind energy, whether the RECs have been retained by the property owner.
+-</xs:documentation>
++					<xs:documentation>The percentage that is renewable Natural Gas.</xs:documentation>
+ 				</xs:annotation>
+-				<xs:simpleType>
+-					<xs:restriction base="xs:string">
+-						<xs:enumeration value="Owned"/>
+-						<xs:enumeration value="Sold"/>
+-						<xs:enumeration value="Arbitrage"/>
+-					</xs:restriction>
+-				</xs:simpleType>
+ 			</xs:element>
+ 			<xs:element name="demandTracking" type="demandTrackingType" minOccurs="0"/>
+ 			<xs:element name="audit" type="logType" minOccurs="0"/>
+@@ -79,11 +71,6 @@
+ 				<xs:documentation>Whether the meter consumption is an estimated value.</xs:documentation>
+ 			</xs:annotation>
+ 		</xs:attribute>
+-		<xs:attribute name="isGreenPower" type="xs:boolean" use="optional">
+-			<xs:annotation>
+-				<xs:documentation>Whether the meter is for Green Power.</xs:documentation>
+-			</xs:annotation>
+-		</xs:attribute>
+ 	</xs:complexType>
+ 	<xs:complexType name="meterDeliveryType">
+ 		<xs:annotation>
+@@ -115,84 +102,6 @@
+ 		</xs:all>
+ 		<xs:attribute name="estimatedValue" type="xs:boolean" use="optional"/>
+ 	</xs:complexType>
+-	<xs:complexType name="greenPowerType">
+-		<xs:all>
+-			<xs:element name="value" type="xs:decimal" minOccurs="0">
+-				<xs:annotation>
+-					<xs:documentation>The quantity of Green Power used.</xs:documentation>
+-				</xs:annotation>
+-			</xs:element>
+-			<xs:element name="sources" nillable="true" minOccurs="0">
+-				<xs:annotation>
+-					<xs:documentation>This source allocation must add up to 100%</xs:documentation>
+-				</xs:annotation>
+-				<xs:complexType>
+-					<xs:all>
+-						<xs:element name="biomassPct" type="decimalPrecision" minOccurs="0">
+-							<xs:annotation>
+-								<xs:documentation>The percentage of biomass of all the sources.</xs:documentation>
+-							</xs:annotation>
+-						</xs:element>
+-						<xs:element name="biogasPct" type="decimalPrecision" minOccurs="0">
+-							<xs:annotation>
+-								<xs:documentation>The percentage of biogas of all the sources.</xs:documentation>
+-							</xs:annotation>
+-						</xs:element>
+-						<xs:element name="geothermalPct" type="decimalPrecision" minOccurs="0">
+-							<xs:annotation>
+-								<xs:documentation>The percentage of geothermal of all the sources. </xs:documentation>
+-							</xs:annotation>
+-						</xs:element>
+-						<xs:element name="smallHydroPct" type="decimalPrecision" minOccurs="0">
+-							<xs:annotation>
+-								<xs:documentation>The percentage of small hydro of all the sources. </xs:documentation>
+-							</xs:annotation>
+-						</xs:element>
+-						<xs:element name="solarPct" type="decimalPrecision" minOccurs="0">
+-							<xs:annotation>
+-								<xs:documentation>The percentage of solar power of all the sources. </xs:documentation>
+-							</xs:annotation>
+-						</xs:element>
+-						<xs:element name="windPct" type="decimalPrecision" minOccurs="0">
+-							<xs:annotation>
+-								<xs:documentation>The percentage of wind power of all the sources. </xs:documentation>
+-							</xs:annotation>
+-						</xs:element>
+-                        <xs:element name="unknownPct" type="decimalPrecision" minOccurs="0">
+-                            <xs:annotation>
+-                                <xs:documentation>The percentage of unknown power of all the sources. </xs:documentation>
+-                            </xs:annotation>
+-                        </xs:element>
+-					</xs:all>
+-				</xs:complexType>
+-			</xs:element>
+-			<xs:element name="generationLocation" minOccurs="0">
+-				<xs:annotation>
+-					<xs:documentation>The location (power plant, eGrid subregion, or unknown) of where the green power was generated.</xs:documentation>
+-				</xs:annotation>
+-				<xs:complexType>
+-					<xs:choice>
+-						<xs:element name="generationPlant" type="generationPlantType">
+-							<xs:annotation>
+-								<xs:documentation>The plant code of the power plant where the green power is generated.</xs:documentation>
+-							</xs:annotation>
+-						</xs:element>
+-						<xs:element name="eGridSubRegion" type="xs:string">
+-							<xs:annotation>
+-								<xs:documentation>The eGrid subregion code of where the green power is generated.</xs:documentation>
+-							</xs:annotation>
+-						</xs:element>
+-						<xs:element name="unknown" type="xs:string" minOccurs="0">
+-							<xs:annotation>
+-								<xs:documentation>The location of the green power is unknown.</xs:documentation>
+-							</xs:annotation>
+-						</xs:element>
+-					</xs:choice>
+-				</xs:complexType>
+-			</xs:element>
+-		</xs:all>
+-	</xs:complexType>
+-
+ 
+ 	<xs:complexType name="demandTrackingType">
+ 		<xs:all>
+@@ -223,48 +132,24 @@
+ 		</xs:restriction>
+ 	</xs:simpleType>
+ 
++	<xs:simpleType name="percentDecimalPrecision">
++		<xs:restriction base="xs:decimal">
++			<xs:fractionDigits value="2"/>
++			<xs:minInclusive value="0"/>
++			<xs:maxInclusive value="100"/>
++		</xs:restriction>
++	</xs:simpleType>
++
+ 	<xs:simpleType name="optionalCost">
+-		<xs:union>
+-			<xs:simpleType>
+-				<xs:restriction base='xs:string'>
+-					<xs:enumeration value=""/>
+-				</xs:restriction>
+-			</xs:simpleType>
+-			<xs:simpleType>
+-				<xs:restriction base='xs:decimal'>
+-				</xs:restriction>
+-			</xs:simpleType>
+-		</xs:union>
++		<xs:union memberTypes="emptyString xs:decimal"/>
+ 	</xs:simpleType>
+ 
+ 	<xs:simpleType name="optionalDemand">
+-		<xs:union>
+-			<xs:simpleType>
+-				<xs:restriction base='xs:string'>
+-					<xs:enumeration value=""/>
+-				</xs:restriction>
+-			</xs:simpleType>
+-			<xs:simpleType>
+-				<xs:restriction base="xs:decimal">
+-					<xs:fractionDigits value="2"/>
+-					<xs:minInclusive value="0"/>
+-				</xs:restriction>
+-			</xs:simpleType>
+-		</xs:union>
++		<xs:union memberTypes="emptyString decimalPrecision"/>
+ 	</xs:simpleType>
+ 
+ 	<xs:simpleType name="generationPlantType">
+-		<xs:union>
+-			<xs:simpleType>
+-				<xs:restriction base='xs:string'>
+-					<xs:enumeration value=""/>
+-				</xs:restriction>
+-			</xs:simpleType>
+-			<xs:simpleType>
+-				<xs:restriction base='xs:integer'>
+-				</xs:restriction>
+-			</xs:simpleType>
+-		</xs:union>
++		<xs:union memberTypes="emptyString xs:integer"/>
+ 	</xs:simpleType>
+ 	
+ </xs:schema>
+diff -u -r portfoliomanager-schemas-20.0/meter/wasteData.xsd portfoliomanager-schemas-26.0/meter/wasteData.xsd
+--- portfoliomanager-schemas-20.0/meter/wasteData.xsd	2025-08-05 14:33:40.187354800 -0400
++++ portfoliomanager-schemas-26.0/meter/wasteData.xsd	2026-03-06 20:54:51.431388100 -0500
+@@ -1,8 +1,9 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="24.0">
+ 	<!-- INCLUDES -->
+ 	<xs:include schemaLocation="../common/links.xsd"/>
+ 	<xs:include schemaLocation="../common/audit.xsd"/>
++	<xs:include schemaLocation="../common/simpleTypes.xsd"/>
+ 
+ 	<!-- Root elements -->
+ 	<xs:element name="wasteDataList" type="wasteMeterDataType"/>
+@@ -134,17 +135,7 @@
+ 	</xs:complexType>
+ 
+ 	<xs:simpleType name="optionalWasteCost">
+-		<xs:union>
+-			<xs:simpleType>
+-				<xs:restriction base='xs:string'>
+-					<xs:enumeration value=""/>
+-				</xs:restriction>
+-			</xs:simpleType>
+-			<xs:simpleType>
+-				<xs:restriction base='xs:decimal'>
+-				</xs:restriction>
+-			</xs:simpleType>
+-		</xs:union>
++		<xs:union memberTypes="emptyString xs:decimal"/>
+ 	</xs:simpleType>
+ 
+ </xs:schema>
+diff -u -r portfoliomanager-schemas-20.0/property/additionalIdentifier.xsd portfoliomanager-schemas-26.0/property/additionalIdentifier.xsd
+--- portfoliomanager-schemas-20.0/property/additionalIdentifier.xsd	2025-08-05 14:33:40.188366400 -0400
++++ portfoliomanager-schemas-26.0/property/additionalIdentifier.xsd	2026-03-06 20:54:51.440921300 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:element name="additionalIdentifiers">
+ 		<xs:complexType>
+ 			<xs:annotation>
+@@ -86,6 +86,19 @@
+ 					<xs:documentation>The description of the additional property identifier.</xs:documentation>
+ 				</xs:annotation>
+ 			</xs:attribute>
++			<xs:attribute name="group" use="optional">
++				<xs:annotation>
++					<xs:documentation>The group of the additional property identifier.</xs:documentation>
++				</xs:annotation>
++				<xs:simpleType>
++					<xs:restriction base="xs:string">
++						<xs:enumeration value="CITY_TOWN"/>
++						<xs:enumeration value="COUNTY_DISTRICT"/>
++						<xs:enumeration value="STATE_PROVINCE"/>
++						<xs:enumeration value="OTHER"/>
++					</xs:restriction>
++				</xs:simpleType>
++			</xs:attribute>
+ 		</xs:complexType>
+ 	</xs:element>
+ </xs:schema>
+diff -u -r portfoliomanager-schemas-20.0/property/alerts.xsd portfoliomanager-schemas-26.0/property/alerts.xsd
+--- portfoliomanager-schemas-20.0/property/alerts.xsd	2025-08-05 14:33:40.188366400 -0400
++++ portfoliomanager-schemas-26.0/property/alerts.xsd	2026-03-06 20:54:51.444805100 -0500
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <!-- edited with XMLSpy v2008 rel. 2 sp2 (http://www.altova.com) by Quoc Le (SYSTEMS RESEARCH & APPLICATION) -->
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:element name="alerts" type="alertsType">
+ 		<xs:annotation>
+ 			<xs:documentation>All alerts that explain why the property cannot receive an ENERGY STAR score for the period ending date provided.</xs:documentation>
+diff -u -r portfoliomanager-schemas-20.0/property/baselineAndTarget.xsd portfoliomanager-schemas-26.0/property/baselineAndTarget.xsd
+--- portfoliomanager-schemas-20.0/property/baselineAndTarget.xsd	2025-08-05 14:33:40.189361700 -0400
++++ portfoliomanager-schemas-26.0/property/baselineAndTarget.xsd	2026-03-06 20:54:51.448814300 -0500
+@@ -1,5 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="24.0">
++    <xs:include schemaLocation="../common/simpleTypes.xsd"/>
+ 	<xs:element name="baselineAndTarget" type="baselineAndTargetType">
+ 		<xs:annotation>
+ 			<xs:documentation>Baseline dates and performance target settings can be updated for your property.</xs:documentation>
+@@ -153,12 +154,6 @@
+ 		</xs:sequence>
+ 	</xs:complexType>
+ 	<xs:simpleType name="baselineDateType">
+-		<xs:union memberTypes="xs:gYearMonth">
+-			<xs:simpleType>
+-				<xs:restriction base="xs:string">
+-					<xs:enumeration value="System Determined"/>
+-				</xs:restriction>
+-			</xs:simpleType>
+-		</xs:union>
++		<xs:union memberTypes="systemDeterminedString xs:gYearMonth"/>
+ 	</xs:simpleType>
+ </xs:schema>
+diff -u -r portfoliomanager-schemas-20.0/property/billboardMetrics.xsd portfoliomanager-schemas-26.0/property/billboardMetrics.xsd
+--- portfoliomanager-schemas-20.0/property/billboardMetrics.xsd	2025-08-05 14:33:40.190360400 -0400
++++ portfoliomanager-schemas-26.0/property/billboardMetrics.xsd	2026-03-06 20:54:51.457357200 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="propertyMetrics.xsd"/>
+ 
+ 	<xs:element name="billboardMetrics" type="billboardMetricsType"/>
+diff -u -r portfoliomanager-schemas-20.0/property/billboardMetricSetting.xsd portfoliomanager-schemas-26.0/property/billboardMetricSetting.xsd
+--- portfoliomanager-schemas-20.0/property/billboardMetricSetting.xsd	2025-08-05 14:33:40.189361700 -0400
++++ portfoliomanager-schemas-26.0/property/billboardMetricSetting.xsd	2026-03-06 20:54:51.453329700 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="24.0">
+ 
+ 	<xs:element name="billboardMetricSetting">
+ 		<xs:annotation>
+Only in portfoliomanager-schemas-26.0/property: customMetrics.xsd
+diff -u -r portfoliomanager-schemas-20.0/property/design.xsd portfoliomanager-schemas-26.0/property/design.xsd
+--- portfoliomanager-schemas-20.0/property/design.xsd	2025-08-05 14:33:40.190360400 -0400
++++ portfoliomanager-schemas-26.0/property/design.xsd	2026-03-06 20:54:51.466555600 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified" version="26.0">
+ 	<!-- Includes -->
+ 	<xs:include schemaLocation="../propertyUse/propertyUseList.xsd"/>
+ 	<xs:include schemaLocation="propertyDesign.xsd"/>
+@@ -343,6 +343,7 @@
+ 			<xs:enumeration value="cf (cubic feet)"/>
+ 			<xs:enumeration value="cm (Cubic meters)"/>
+ 			<xs:enumeration value="Cords"/>
++			<xs:enumeration value="eKWh (Equivalent Kilowatt hour)"/>
+ 			<xs:enumeration value="Gallons (UK)"/>
+ 			<xs:enumeration value="Gallons (US)"/>
+ 			<xs:enumeration value="GJ"/>
+@@ -401,6 +402,7 @@
+ 			<xs:element ref="hotel"/>
+ 			<xs:element ref="k12School"/>
+ 			<xs:element ref="bankBranch"/>
++			<xs:element ref="cegep"/>
+ 			<xs:element ref="collegeUniversity"/>
+ 			<xs:element ref="indoorArena"/>
+ 			<xs:element ref="otherStadium"/>
+@@ -424,7 +426,7 @@
+ 			<xs:element ref="barNightclub"/>
+ 			<xs:element ref="otherUtility"/>
+ 			<xs:element ref="zoo"/>
+-			<xs:element ref="automobileDealership"/>
++			<xs:element ref="vehicleDealership"/>
+ 			<xs:element ref="museum"/>
+ 			<xs:element ref="otherRecreation"/>
+ 			<xs:element ref="otherRestaurantBar"/>
+@@ -435,7 +437,7 @@
+ 			<xs:element ref="fastFoodRestaurant"/>
+ 			<xs:element ref="laboratory"/>
+ 			<xs:element ref="convenienceStoreWithoutGasStation"/>
+-			<xs:element ref="repairServices"/>
++			<xs:element ref="vehicleRepairServices"/>
+ 			<xs:element ref="otherTechnologyScience"/>
+ 			<xs:element ref="fireStation"/>
+ 			<xs:element ref="foodSales"/>
+@@ -455,7 +457,7 @@
+ 			<xs:element ref="movieTheater"/>
+ 			<xs:element ref="transportationTerminalStation"/>
+ 			<xs:element ref="vocationalSchool"/>
+-			<xs:element ref="socialMeetingHall"/>
++			<xs:element ref="communityCenterAndSocialMeetingHall"/>
+ 			<xs:element ref="otherMall"/>
+ 			<xs:element ref="convenienceStoreWithGasStation"/>
+ 			<xs:element ref="other"/>
+diff -u -r portfoliomanager-schemas-20.0/property/energyPerformanceProject.xsd portfoliomanager-schemas-26.0/property/energyPerformanceProject.xsd
+--- portfoliomanager-schemas-20.0/property/energyPerformanceProject.xsd	2025-08-05 14:33:40.191361300 -0400
++++ portfoliomanager-schemas-26.0/property/energyPerformanceProject.xsd	2026-03-06 20:54:51.470555700 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="24.0">
+     <!--
+         INCLUDES
+     -->
+diff -u -r portfoliomanager-schemas-20.0/property/federalAgency.xsd portfoliomanager-schemas-26.0/property/federalAgency.xsd
+--- portfoliomanager-schemas-20.0/property/federalAgency.xsd	2025-08-05 14:33:40.191361300 -0400
++++ portfoliomanager-schemas-26.0/property/federalAgency.xsd	2026-03-06 20:54:51.475678200 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:complexType name="AgencyType">
+ 		<xs:attribute name="id" type="xs:long">
+ 			<xs:annotation>
+diff -u -r portfoliomanager-schemas-20.0/property/licenseList.xsd portfoliomanager-schemas-26.0/property/licenseList.xsd
+--- portfoliomanager-schemas-20.0/property/licenseList.xsd	2025-08-05 14:33:40.191361300 -0400
++++ portfoliomanager-schemas-26.0/property/licenseList.xsd	2026-03-06 20:54:51.479223500 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="26.0">
+ 	<xs:element name="licenseList">
+ 		<xs:complexType>
+ 			<xs:annotation>
+diff -u -r portfoliomanager-schemas-20.0/property/professionalDesignation.xsd portfoliomanager-schemas-26.0/property/professionalDesignation.xsd
+--- portfoliomanager-schemas-20.0/property/professionalDesignation.xsd	2025-08-05 14:33:40.192364500 -0400
++++ portfoliomanager-schemas-26.0/property/professionalDesignation.xsd	2026-03-06 20:54:51.482224800 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="26.0">
+ 	<xs:include schemaLocation="../property/licenseList.xsd"/>
+ 	<xs:element name="professionalDesignationList">
+ 		<xs:complexType>
+diff -u -r portfoliomanager-schemas-20.0/property/property.xsd portfoliomanager-schemas-26.0/property/property.xsd
+--- portfoliomanager-schemas-20.0/property/property.xsd	2025-08-05 14:33:40.192364500 -0400
++++ portfoliomanager-schemas-26.0/property/property.xsd	2026-03-06 20:54:51.487642200 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ <!--
+     INCLUDES
+ -->
+@@ -133,13 +133,14 @@
+         <xs:enumeration value="Adult Education"/>
+         <xs:enumeration value="Ambulatory Surgical Center"/>
+         <xs:enumeration value="Aquarium"/>
+-        <xs:enumeration value="Automobile Dealership"/>
+         <xs:enumeration value="Bank Branch"/>
+         <xs:enumeration value="Bar/Nightclub"/>
+         <xs:enumeration value="Barracks"/>
+         <xs:enumeration value="Bowling Alley"/>
+         <xs:enumeration value="Casino"/>
++        <xs:enumeration value="CEGEP"/>
+         <xs:enumeration value="College/University"/>
++        <xs:enumeration value="Community Center and Social Meeting Hall"/>
+         <xs:enumeration value="Convenience Store with Gas Station"/>
+         <xs:enumeration value="Convenience Store without Gas Station"/>
+         <xs:enumeration value="Convention Center"/>
+@@ -195,7 +196,7 @@
+         <xs:enumeration value="Prison/Incarceration"/>
+         <xs:enumeration value="Race Track"/>
+         <xs:enumeration value="Refrigerated Warehouse"/>
+-        <xs:enumeration value="Repair Services (Vehicle, Shoe, Locksmith, etc)"/>
++        <xs:enumeration value="Vehicle Repair Services"/>
+         <xs:enumeration value="Residence Hall/Dormitory"/>
+         <xs:enumeration value="Residential Care Facility"/>
+         <xs:enumeration value="Restaurant"/>
+@@ -204,7 +205,6 @@
+         <xs:enumeration value="Self-Storage Facility"/>
+         <xs:enumeration value="Senior Living Community"/>
+         <xs:enumeration value="Single Family Home"/>
+-        <xs:enumeration value="Social/Meeting Hall"/>
+         <xs:enumeration value="Stadium (Closed)"/>
+         <xs:enumeration value="Stadium (Open)"/>
+         <xs:enumeration value="Strip Mall"/>
+@@ -212,6 +212,7 @@
+         <xs:enumeration value="Swimming Pool"/>
+         <xs:enumeration value="Transportation Terminal/Station"/>
+         <xs:enumeration value="Urgent Care/Clinic/Other Outpatient"/>
++        <xs:enumeration value="Vehicle Dealership"/>
+         <xs:enumeration value="Veterinary Office"/>
+         <xs:enumeration value="Vocational School"/>
+         <xs:enumeration value="Wastewater Treatment Plant"/>
+diff -u -r portfoliomanager-schemas-20.0/property/propertyDesign.xsd portfoliomanager-schemas-26.0/property/propertyDesign.xsd
+--- portfoliomanager-schemas-20.0/property/propertyDesign.xsd	2025-08-05 14:33:40.193363300 -0400
++++ portfoliomanager-schemas-26.0/property/propertyDesign.xsd	2026-03-06 20:54:51.491277100 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified" version="26.0">
+ 	<!--
+         INCLUDES
+     -->
+diff -u -r portfoliomanager-schemas-20.0/property/propertyMetrics.xsd portfoliomanager-schemas-26.0/property/propertyMetrics.xsd
+--- portfoliomanager-schemas-20.0/property/propertyMetrics.xsd	2025-08-05 14:33:40.193363300 -0400
++++ portfoliomanager-schemas-26.0/property/propertyMetrics.xsd	2026-03-06 20:54:51.495505800 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="26.0">
+ 	<xs:include schemaLocation = "../enum/periodTypeEnum.xsd"/>
+ 	<xs:element name="propertyMetrics" type="propertyMetricsType">
+ 		<xs:annotation>
+diff -u -r portfoliomanager-schemas-20.0/property/propertyMetricsList.xsd portfoliomanager-schemas-26.0/property/propertyMetricsList.xsd
+--- portfoliomanager-schemas-20.0/property/propertyMetricsList.xsd	2025-08-05 14:33:40.193363300 -0400
++++ portfoliomanager-schemas-26.0/property/propertyMetricsList.xsd	2026-03-06 20:54:51.500508900 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="24.0">
+     <xs:include schemaLocation="propertyMetrics.xsd"/>
+ 
+     <xs:element name="propertyMetricsList" type="propertyMetricsList"/>
+diff -u -r portfoliomanager-schemas-20.0/property/verification.xsd portfoliomanager-schemas-26.0/property/verification.xsd
+--- portfoliomanager-schemas-20.0/property/verification.xsd	2025-08-05 14:33:40.194363000 -0400
++++ portfoliomanager-schemas-26.0/property/verification.xsd	2026-03-06 20:54:51.504551300 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="26.0">
+ 	<xs:include schemaLocation="../property/professionalDesignation.xsd"/>
+ 	<xs:include schemaLocation="../common/audit.xsd"/>
+ 	<xs:element name="verification">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/bankBranch.xsd portfoliomanager-schemas-26.0/propertyUse/bankBranch.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/bankBranch.xsd	2025-08-05 14:33:40.194363000 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/bankBranch.xsd	2026-03-06 20:54:51.513730300 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="bankBranch" type="bankBranchType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/barracks.xsd portfoliomanager-schemas-26.0/propertyUse/barracks.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/barracks.xsd	2025-08-05 14:33:40.195362400 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/barracks.xsd	2026-03-06 20:54:51.516740900 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="barracks" type="barracksType">
+Only in portfoliomanager-schemas-26.0/propertyUse: bowlingAlley.xsd
+Only in portfoliomanager-schemas-26.0/propertyUse: cegep.xsd
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/characteristics.xsd portfoliomanager-schemas-26.0/propertyUse/characteristics.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/characteristics.xsd	2025-08-05 14:33:40.195362400 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/characteristics.xsd	2026-03-06 20:54:51.533374700 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 
+     <xs:include schemaLocation="characteristicType.xsd"/>
+ 	<xs:include schemaLocation="../common/grossFloorArea.xsd"/>
+@@ -69,7 +69,7 @@
+             <xs:documentation>Area of all walk-in refrigeration/freezer units - include only commercial type units that a person actually walks into to retrieve goods.  See numberOfWalkInRefrigerationUnits for more information.</xs:documentation>
+         </xs:annotation>
+     </xs:element>
+-    <xs:element name="lengthOfAllOpenClosedRefrigerationUnits" type="lengthOfAllOpenClosedRefrigerationUnitsType">
++    <xs:element name="lengthOfAllOpenClosedRefrigerationUnits" type="lengthOfUseDetailType">
+         <xs:annotation>
+             <xs:documentation>Length of all open or closed Refrigeration or Freezer cases that are used for the sale or storage of perishable goods. Include display-type refrigerated open or closed cases and cabinets, as well as display-type freezer units. These are typically found on the sales floor.   See numberOfOpenClosedRefrigerationUnits for more information.</xs:documentation>
+         </xs:annotation>
+@@ -503,4 +503,114 @@
+ 			<xs:documentation>Number of DC Fast electric vehicle charging stations.</xs:documentation>
+ 		</xs:annotation>
+ 	</xs:element>
++	<xs:element name="ceilingHeight" type="ceilingHeightUnitsType">
++		<xs:annotation>
++			<xs:documentation>The maximum vertical distance measured from floor to ceiling.</xs:documentation>
++		</xs:annotation>
++	</xs:element>
++	<xs:element name="averageNumberOfVehiclesInInventory" type="useDecimalType">
++		<xs:annotation>
++			<xs:documentation>The average number of vehicles in inventory, not including vehicles housed at off-site locations.</xs:documentation>
++		</xs:annotation>
++	</xs:element>
++	<xs:element name="deliveryFacility" type="useYesNoType">
++		<xs:annotation>
++			<xs:documentation>Denotes if a facility delivers mail products directly from the building to offsite customers at their residence or place of business.</xs:documentation>
++		</xs:annotation>
++	</xs:element>
++	<xs:element name="numberOfLettersPackagesPerYear" type="useIntegerType">
++		<xs:annotation>
++			<xs:documentation>The number of letters and packages per year is the typical sum of mail products (such as lettermail, flyers, packages, parcels etc.) processed for outbound delivery in this facility in a 12 month period.</xs:documentation>
++		</xs:annotation>
++	</xs:element>
++	<xs:element name="customUseDetail1" type="customUseDetailsType">
++		<xs:annotation>
++			<xs:documentation>Custom Use Detail #1</xs:documentation>
++		</xs:annotation>
++	</xs:element>
++	<xs:element name="customUseDetail2" type="customUseDetailsType">
++		<xs:annotation>
++			<xs:documentation>Custom Use Detail #2</xs:documentation>
++		</xs:annotation>
++	</xs:element>
++	<xs:element name="precisionControlsForTemperatureAndHumidity" type="useYesNoType">
++		<xs:annotation>
++			<xs:documentation>Indicates presence of precise humidity and temperature control: Yes and No are 2 options and 1 or 0 is used.</xs:documentation>
++		</xs:annotation>
++	</xs:element>
++	<xs:element name="grossFloorAreaThatIsExhibitSpace" type="optionalFloorAreaType">
++		<xs:annotation>
++			<xs:documentation>The Gross Floor Area refers to the total area used for public collection display areas. It is a subset of the total Gross Floor Area. It should not include outdoor public collection display areas.</xs:documentation>
++		</xs:annotation>
++	</xs:element>
++	<xs:element name="lengthOfAllCommercialKitchenHoods" type="lengthOfUseDetailType">
++		<xs:annotation>
++			<xs:documentation>This is the length of all commercial kitchen exhaust hoods in metres. Kitchen Exhaust hood is defined in ASHRAE Handbook - HVAC Applications Chapter: Kitchen Ventilation. Commercial kitchen exhaust hoods are used primarily to remove cooking effluent from kitchens.</xs:documentation>
++		</xs:annotation>
++	</xs:element>
++	<xs:element name="cookingLocatedOnsite" type="useYesNoType">
++		<xs:annotation>
++			<xs:documentation>Denotes if hot or cold food is prepared by cooking and assembling raw ingredients at the property location.</xs:documentation>
++		</xs:annotation>
++	</xs:element>
++	<xs:element name="numberOfPaintBays" type="useDecimalType">
++		<xs:annotation>
++			<xs:documentation>The number of paint bays is the number of spaces in a contained booth for painting or painting preparatory work.</xs:documentation>
++		</xs:annotation>
++	</xs:element>
++	<xs:element name="numberOfRepairBays" type="useDecimalType">
++		<xs:annotation>
++			<xs:documentation>The number of repair bays is the count of designated spaces for a single vehicle to receive maintenance or repair.</xs:documentation>
++		</xs:annotation>
++	</xs:element>
++	<xs:element name="plantType" type="plantDataType">
++		<xs:annotation>
++			<xs:documentation>Buildings used for manufacturing or assembling goods. Includes the plant type and sub type classification (if any).</xs:documentation>
++		</xs:annotation>
++	</xs:element>
++	<xs:element name="numberOfEmergencyVehicles" type="useDecimalType">
++		<xs:annotation>
++			<xs:documentation>The number of emergency vehicles is the count of vehicles that are housed at and deployed from a station.</xs:documentation>
++		</xs:annotation>
++	</xs:element>
++	<xs:element name="numberOfAnnualEmergencyIncidents" type="useDecimalType">
++		<xs:annotation>
++			<xs:documentation>The number of annual emergency incidents is the typical count of instances a station deploys equipment, personnel, or vehicles for its facility in a 12-month period.</xs:documentation>
++		</xs:annotation>
++	</xs:element>
++	<xs:element name="weeklyBuildingOccupiedHours" type="useDecimalType">
++		<xs:annotation>
++			<xs:documentation>The number of hours per week that at least one worker or volunteer is in the building.</xs:documentation>
++		</xs:annotation>
++	</xs:element>
++	<xs:element name="numberOfFullTimeStudentsEnrolledSeptemberToDecember" type="useDecimalType">
++		<xs:annotation>
++			<xs:documentation>Number of students enrolled at the campus in the indicated semester that are considered full time status by the school.</xs:documentation>
++		</xs:annotation>
++	</xs:element>
++	<xs:element name="numberOfFullTimeStudentsEnrolledJanuaryToApril" type="useDecimalType">
++		<xs:annotation>
++			<xs:documentation>Number of students enrolled at the campus in the indicated semester that are considered full time status by the school.</xs:documentation>
++		</xs:annotation>
++	</xs:element>
++	<xs:element name="numberOfFullTimeStudentsEnrolledMayToAugust" type="useDecimalType">
++		<xs:annotation>
++			<xs:documentation>Number of students enrolled at the campus in the indicated semester that are considered full time status by the school.</xs:documentation>
++		</xs:annotation>
++	</xs:element>
++	<xs:element name="annualResearchExpenditure" type="annualResearchExpenditureType">
++		<xs:annotation>
++			<xs:documentation>The amount of money this campus spends on research and development in a typical year.</xs:documentation>
++		</xs:annotation>
++	</xs:element>
++	<xs:element name="percentOfLabFloorArea" type="useIntegerType">
++		<xs:annotation>
++			<xs:documentation>The percentage of the floor area of this campus that is specialized instruction or research space that caters to specific uses. </xs:documentation>
++		</xs:annotation>
++	</xs:element>
++	<xs:element name="highestAwardLevel" type="highestAwardLevelType">
++		<xs:annotation>
++			<xs:documentation>The Highest Level of Award for higher education institutions is based on the highest level of degree, diploma, or certificate offered by the institution.</xs:documentation>
++		</xs:annotation>
++	</xs:element>
+ </xs:schema>
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/characteristicType.xsd portfoliomanager-schemas-26.0/propertyUse/characteristicType.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/characteristicType.xsd	2025-08-05 14:33:40.195362400 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/characteristicType.xsd	2026-03-06 20:54:51.528868900 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 
+     <xs:include schemaLocation="../common/audit.xsd"/>
+ 
+@@ -430,7 +430,7 @@
+         </xs:restriction>
+     </xs:simpleType>
+ 
+-    <xs:complexType name="lengthOfAllOpenClosedRefrigerationUnitsType">
++    <xs:complexType name="lengthOfUseDetailType">
+         <xs:complexContent>
+             <xs:extension base="useAttributeBase">
+                 <xs:sequence>
+@@ -442,6 +442,24 @@
+         </xs:complexContent>
+     </xs:complexType>
+ 
++    <xs:complexType name="ceilingHeightUnitsType">
++        <xs:complexContent>
++            <xs:extension base="useAttributeBase">
++                <xs:sequence>
++                    <xs:element name="value" minOccurs="0">
++                        <xs:simpleType>
++                            <xs:restriction base="xs:decimal">
++                                <xs:minInclusive value="1.0"/>
++                            </xs:restriction>
++                        </xs:simpleType>
++                    </xs:element>
++                </xs:sequence>
++                <xs:attribute name="units" type="lengthUnitsType" use="required">
++                </xs:attribute>
++            </xs:extension>
++        </xs:complexContent>
++    </xs:complexType>
++
+     <xs:complexType name="clearHeightUnitsType">
+         <xs:complexContent>
+             <xs:extension base="useAttributeBase">
+@@ -454,6 +472,45 @@
+         </xs:complexContent>
+     </xs:complexType>
+ 
++    <xs:complexType name="customUseDetailsType">
++        <xs:complexContent>
++            <xs:extension base="useAttributeBase">
++                <xs:sequence>
++                    <xs:element name="value" type="xs:string" minOccurs="0"/>
++                    <xs:element name="customName" type="xs:string" minOccurs="0"/>
++                    <xs:element name="customUom" type="xs:string" minOccurs="0"/>
++                </xs:sequence>
++                <xs:attribute name="units" type="customUnitsType" />
++                <xs:attribute name="dataType">
++                    <xs:simpleType>
++                        <xs:restriction base="xs:string">
++                            <xs:enumeration value="numeric"/>
++                            <xs:enumeration value="string"/>
++                        </xs:restriction>
++                    </xs:simpleType>
++                </xs:attribute>
++            </xs:extension>
++        </xs:complexContent>
++    </xs:complexType>
++
++    <xs:simpleType name="customUnitsType">
++        <xs:restriction base="xs:string">
++            <xs:enumeration value="Feet"/>
++            <xs:enumeration value="Gallons (US)"/>
++            <xs:enumeration value="Gallons (UK)"/>
++            <xs:enumeration value="Kilogram"/>
++            <xs:enumeration value="Meters"/>
++            <xs:enumeration value="Tonnes (metric)"/>
++            <xs:enumeration value="Other"/>
++            <xs:enumeration value="Pounds"/>
++            <xs:enumeration value="Square Feet"/>
++            <xs:enumeration value="Square Meters"/>
++            <xs:enumeration value="Tons (short)"/>
++            <xs:enumeration value="Therms"/>
++            <xs:enumeration value="kWh (thousand Watt-hours)"/>
++        </xs:restriction>
++    </xs:simpleType>
++
+     <xs:simpleType name="lengthUnitsType">
+         <xs:restriction base="xs:string">
+             <xs:enumeration value="Feet"/>
+@@ -474,7 +531,7 @@
+ 		<xs:attribute name="temporary" type="xs:boolean" use="optional">
+ 			<xs:annotation>
+ 				<xs:documentation>The characteristic is a temporary value (true/false)
+-</xs:documentation>
++                </xs:documentation>
+ 			</xs:annotation>
+ 		</xs:attribute>
+         <xs:attribute name="default" use="optional">
+@@ -494,4 +551,119 @@
+             </xs:simpleType>
+         </xs:attribute>
+ 	</xs:complexType>
+-</xs:schema>
+\ No newline at end of file
++    <xs:complexType name="plantDataType">
++        <xs:complexContent>
++            <xs:extension base="useAttributeBase">
++                <xs:sequence>
++                    <xs:element name="value" minOccurs="0">
++                        <xs:simpleType>
++                            <xs:restriction base="xs:string">
++                                <xs:enumeration value="Aerospace and defense"/>
++                                <xs:enumeration value="Durable assembled products - Electronics"/>
++                                <xs:enumeration value="Durable assembled products - Electrical components and appliances"/>
++                                <xs:enumeration value="Durable assembled products - Furniture"/>
++                                <xs:enumeration value="Durable assembled products - Machinery (HVAC, boilers, turbines, pumps, etc.)"/>
++                                <xs:enumeration value="Durable assembled products - Other"/>
++                                <xs:enumeration value="Food Manufacturing - Animal food"/>
++                                <xs:enumeration value="Food Manufacturing - Animal processing"/>
++                                <xs:enumeration value="Food Manufacturing - Bread and roll"/>
++                                <xs:enumeration value="Food Manufacturing - Brewery"/>
++                                <xs:enumeration value="Food Manufacturing - Cookies and cracker"/>
++                                <xs:enumeration value="Food Manufacturing - Dairy"/>
++                                <xs:enumeration value="Food Manufacturing - Distillery"/>
++                                <xs:enumeration value="Food Manufacturing - Frozen fried potato"/>
++                                <xs:enumeration value="Food Manufacturing - Fruit and vegetable canning"/>
++                                <xs:enumeration value="Food Manufacturing - Juices"/>
++                                <xs:enumeration value="Food Manufacturing - Sugar"/>
++                                <xs:enumeration value="Food Manufacturing - Wet corn milling"/>
++                                <xs:enumeration value="Food Manufacturing - Other"/>
++                                <xs:enumeration value="Paper - Paper mill"/>
++                                <xs:enumeration value="Paper - Pulp mill"/>
++                                <xs:enumeration value="Paper - Integrated pulp and paper mill"/>
++                                <xs:enumeration value="Paper - Recycled paper mill"/>
++                                <xs:enumeration value="Paper - Other"/>
++                                <xs:enumeration value="Medical equipment"/>
++                                <xs:enumeration value="Personal care"/>
++                                <xs:enumeration value="Pharmaceutical"/>
++                                <xs:enumeration value="Printing"/>
++                                <xs:enumeration value="Mining and extraction"/>
++                                <xs:enumeration value="Petroleum and chemicals - Asphalt paving and roofing"/>
++                                <xs:enumeration value="Petroleum and chemicals - Chlor-alkyl"/>
++                                <xs:enumeration value="Petroleum and chemicals - Ethylene"/>
++                                <xs:enumeration value="Petroleum and chemicals - Fertilizer-Nitrogenous"/>
++                                <xs:enumeration value="Petroleum and chemicals - Fertilizer-Other"/>
++                                <xs:enumeration value="Petroleum and chemicals - Industrial gases"/>
++                                <xs:enumeration value="Petroleum and chemicals - Petroleum refining"/>
++                                <xs:enumeration value="Petroleum and chemicals - Other"/>
++                                <xs:enumeration value="Plastic and rubber products"/>
++                                <xs:enumeration value="Cement"/>
++                                <xs:enumeration value="Concrete"/>
++                                <xs:enumeration value="Composite Manufacturing"/>
++                                <xs:enumeration value="Glass - Flat"/>
++                                <xs:enumeration value="Glass - Container"/>
++                                <xs:enumeration value="Glass - Other"/>
++                                <xs:enumeration value="Gypsum (wallboard, molding, etc.)"/>
++                                <xs:enumeration value="Lime"/>
++                                <xs:enumeration value="Metals - Aluminum processing"/>
++                                <xs:enumeration value="Metals - Steel mill"/>
++                                <xs:enumeration value="Metals - Metal Machining and Fabrication"/>
++                                <xs:enumeration value="Metals - Metal casting"/>
++                                <xs:enumeration value="Metals - Metal Finishing/Coating"/>
++                                <xs:enumeration value="Metals - Tool and Die Manufacturing"/>
++                                <xs:enumeration value="Metals - Other"/>
++                                <xs:enumeration value="Motor Vehicle - Assembly"/>
++                                <xs:enumeration value="Motor Vehicle - Transmission"/>
++                                <xs:enumeration value="Motor Vehicle - Engine"/>
++                                <xs:enumeration value="Motor Vehicle - Tire Manufacturing"/>
++                                <xs:enumeration value="Motor Vehicle - Other"/>
++                                <xs:enumeration value="Textiles Manufacturing"/>
++                                <xs:enumeration value="Wood"/>
++                                <xs:enumeration value="Other"/>
++                            </xs:restriction>
++                        </xs:simpleType>
++                    </xs:element>
++                    <xs:element name="textValue" type="xs:string" minOccurs="0"/>
++                </xs:sequence>
++            </xs:extension>
++        </xs:complexContent>
++    </xs:complexType>
++
++    <xs:complexType name="annualResearchExpenditureType">
++        <xs:complexContent>
++            <xs:extension base="useAttributeBase">
++                <xs:sequence>
++                    <xs:element name="value" minOccurs="0">
++                        <xs:simpleType>
++                            <xs:restriction base="xs:string">
++                                <xs:enumeration value="Less than 2.5 million"/>
++                                <xs:enumeration value="2.5 million to 5 million"/>
++                                <xs:enumeration value="5 million to 50 million"/>
++                                <xs:enumeration value="Greater than 50 million"/>
++                            </xs:restriction>
++                        </xs:simpleType>
++                    </xs:element>
++                </xs:sequence>
++            </xs:extension>
++        </xs:complexContent>
++    </xs:complexType>
++
++    <xs:complexType name="highestAwardLevelType">
++        <xs:complexContent>
++            <xs:extension base="useAttributeBase">
++                <xs:sequence>
++                    <xs:element name="value" minOccurs="0">
++                        <xs:simpleType>
++                            <xs:restriction base="xs:string">
++                                <xs:enumeration value="Doctoral Degree"/>
++                                <xs:enumeration value="Master's Degree"/>
++                                <xs:enumeration value="Bachelor's Degree"/>
++                                <xs:enumeration value="Associate's degree or other 2-3 year program"/>
++                                <xs:enumeration value="Other program less than 2 years"/>
++                            </xs:restriction>
++                        </xs:simpleType>
++                    </xs:element>
++                </xs:sequence>
++            </xs:extension>
++        </xs:complexContent>
++    </xs:complexType>
++ </xs:schema>
+\ No newline at end of file
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/collegeUniversity.xsd portfoliomanager-schemas-26.0/propertyUse/collegeUniversity.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/collegeUniversity.xsd	2025-08-05 14:33:40.195362400 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/collegeUniversity.xsd	2026-03-06 20:54:51.536389000 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="collegeUniversity" type="collegeUniversityType">
+@@ -14,6 +14,14 @@
+ 				<xs:complexType>
+ 					<xs:all>
+ 						<xs:element ref="totalGrossFloorArea"/>
++						<xs:element ref="numberOfFullTimeStudentsEnrolledSeptemberToDecember" minOccurs="0"/>
++						<xs:element ref="numberOfFullTimeStudentsEnrolledJanuaryToApril" minOccurs="0"/>
++						<xs:element ref="numberOfFullTimeStudentsEnrolledMayToAugust" minOccurs="0"/>
++						<xs:element ref="annualResearchExpenditure" minOccurs="0"/>
++						<xs:element ref="percentOfLabFloorArea" minOccurs="0"/>
++						<xs:element ref="highestAwardLevel" minOccurs="0"/>
++						<xs:element ref="percentHeated" minOccurs="0"/>
++						<xs:element ref="percentCooled" minOccurs="0"/>
+ 						<xs:element ref="weeklyOperatingHours" minOccurs="0"/>
+ 						<xs:element ref="numberOfComputers" minOccurs="0"/>
+ 						<xs:element ref="enrollment" minOccurs="0"/>
+Only in portfoliomanager-schemas-26.0/propertyUse: communityCenterAndSocialMeetingHall.xsd
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/convenienceStoreWithGasStation.xsd portfoliomanager-schemas-26.0/propertyUse/convenienceStoreWithGasStation.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/convenienceStoreWithGasStation.xsd	2025-08-05 14:33:40.196870300 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/convenienceStoreWithGasStation.xsd	2026-03-06 20:54:51.544587600 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+     <xs:include schemaLocation="characteristics.xsd"/>
+     <xs:include schemaLocation="propertyUse.xsd"/>
+     <xs:element name="convenienceStoreWithGasStation" type="convenienceStoreWithGasStationType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/convenienceStoreWithoutGasStation.xsd portfoliomanager-schemas-26.0/propertyUse/convenienceStoreWithoutGasStation.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/convenienceStoreWithoutGasStation.xsd	2025-08-05 14:33:40.196870300 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/convenienceStoreWithoutGasStation.xsd	2026-03-06 20:54:51.548597100 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+     <xs:include schemaLocation="characteristics.xsd"/>
+     <xs:include schemaLocation="propertyUse.xsd"/>
+     <xs:element name="convenienceStoreWithoutGasStation" type="convenienceStoreWithoutGasStationType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/courthouse.xsd portfoliomanager-schemas-26.0/propertyUse/courthouse.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/courthouse.xsd	2025-08-05 14:33:40.197879000 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/courthouse.xsd	2026-03-06 20:54:51.553162900 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="courthouse" type="courthouseType">
+Only in portfoliomanager-schemas-26.0/propertyUse: customUse.xsd
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/dataCenter.xsd portfoliomanager-schemas-26.0/propertyUse/dataCenter.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/dataCenter.xsd	2025-08-05 14:33:40.197879000 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/dataCenter.xsd	2026-03-06 20:54:51.560683800 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="dataCenter" type="dataCenterType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/distributionCenter.xsd portfoliomanager-schemas-26.0/propertyUse/distributionCenter.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/distributionCenter.xsd	2025-08-05 14:33:40.197879000 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/distributionCenter.xsd	2026-03-06 20:54:51.563683300 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="distributionCenter" type="distributionCenterType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/drinkingWaterTreatmentAndDistribution.xsd portfoliomanager-schemas-26.0/propertyUse/drinkingWaterTreatmentAndDistribution.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/drinkingWaterTreatmentAndDistribution.xsd	2025-08-05 14:33:40.198879300 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/drinkingWaterTreatmentAndDistribution.xsd	2026-03-06 20:54:51.568195900 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="drinkingWaterTreatmentAndDistribution" type="drinkingWaterTreatmentAndDistributionType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/evChargingStation.xsd portfoliomanager-schemas-26.0/propertyUse/evChargingStation.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/evChargingStation.xsd	2025-08-05 14:33:40.198879300 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/evChargingStation.xsd	2026-03-06 20:54:51.572938000 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="electricVehicleChargingStation" type="evChargingStationType">
+Only in portfoliomanager-schemas-26.0/propertyUse: fastFoodRestaurant.xsd
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/financialOffice.xsd portfoliomanager-schemas-26.0/propertyUse/financialOffice.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/financialOffice.xsd	2025-08-05 14:33:40.199888700 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/financialOffice.xsd	2026-03-06 20:54:51.583456600 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="financialOffice" type="financialOfficeType">
+Only in portfoliomanager-schemas-26.0/propertyUse: fireStation.xsd
+Only in portfoliomanager-schemas-26.0/propertyUse: fitnessCenterHealthClubGym.xsd
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/foodSales.xsd portfoliomanager-schemas-26.0/propertyUse/foodSales.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/foodSales.xsd	2025-08-05 14:33:40.199888700 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/foodSales.xsd	2026-03-06 20:54:51.594658400 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+     <xs:include schemaLocation="characteristics.xsd"/>
+     <xs:include schemaLocation="propertyUse.xsd"/>
+     <xs:element name="foodSales" type="foodSalesType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/hospital.xsd portfoliomanager-schemas-26.0/propertyUse/hospital.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/hospital.xsd	2025-08-05 14:33:40.200885700 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/hospital.xsd	2026-03-06 20:54:51.599173800 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="hospital" type="hospitalType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/hotel.xsd portfoliomanager-schemas-26.0/propertyUse/hotel.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/hotel.xsd	2025-08-05 14:33:40.200885700 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/hotel.xsd	2026-03-06 20:54:51.603899400 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="hotel" type="hotelType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/iceCurlingRink.xsd portfoliomanager-schemas-26.0/propertyUse/iceCurlingRink.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/iceCurlingRink.xsd	2025-08-05 14:33:40.201889800 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/iceCurlingRink.xsd	2026-03-06 20:54:51.608411900 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+     <xs:include schemaLocation="characteristics.xsd"/>
+     <xs:include schemaLocation="propertyUse.xsd"/>
+     <xs:element name="iceCurlingRink" type="iceCurlingRinkType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/indoorArena.xsd portfoliomanager-schemas-26.0/propertyUse/indoorArena.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/indoorArena.xsd	2025-08-05 14:33:40.201889800 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/indoorArena.xsd	2026-03-06 20:54:51.612410200 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="indoorArena" type="indoorArenaType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/k12School.xsd portfoliomanager-schemas-26.0/propertyUse/k12School.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/k12School.xsd	2025-08-05 14:33:40.202885400 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/k12School.xsd	2026-03-06 20:54:51.616626000 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="k12School" type="k12SchoolType">
+Only in portfoliomanager-schemas-26.0/propertyUse: library.xsd
+Only in portfoliomanager-schemas-26.0/propertyUse: mailingCenterPostOffice.xsd
+Only in portfoliomanager-schemas-26.0/propertyUse: manufacturingIndustrialPlant.xsd
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/medicalOffice.xsd portfoliomanager-schemas-26.0/propertyUse/medicalOffice.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/medicalOffice.xsd	2025-08-05 14:33:40.202885400 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/medicalOffice.xsd	2026-03-06 20:54:51.633782300 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="medicalOffice" type="medicalOfficeType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/multifamilyHousing.xsd portfoliomanager-schemas-26.0/propertyUse/multifamilyHousing.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/multifamilyHousing.xsd	2025-08-05 14:33:40.202885400 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/multifamilyHousing.xsd	2026-03-06 20:54:51.639303100 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="multifamilyHousing" type="multifamilyHousingType">
+Only in portfoliomanager-schemas-26.0/propertyUse: museum.xsd
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/nonRefrigeratedWarehouse.xsd portfoliomanager-schemas-26.0/propertyUse/nonRefrigeratedWarehouse.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/nonRefrigeratedWarehouse.xsd	2025-08-05 14:33:40.203888400 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/nonRefrigeratedWarehouse.xsd	2026-03-06 20:54:51.648566100 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="nonRefrigeratedWarehouse" type="nonRefrigeratedWarehouseType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/office.xsd portfoliomanager-schemas-26.0/propertyUse/office.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/office.xsd	2025-08-05 14:33:40.203888400 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/office.xsd	2026-03-06 20:54:51.652566000 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="office" type="officeType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/otherPropertyUses.xsd portfoliomanager-schemas-26.0/propertyUse/otherPropertyUses.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/otherPropertyUses.xsd	2025-08-05 14:33:40.204887100 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/otherPropertyUses.xsd	2026-03-06 20:54:51.656565500 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="prison" type="otherType">
+@@ -7,21 +7,11 @@
+ 			<xs:documentation>Prison/Incarceration federal, state, local, or private-sector Buildings used for the detention of persons awaiting trial or convicted of crimes.</xs:documentation>
+ 		</xs:annotation>
+ 	</xs:element>
+-	<xs:element name="manufacturingIndustrialPlant" type="otherType">
+-		<xs:annotation>
+-			<xs:documentation>Buildings used for manufacturing or assembling goods. </xs:documentation>
+-		</xs:annotation>
+-	</xs:element>
+ 	<xs:element name="ambulatorySurgicalCenter" type="otherType">
+ 		<xs:annotation>
+ 			<xs:documentation>Health care facilities that provide same-day surgical care, including diagnostic and preventive procedures.</xs:documentation>
+ 		</xs:annotation>
+ 	</xs:element>
+-	<xs:element name="bowlingAlley" type="otherType">
+-		<xs:annotation>
+-			<xs:documentation>Buildings used for public or private, recreational or professional bowling.</xs:documentation>
+-		</xs:annotation>
+-	</xs:element>
+ 	<xs:element name="otherPublicServices" type="otherType">
+ 		<xs:annotation>
+ 			<xs:documentation>Buildings used by public-sector organizations to provide public services other than those described in the available property uses in Portfolio Manager (i.e. services other than offices, courthouses, drinking water treatment and distribution plants, fire stations, libraries, mailing centers or post offices, police stations, prisons or incarceration facilities, social or meeting halls, transportation terminals or stations, or wastewater treatment plants).</xs:documentation>
+@@ -42,16 +32,6 @@
+ 			<xs:documentation>Buildings used to sell services rather than physical goods.  Examples include dry cleaners, salons, spas, etc.</xs:documentation>
+ 		</xs:annotation>
+ 	</xs:element>
+-	<xs:element name="mailingCenterPostOffice" type="otherType">
+-		<xs:annotation>
+-			<xs:documentation>Buildings used as retail establishments dedicated to mail and mailing supplies.</xs:documentation>
+-		</xs:annotation>
+-	</xs:element>
+-	<xs:element name="library" type="otherType">
+-		<xs:annotation>
+-			<xs:documentation>Buildings used to store and manage collections of literary and artistic materials such as books, periodicals, newspapers, films, etc. that can be used for reference or lending.</xs:documentation>
+-		</xs:annotation>
+-	</xs:element>
+ 	<xs:element name="otherSpecialityHospital" type="otherType">
+ 		<xs:annotation>
+ 			<xs:documentation>Long-term acute care hospitals, inpatient rehabilitation facilities, including Cancer Centers and Psychiatric and Substance Abuse Hospitals/Facilities.</xs:documentation>
+@@ -97,16 +77,6 @@
+ 			<xs:documentation>Buildings used primarily to provide habitat to live animals and which may include public or private viewing and educational programs.</xs:documentation>
+ 		</xs:annotation>
+ 	</xs:element>
+-	<xs:element name="automobileDealership" type="otherType">
+-		<xs:annotation>
+-			<xs:documentation>Buildings used for the sale of new or used cars and light trucks.</xs:documentation>
+-		</xs:annotation>
+-	</xs:element>
+-	<xs:element name="museum" type="otherType">
+-		<xs:annotation>
+-			<xs:documentation>Buildings that display collections to outside visitors for public viewing and enjoyment and for informational/educational purposes.</xs:documentation>
+-		</xs:annotation>
+-	</xs:element>
+ 	<xs:element name="otherRecreation" type="otherType">
+ 		<xs:annotation>
+ 			<xs:documentation>Buildings primarily used for recreation that do not meet the definition of any other property use defined in Portfolio Manager. </xs:documentation>
+@@ -127,41 +97,21 @@
+ 			<xs:documentation>Buildings used for federal, state, or local police forces and their associated office space.</xs:documentation>
+ 		</xs:annotation>
+ 	</xs:element>
+-	<xs:element name="preschoolDaycare" type="otherType">
+-		<xs:annotation>
+-			<xs:documentation>Buildings used for educational programs or daytime supervision/recreation for young children before they attend Kindergarten.</xs:documentation>
+-		</xs:annotation>
+-	</xs:element>
+ 	<xs:element name="raceTrack" type="otherType">
+ 		<xs:annotation>
+ 			<xs:documentation>Buildings used primarily to hold racing events such as vehicle races, track/field races, horse races, and/or dog-races.</xs:documentation>
+ 		</xs:annotation>
+ 	</xs:element>
+-	<xs:element name="fastFoodRestaurant" type="otherType">
+-		<xs:annotation>
+-			<xs:documentation>Buildings used for the preparation and sale of ready-to-eat food. Also known as Quick Service Restaurant.</xs:documentation>
+-		</xs:annotation>
+-	</xs:element>
+ 	<xs:element name="laboratory" type="otherType">
+ 		<xs:annotation>
+ 			<xs:documentation>Buildings that provide controlled conditions in which scientific research, measurement, and experiments are performed or practical science is taught.</xs:documentation>
+ 		</xs:annotation>
+ 	</xs:element>
+-	<xs:element name="repairServices" type="otherType">
+-		<xs:annotation>
+-			<xs:documentation>Buildings in which some type of repair service is provided.  Examples include vehicle service or repair shops, shoe repair, jewelry repair, locksmiths, etc.</xs:documentation>
+-		</xs:annotation>
+-	</xs:element>
+ 	<xs:element name="otherTechnologyScience" type="otherType">
+ 		<xs:annotation>
+ 			<xs:documentation>Buildings used for science and technology related services other than Laboratories and Data Centers.</xs:documentation>
+ 		</xs:annotation>
+ 	</xs:element>
+-	<xs:element name="fireStation" type="otherType">
+-		<xs:annotation>
+-			<xs:documentation>Buildings used to provide emergency response services associated with fires. </xs:documentation>
+-		</xs:annotation>
+-	</xs:element>
+ 	<xs:element name="performingArts" type="otherType">
+ 		<xs:annotation>
+ 			<xs:documentation>Buildings used for public or private artistic or musical performances.</xs:documentation>
+@@ -187,11 +137,6 @@
+ 			<xs:documentation>Buildings used for religious, community, or other educational purposes not described in the available property uses in Portfolio Manager (i.e. educational purposes other than adult education, college/university, K-12 school, pre-school/daycare and vocational schools).</xs:documentation>
+ 		</xs:annotation>
+ 	</xs:element>
+-	<xs:element name="fitnessCenterHealthClubGym" type="otherType">
+-		<xs:annotation>
+-			<xs:documentation>Buildings used for recreational or professional athletic training and related activities. </xs:documentation>
+-		</xs:annotation>
+-	</xs:element>
+ 	<xs:element name="aquarium" type="otherType">
+ 		<xs:annotation>
+ 			<xs:documentation>Buildings used to provide aquatic habitat primarily to live animals and which may include public or private viewing areas and  educational programs. </xs:documentation>
+@@ -202,11 +147,6 @@
+ 			<xs:documentation>Buildings used for preparation and sale of food and beverages, but which do not meet the definition of Restaurant, Cafeteria, or Bar/Nightclub.</xs:documentation>
+ 		</xs:annotation>
+ 	</xs:element>
+-	<xs:element name="restaurant" type="otherType">
+-		<xs:annotation>
+-			<xs:documentation>Buildings used for preparation and sale of ready-to-eat food and beverages, but which do not fit in the fast food property type.  (Fast casual, casual, and fine dining restaurants).</xs:documentation>
+-		</xs:annotation>
+-	</xs:element>
+ 	<xs:element name="enclosedMall" type="otherType">
+ 		<xs:annotation>
+ 			<xs:documentation>Buildings that house multiple stores, often “anchored” by one or more department stores, and with interior walkways. </xs:documentation>
+@@ -237,11 +177,6 @@
+ 			<xs:documentation>Vocational School Buildings primarily designed to teach skilled trades to students, including trade and technical schools.  </xs:documentation>
+ 		</xs:annotation>
+ 	</xs:element>
+-	<xs:element name="socialMeetingHall" type="otherType">
+-		<xs:annotation>
+-			<xs:documentation>Buildings primarily used for public or private gatherings.  </xs:documentation>
+-		</xs:annotation>
+-	</xs:element>
+ 	<xs:element name="otherMall" type="otherType">
+ 		<xs:annotation>
+ 			<xs:documentation>Buildings containing a collection of stores whose purpose is the sale of goods, but which do not fit into the enclosed mall, lifestyle center, or strip mall property types.</xs:documentation>
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/otherStadium.xsd portfoliomanager-schemas-26.0/propertyUse/otherStadium.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/otherStadium.xsd	2025-08-05 14:33:40.204887100 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/otherStadium.xsd	2026-03-06 20:54:51.661790700 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="otherStadium" type="otherStadiumType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/parking.xsd portfoliomanager-schemas-26.0/propertyUse/parking.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/parking.xsd	2025-08-05 14:33:40.205398200 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/parking.xsd	2026-03-06 20:54:51.665792500 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="parking" type="parkingType">
+Only in portfoliomanager-schemas-26.0/propertyUse: preschoolDaycare.xsd
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/propertyUse.xsd portfoliomanager-schemas-26.0/propertyUse/propertyUse.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/propertyUse.xsd	2025-08-05 14:33:40.205398200 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/propertyUse.xsd	2026-03-06 20:54:51.674307200 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:simpleType name="propertyUseNameType">
+ 		<xs:restriction base="xs:string">
+ 			<xs:minLength value="1"/>
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/propertyUseList.xsd portfoliomanager-schemas-26.0/propertyUse/propertyUseList.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/propertyUseList.xsd	2025-08-05 14:33:40.205398200 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/propertyUseList.xsd	2026-03-06 20:54:51.679532000 -0500
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+     <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified"
+-               attributeFormDefault="unqualified" version="20.0">
++               attributeFormDefault="unqualified" version="26.0">
+ 
+     <xs:include schemaLocation="refrigeratedWarehouse.xsd"/>
+     <xs:include schemaLocation="retail.xsd"/>
+@@ -40,5 +40,19 @@
+     <xs:include schemaLocation="selfStorage.xsd"/>
+     <xs:include schemaLocation="otherPropertyUses.xsd"/>
+     <xs:include schemaLocation="evChargingStation.xsd"/>
+-
++    <xs:include schemaLocation="vehicleDealership.xsd"/>
++    <xs:include schemaLocation="mailingCenterPostOffice.xsd"/>
++    <xs:include schemaLocation="customUse.xsd"/>
++    <xs:include schemaLocation="library.xsd"/>
++    <xs:include schemaLocation="museum.xsd"/>
++    <xs:include schemaLocation="vehicleRepairServices.xsd"/>
++    <xs:include schemaLocation="preschoolDaycare.xsd"/>
++    <xs:include schemaLocation="restaurant.xsd"/>
++    <xs:include schemaLocation="fastFoodRestaurant.xsd"/>
++    <xs:include schemaLocation="manufacturingIndustrialPlant.xsd"/>
++    <xs:include schemaLocation="fireStation.xsd"/>
++    <xs:include schemaLocation="communityCenterAndSocialMeetingHall.xsd"/>
++    <xs:include schemaLocation="fitnessCenterHealthClubGym.xsd"/>
++    <xs:include schemaLocation="bowlingAlley.xsd"/>
++    <xs:include schemaLocation="cegep.xsd"/>
+ </xs:schema>
+\ No newline at end of file
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/refrigeratedWarehouse.xsd portfoliomanager-schemas-26.0/propertyUse/refrigeratedWarehouse.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/refrigeratedWarehouse.xsd	2025-08-05 14:33:40.205398200 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/refrigeratedWarehouse.xsd	2026-03-06 20:54:51.684532100 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="refrigeratedWarehouse" type="refrigeratedWarehouseType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/residenceHallDormitory.xsd portfoliomanager-schemas-26.0/propertyUse/residenceHallDormitory.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/residenceHallDormitory.xsd	2025-08-05 14:33:40.206906500 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/residenceHallDormitory.xsd	2026-03-06 20:54:51.687531400 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="residenceHallDormitory" type="residenceHallDormitoryType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/residentialCareFacility.xsd portfoliomanager-schemas-26.0/propertyUse/residentialCareFacility.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/residentialCareFacility.xsd	2025-08-05 14:33:40.206906500 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/residentialCareFacility.xsd	2026-03-06 20:54:51.693011000 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+     <xs:include schemaLocation="characteristics.xsd"/>
+     <xs:include schemaLocation="propertyUse.xsd"/>
+     <xs:element name="residentialCareFacility" type="residentialCareFacilityType">
+Only in portfoliomanager-schemas-26.0/propertyUse: restaurant.xsd
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/retail.xsd portfoliomanager-schemas-26.0/propertyUse/retail.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/retail.xsd	2025-08-05 14:33:40.206906500 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/retail.xsd	2026-03-06 20:54:51.701525900 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="retail" type="retailType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/selfStorage.xsd portfoliomanager-schemas-26.0/propertyUse/selfStorage.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/selfStorage.xsd	2025-08-05 14:33:40.207915700 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/selfStorage.xsd	2026-03-06 20:54:51.705526700 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+     <xs:include schemaLocation="characteristics.xsd"/>
+     <xs:include schemaLocation="propertyUse.xsd"/>
+     <xs:element name="selfStorageFacility" type="selfStorageFacilityType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/seniorLivingCommunity.xsd portfoliomanager-schemas-26.0/propertyUse/seniorLivingCommunity.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/seniorLivingCommunity.xsd	2025-08-05 14:33:40.207915700 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/seniorLivingCommunity.xsd	2026-03-06 20:54:51.710813100 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="seniorLivingCommunity" type="seniorLivingCommunityType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/singleFamilyHome.xsd portfoliomanager-schemas-26.0/propertyUse/singleFamilyHome.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/singleFamilyHome.xsd	2025-08-05 14:33:40.207915700 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/singleFamilyHome.xsd	2026-03-06 20:54:51.718813100 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="singleFamilyHome" type="singleFamilyHomeType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/stadiumClosed.xsd portfoliomanager-schemas-26.0/propertyUse/stadiumClosed.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/stadiumClosed.xsd	2025-08-05 14:33:40.208916000 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/stadiumClosed.xsd	2026-03-06 20:54:51.722331700 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="stadiumClosed" type="stadiumClosedType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/stadiumOpen.xsd portfoliomanager-schemas-26.0/propertyUse/stadiumOpen.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/stadiumOpen.xsd	2025-08-05 14:33:40.208916000 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/stadiumOpen.xsd	2026-03-06 20:54:51.726981600 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="stadiumOpen" type="stadiumOpenType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/supermarket.xsd portfoliomanager-schemas-26.0/propertyUse/supermarket.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/supermarket.xsd	2025-08-05 14:33:40.208916000 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/supermarket.xsd	2026-03-06 20:54:51.731497900 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="supermarket" type="supermarketType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/swimmingPool.xsd portfoliomanager-schemas-26.0/propertyUse/swimmingPool.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/swimmingPool.xsd	2025-08-05 14:33:40.209915600 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/swimmingPool.xsd	2026-03-06 20:54:51.736013800 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="swimmingPool" type="swimmingPoolType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/useDetailsRevisions.xsd portfoliomanager-schemas-26.0/propertyUse/useDetailsRevisions.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/useDetailsRevisions.xsd	2025-08-05 14:33:40.209915600 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/useDetailsRevisions.xsd	2026-03-06 20:54:51.740736300 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+     <!--
+         INCLUDES
+     -->
+@@ -116,7 +116,31 @@
+ 			<xs:element ref="commonEntrance"/>
+             <xs:element ref="numberOfCookingEquipmentUnits"/>
+             <xs:element ref="numberOfWarmingHeatingEquipmentUnits"/>
+-
++            <xs:element ref="ceilingHeight"/>
++            <xs:element ref="averageNumberOfVehiclesInInventory"/>
++            <xs:element ref="deliveryFacility"/>
++            <xs:element ref="numberOfLettersPackagesPerYear"/>
++            <xs:element ref="customUseDetail1"/>
++            <xs:element ref="customUseDetail2"/>
++            <xs:element ref="precisionControlsForTemperatureAndHumidity"/>
++            <xs:element ref="grossFloorAreaThatIsExhibitSpace"/>
++            <xs:element ref="numberOfPaintBays"/>
++            <xs:element ref="numberOfRepairBays"/>
++            <xs:element ref="lengthOfAllCommercialKitchenHoods"/>
++            <xs:element ref="cookingLocatedOnsite"/>
++            <xs:element ref="plantType"/>
++            <xs:element ref="numberOfEmergencyVehicles"/>
++            <xs:element ref="numberOfAnnualEmergencyIncidents"/>
++            <xs:element ref="weeklyBuildingOccupiedHours"/>
++            <xs:element ref="numberOfLevelOneEvChargingStations"/>
++            <xs:element ref="numberOfLevelTwoEvChargingStations"/>
++            <xs:element ref="numberOfDcFastEvChargingStations"/>
++            <xs:element ref="numberOfFullTimeStudentsEnrolledMayToAugust"/>
++            <xs:element ref="numberOfFullTimeStudentsEnrolledJanuaryToApril"/>
++            <xs:element ref="numberOfFullTimeStudentsEnrolledSeptemberToDecember"/>
++            <xs:element ref="annualResearchExpenditure"/>
++            <xs:element ref="percentOfLabFloorArea"/>
++            <xs:element ref="highestAwardLevel"/>
+         </xs:choice>
+     </xs:group>
+ 
+Only in portfoliomanager-schemas-26.0/propertyUse: vehicleDealership.xsd
+Only in portfoliomanager-schemas-26.0/propertyUse: vehicleRepairServices.xsd
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/wastewaterTreatmentPlant.xsd portfoliomanager-schemas-26.0/propertyUse/wastewaterTreatmentPlant.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/wastewaterTreatmentPlant.xsd	2025-08-05 14:33:40.210916300 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/wastewaterTreatmentPlant.xsd	2026-03-06 20:54:51.752842700 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="wastewaterTreatmentPlant" type="wastewaterTreatmentPlantType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/wholesaleClubSupercenter.xsd portfoliomanager-schemas-26.0/propertyUse/wholesaleClubSupercenter.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/wholesaleClubSupercenter.xsd	2025-08-05 14:33:40.210916300 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/wholesaleClubSupercenter.xsd	2026-03-06 20:54:51.758587100 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="wholesaleClubSupercenter" type="wholesaleClubSupercenterType">
+diff -u -r portfoliomanager-schemas-20.0/propertyUse/worshipFacility.xsd portfoliomanager-schemas-26.0/propertyUse/worshipFacility.xsd
+--- portfoliomanager-schemas-20.0/propertyUse/worshipFacility.xsd	2025-08-05 14:33:40.210916300 -0400
++++ portfoliomanager-schemas-26.0/propertyUse/worshipFacility.xsd	2026-03-06 20:54:51.763448300 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:include schemaLocation="characteristics.xsd"/>
+ 	<xs:include schemaLocation="propertyUse.xsd"/>
+ 	<xs:element name="worshipFacility" type="worshipFacilityType">
+@@ -16,6 +16,7 @@
+ 						<xs:element ref="totalGrossFloorArea"/>
+ 						<xs:element ref="weeklyOperatingHours" minOccurs="0"/>
+ 						<xs:element ref="seatingCapacity" minOccurs="0"/>
++						<xs:element ref="ceilingHeight" minOccurs="0"/>
+ 						<xs:element ref="cookingFacilities" minOccurs="0"/>
+ 						<xs:element ref="grossFloorAreaUsedForFoodPreparation" minOccurs="0"/>
+ 						<xs:element ref="numberOfWeekdaysOpen" minOccurs="0"/>
+Only in portfoliomanager-schemas-26.0/reports: dataRequest.xsd
+Only in portfoliomanager-schemas-26.0/reports: dataResponse.xsd
+Only in portfoliomanager-schemas-26.0/reports: dataResponseStatus.xsd
+diff -u -r portfoliomanager-schemas-20.0/reports/report.xsd portfoliomanager-schemas-26.0/reports/report.xsd
+--- portfoliomanager-schemas-20.0/reports/report.xsd	2025-08-05 14:33:40.211915900 -0400
++++ portfoliomanager-schemas-26.0/reports/report.xsd	2026-03-06 20:54:51.784006600 -0500
+@@ -1,97 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="20.0">
+-	<xs:include schemaLocation="../enum/reportingEnums.xsd"/>
+-	<xs:include schemaLocation="../enum/meterCategoryType.xsd"/>
+-	<xs:include schemaLocation="../common/ped.xsd"/>
+-	<xs:complexType name="timeframeType">
+-		<xs:choice>
+-			<xs:element name="currentPeriod">
+-				<xs:annotation>
+-					<xs:documentation>Returns metrics for the most recent year in which each of your properties has a full year of data for the selected meter type (energy/water/waste). This can be a different year for each property.</xs:documentation>
+-				</xs:annotation>
+-				<xs:complexType>
+-					<xs:all>
+-						<xs:element name="meterType" type="meterCategoryType"/>
+-					</xs:all>
+-				</xs:complexType>
+-			</xs:element>
+-			<xs:element name="baselinePeriod">
+-				<xs:annotation>
+-					<xs:documentation>Returns metrics for the baseline period that you set on the "Goals" tab for each individual property. You can have different baselines for different meter types (energy/water/waste).</xs:documentation>
+-				</xs:annotation>
+-				<xs:complexType>
+-					<xs:all>
+-						<xs:element name="meterType" type="meterCategoryType"/>
+-					</xs:all>
+-				</xs:complexType>
+-			</xs:element>
+-			<xs:element name="currentVsBaseline">
+-				<xs:annotation>
+-					<xs:documentation>Returns metrics for each property's current year and its baseline year.</xs:documentation>
+-				</xs:annotation>
+-				<xs:complexType>
+-					<xs:all>
+-						<xs:element name="meterType" type="meterCategoryType"/>
+-					</xs:all>
+-				</xs:complexType>
+-			</xs:element>
+-			<xs:element name="singlePeriod">
+-				<xs:annotation>
+-					<xs:documentation>Returns metrics for a specific year that you specify.</xs:documentation>
+-				</xs:annotation>
+-				<xs:complexType>
+-					<xs:all>
+-						<xs:element name="periodEndingDate" type="ped"/>
+-					</xs:all>
+-				</xs:complexType>
+-			</xs:element>
+-			<xs:element name="compareCurrentPeriod">
+-				<xs:annotation>
+-					<xs:documentation>Returns metrics for each property's current year and another year which you specify.</xs:documentation>
+-				</xs:annotation>
+-				<xs:complexType>
+-					<xs:all>
+-						<xs:element name="meterType" type="meterCategoryType"/>
+-						<xs:element name="periodEndingDate" type="ped"/>
+-					</xs:all>
+-				</xs:complexType>
+-			</xs:element>
+-			<xs:element name="compareBaselinePeriod">
+-				<xs:annotation>
+-					<xs:documentation>Returns metrics for each property's baseline period and another year which you specify.</xs:documentation>
+-				</xs:annotation>
+-				<xs:complexType>
+-					<xs:all>
+-						<xs:element name="meterType" type="meterCategoryType"/>
+-						<xs:element name="periodEndingDate" type="ped"/>
+-					</xs:all>
+-				</xs:complexType>
+-			</xs:element>
+-			<xs:element name="twoPeriods">
+-				<xs:annotation>
+-					<xs:documentation>Returns metrics for each property in two specific years that you select.</xs:documentation>
+-				</xs:annotation>
+-				<xs:complexType>
+-					<xs:all>
+-						<xs:element name="periodEndingDateOne" type="ped"/>
+-						<xs:element name="periodEndingDateTwo" type="ped"/>
+-					</xs:all>
+-				</xs:complexType>
+-			</xs:element>
+-			<xs:element name="dateRange">
+-				<xs:annotation>
+-					<xs:documentation>Returns metrics for each property on a monthly, quarterly, or annual interval between a start and end date that you specify.</xs:documentation>
+-				</xs:annotation>
+-				<xs:complexType>
+-					<xs:all>
+-						<xs:element name="fromPeriodEndingDate" type="ped"/>
+-						<xs:element name="toPeriodEndingDate" type="ped"/>
+-						<xs:element name="interval" type="reportingIntervalType"/>
+-					</xs:all>
+-				</xs:complexType>
+-			</xs:element>
+-		</xs:choice>
+-	</xs:complexType>
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="26.0">
++	<xs:include schemaLocation="timeframe.xsd"/>
+ 	<xs:complexType name="report">
+ 		<xs:all>
+ 			<xs:element name="id" type="xs:long" minOccurs="0">
+Only in portfoliomanager-schemas-20.0/reports: reportData.xsd
+Only in portfoliomanager-schemas-26.0/reports: reportError.xsd
+diff -u -r portfoliomanager-schemas-20.0/reports/reportMetrics.xsd portfoliomanager-schemas-26.0/reports/reportMetrics.xsd
+--- portfoliomanager-schemas-20.0/reports/reportMetrics.xsd	2025-08-05 14:33:40.212915700 -0400
++++ portfoliomanager-schemas-26.0/reports/reportMetrics.xsd	2026-03-06 20:54:51.792806100 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="26.0">
+ 	<xs:element name="reportMetrics" type="reportMetrics">
+ 		<xs:annotation>
+ 			<xs:documentation>A collection of reporting metrics.</xs:documentation>
+@@ -16,7 +16,7 @@
+ 						<xs:element name="metrics">
+ 							<xs:complexType>
+ 								<xs:sequence>
+-									<xs:element name="metric" maxOccurs="unbounded">
++									<xs:element name="metric" maxOccurs="unbounded" minOccurs="0">
+ 										<xs:annotation>
+ 											<xs:documentation>The metric.</xs:documentation>
+ 										</xs:annotation>
+@@ -46,6 +46,11 @@
+ 													<xs:documentation>The unit of measure of the value returned by the metric (if applicable).</xs:documentation>
+ 												</xs:annotation>
+ 											</xs:attribute>
++											<xs:attribute name="availableToCustomMetrics" type="xs:boolean">
++												<xs:annotation>
++													<xs:documentation>The flag that determines if the metric is available for use in a Custom Metric.</xs:documentation>
++												</xs:annotation>
++											</xs:attribute>
+ 										</xs:complexType>
+ 									</xs:element>
+ 								</xs:sequence>
+diff -u -r portfoliomanager-schemas-20.0/reports/reportStatus.xsd portfoliomanager-schemas-26.0/reports/reportStatus.xsd
+--- portfoliomanager-schemas-20.0/reports/reportStatus.xsd	2025-08-05 14:33:40.212915700 -0400
++++ portfoliomanager-schemas-26.0/reports/reportStatus.xsd	2026-03-06 20:54:51.796807800 -0500
+@@ -1,36 +1,41 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
+-	<xs:include schemaLocation="../enum/reportingEnums.xsd"/>
+-	<xs:element name="reportStatus">
+-		<xs:complexType>
+-			<xs:sequence>
+-				<xs:element name="status" type="reportStatusType">
+-					<xs:annotation>
+-						<xs:documentation>The status of the report.</xs:documentation>
+-					</xs:annotation>
+-				</xs:element>
+-				<xs:element name="description" type="xs:string" minOccurs="0">
+-					<xs:annotation>
+-						<xs:documentation>This field is not currently being used.</xs:documentation>
+-					</xs:annotation>
+-				</xs:element>
+-				<xs:element name="generationStartDate" type="xs:dateTime" minOccurs="0">
+-					<xs:annotation>
+-						<xs:documentation>The date and timestamp of when the report generation started (in EST).</xs:documentation>
+-					</xs:annotation>
+-				</xs:element>
+-				<xs:element name="generationEndDate" type="xs:dateTime" minOccurs="0">
+-					<xs:annotation>
+-						<xs:documentation>The date and timestamp of when the report generation completed (in EST).</xs:documentation>
+-					</xs:annotation>
+-				</xs:element>
+-				<xs:element name="submittedDate" type="xs:dateTime" minOccurs="0">
+-					<xs:annotation>
+-						<xs:documentation>The date and timestamp of when the report was submitted to be generated (in EST).</xs:documentation>
+-					</xs:annotation>
+-				</xs:element>
+-			</xs:sequence>
+-		</xs:complexType>
+-	</xs:element>
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
++    <xs:include schemaLocation="../enum/reportingEnums.xsd"/>
++
++    <xs:complexType name="reportStatusDef">
++        <xs:sequence>
++            <xs:element name="status" type="reportStatusType">
++                <xs:annotation>
++                    <xs:documentation>The status of the report.</xs:documentation>
++                </xs:annotation>
++            </xs:element>
++            <xs:element name="description" type="xs:string" minOccurs="0">
++                <xs:annotation>
++                    <xs:documentation>This field is not currently being used.</xs:documentation>
++                </xs:annotation>
++            </xs:element>
++            <xs:element name="generationStartDate" type="xs:dateTime" minOccurs="0">
++                <xs:annotation>
++                    <xs:documentation>The date and timestamp of when the report generation started (in EST).
++                    </xs:documentation>
++                </xs:annotation>
++            </xs:element>
++            <xs:element name="generationEndDate" type="xs:dateTime" minOccurs="0">
++                <xs:annotation>
++                    <xs:documentation>The date and timestamp of when the report generation completed (in EST).
++                    </xs:documentation>
++                </xs:annotation>
++            </xs:element>
++            <xs:element name="submittedDate" type="xs:dateTime" minOccurs="0">
++                <xs:annotation>
++                    <xs:documentation>The date and timestamp of when the report was submitted to be generated (in
++                        EST).
++                    </xs:documentation>
++                </xs:annotation>
++            </xs:element>
++        </xs:sequence>
++    </xs:complexType>
++
++    <xs:element name="reportStatus" type="reportStatusDef"></xs:element>
+ </xs:schema>
+ 
+diff -u -r portfoliomanager-schemas-20.0/reports/reportTemplate.xsd portfoliomanager-schemas-26.0/reports/reportTemplate.xsd
+--- portfoliomanager-schemas-20.0/reports/reportTemplate.xsd	2025-08-05 14:33:40.212915700 -0400
++++ portfoliomanager-schemas-26.0/reports/reportTemplate.xsd	2026-03-06 20:54:51.801941500 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="24.0">
+ 	<xs:include schemaLocation="../common/audit.xsd"/>
+ 	<xs:element name="templateType">
+ 		<xs:annotation>
+@@ -17,11 +17,6 @@
+ 						<xs:documentation>ENERGY STAR templates that are pre-defined (i.e., Water Performance, Energy Performance, etc.). This type is currently not support yet.</xs:documentation>
+ 					</xs:annotation>
+ 				</xs:enumeration>
+-				<xs:enumeration value="DATA_REQUEST">
+-					<xs:annotation>
+-						<xs:documentation>Data request. This type is currently not support yet.</xs:documentation>
+-					</xs:annotation>
+-				</xs:enumeration>
+ 			</xs:restriction>
+ 		</xs:simpleType>
+ 	</xs:element>
+Only in portfoliomanager-schemas-26.0/reports: sendDataResponse.xsd
+Only in portfoliomanager-schemas-26.0/reports: timeframe.xsd
+diff -u -r portfoliomanager-schemas-20.0/response/hierarchy.xsd portfoliomanager-schemas-26.0/response/hierarchy.xsd
+--- portfoliomanager-schemas-20.0/response/hierarchy.xsd	2025-08-05 14:33:40.213916500 -0400
++++ portfoliomanager-schemas-26.0/response/hierarchy.xsd	2026-03-06 20:54:51.820109600 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<xs:element name="hierarchy" type="hierarchyType">
+ 		<xs:annotation>
+ 			<xs:documentation>Contains the identifiers of the entities that are above a particular entity in the Portfolio Manager hierarchy</xs:documentation>
+diff -u -r portfoliomanager-schemas-20.0/response/response.xsd portfoliomanager-schemas-26.0/response/response.xsd
+--- portfoliomanager-schemas-20.0/response/response.xsd	2025-08-05 14:33:40.214916300 -0400
++++ portfoliomanager-schemas-26.0/response/response.xsd	2026-03-06 20:54:51.824631500 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+ 	<!--
+         INCLUDES
+     -->
+diff -u -r portfoliomanager-schemas-20.0/targetFinder/targetFinder.xsd portfoliomanager-schemas-26.0/targetFinder/targetFinder.xsd
+--- portfoliomanager-schemas-20.0/targetFinder/targetFinder.xsd	2025-08-05 14:33:40.215915000 -0400
++++ portfoliomanager-schemas-26.0/targetFinder/targetFinder.xsd	2026-03-06 20:54:51.833295700 -0500
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified" version="20.0">
++<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified" version="24.0">
+     <!-- Includes -->
+     <xs:include schemaLocation="../propertyUse/propertyUseList.xsd"/>
+     <xs:include schemaLocation="../property/propertyDesign.xsd"/>
+@@ -65,7 +65,7 @@
+                     </xs:choice>
+                 </xs:complexType>
+             </xs:element>
+-            <xs:element name="internationalWeatherStationId" type="xs:long" minOccurs="0">
++            <xs:element name="internationalWeatherStationId" type="xs:string" minOccurs="0">
+                 <xs:annotation>
+                     <xs:documentation>The WMO id of the international weather station.</xs:documentation>
+                 </xs:annotation>

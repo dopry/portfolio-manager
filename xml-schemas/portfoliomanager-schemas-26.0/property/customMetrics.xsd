@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="26.0">
+    <xs:element name="customMetric">
+        <xs:complexType>
+            <xs:all>
+                <xs:element name="name" type="xs:string" minOccurs="0"/>
+                <xs:element name="numeratorMetricId" type="xs:long"/>
+                <xs:element name="denominatorDetailTypeId" type="xs:long"/>
+            </xs:all>
+            <xs:attribute name="id" type="xs:long">
+                <xs:annotation>
+                    <xs:documentation>The unique identifier of the custom metric.</xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="unitOfMeasure" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="detailsTypes">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="detailType" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="detailType">
+        <xs:complexType>
+            <xs:attribute name="id" type="xs:long"/>
+            <xs:attribute name="name" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
