@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+    <xs:include schemaLocation="../common/audit.xsd"/>
+    <xs:include schemaLocation="greenPowerCommon.xsd"/>
+
+    <xs:simpleType name="costType">
+        <xs:restriction base="xs:decimal">
+            <xs:minExclusive value="0"/>
+            <xs:fractionDigits value="2"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="onsiteRenewableOptionalInfoType">
+        <xs:all>
+            <xs:element name="projectName" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The project name.</xs:documentation>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:minLength value="1"/>
+                        <xs:maxLength value="500"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="renewableGenerationTechnologies" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The Renewable Generation Technology types.</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="technology" type="renewableGenerationTechnologyEnum" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="ratedCapacity" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The rated capacity of project/offtake.</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="value">
+                            <xs:simpleType>
+                                <xs:restriction base="xs:decimal">
+                                    <xs:minExclusive value="0"/>
+                                    <xs:fractionDigits value="1"/>
+                                </xs:restriction>
+                            </xs:simpleType>
+                        </xs:element>
+                    </xs:sequence>
+                    <xs:attribute name="uom" type="ratedCapacityUomType" use="required">
+                        <xs:annotation>
+                            <xs:documentation>The unit of the value (kW or MW).</xs:documentation>
+                        </xs:annotation>
+                    </xs:attribute>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="operationDate" type="xs:date" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The commercial operation date.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="numberOfInverters" type="xs:int" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The number of inverters.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="numberOfSolarPanels" type="xs:int" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The number of solar panels.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="totalCost" type="costType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>the total investment cost of the project in $.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="incentiveOrRebateAmount" type="costType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The amount of incentives or rebates obtained for the project in $.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="estimatedSavings" type="costType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>The estimated cost savings of the project in $.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="notes" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>Any other information about the renewable energy.</xs:documentation>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:minLength value="1"/>
+                        <xs:maxLength value="4000"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="audit" type="logType" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+
+    <xs:element name="onsiteRenewableOptionalInfo" type="onsiteRenewableOptionalInfoType"/>
+
+</xs:schema>

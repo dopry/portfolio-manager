@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="26.0">
+	<xs:include schemaLocation="timeframe.xsd"/>
+	<xs:complexType name="report">
+		<xs:all>
+			<xs:element name="id" type="xs:long" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The unique identifier of the report.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="type" type="reportType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The type of report.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="timeframe" type="timeframeType">
+				<xs:annotation>
+					<xs:documentation>The timeframe the report will be run against.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="templateId" type="xs:long" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The id of the template.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="templateName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The name of the template.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="properties" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The list of properties that the report will be run for.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="id" type="xs:long" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>The unique identifier for each property.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="reportGenerationStatus" type="reportStatusType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The current generation status of the report.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:all>
+	</xs:complexType>
+	<xs:element name="report" type="report"/>
+</xs:schema>

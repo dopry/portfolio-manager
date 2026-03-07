@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+    <xs:include schemaLocation="characteristics.xsd"/>
+    <xs:include schemaLocation="propertyUse.xsd"/>
+    <xs:element name="museum" type="museumType">
+        <xs:annotation>
+            <xs:documentation>Museum refers to buildings that display collections to outside visitors for public viewing and enjoyment and for informational/educational purposes. <br /><br />	Gross Floor Area should include all space within the building(s), including but not limited to public collection display areas, meeting rooms, restrooms, classrooms, gift shops, food service areas, administrative/office space, mechanical rooms, storage areas for collections, libraries, elevator shafts, stairwells, and movie theatre space inside the museum. Areas not in enclosed building such as outdoor exhibit, open-air theaters, walkways, and landscaped areas should not be included in the Gross Floor Area.</xs:documentation>
+        </xs:annotation>
+    </xs:element>
+    <xs:complexType name="museumType">
+        <xs:all>
+            <xs:element name="name" type="propertyUseNameType"/>
+            <xs:element name="useDetails">
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element ref="totalGrossFloorArea"/>
+                        <xs:element ref="numberOfWorkers" minOccurs="0"/>
+                        <xs:element ref="precisionControlsForTemperatureAndHumidity" minOccurs="0"/>
+                        <xs:element ref="grossFloorAreaThatIsExhibitSpace" minOccurs="0"/>
+                        <xs:element ref="percentHeated" minOccurs="0"/>
+                        <xs:element ref="percentCooled" minOccurs="0"/>
+                        <xs:element ref="numberOfComputers" minOccurs="0"/>
+                        <xs:element ref="weeklyOperatingHours" minOccurs="0"/>
+                    </xs:all>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="audit" type="logType" minOccurs="0"/>
+        </xs:all>
+    </xs:complexType>
+</xs:schema>

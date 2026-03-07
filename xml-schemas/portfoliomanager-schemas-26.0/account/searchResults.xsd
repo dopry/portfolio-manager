@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2005 rel. 3 U (http://www.altova.com) by SRA International (SRA International) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="26.0">
+	<xs:element name="searchResults" type="searchResultType">
+		<xs:annotation>
+			<xs:documentation>Contains information for a Portfolio Manager account Id.</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="searchResultType">
+		<xs:all>
+			<xs:element name="accountId" type="xs:long" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The ID to the account. This is provided by Portfolio Manager only in a XML response.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:all>
+	</xs:complexType>
+</xs:schema>

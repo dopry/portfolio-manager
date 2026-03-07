@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="26.0">
+    <xs:element name="reportError">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="reportId" type="xs:long">
+                    <xs:annotation>
+                        <xs:documentation>The id of the report.</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="templateName" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>The name of the template.</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="dateGenerated" type="xs:dateTime">
+                    <xs:annotation>
+                        <xs:documentation>The timestamp when the report was generated</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="numberOfProperties" type="xs:integer">
+                    <xs:annotation>
+                        <xs:documentation>The total count of the properties in the report</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="missingMetrics">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="propertyMissingMetric" minOccurs="0" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="yearEndingDate" type="xs:date" minOccurs="0">
+
+                                        </xs:element>
+                                        <xs:element name="metric" minOccurs="0" maxOccurs="unbounded">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="error" type="xs:string">
+
+                                                    </xs:element>
+                                                </xs:sequence>
+                                                <xs:attribute name="name" type="xs:string">
+                                                    <xs:annotation>
+                                                        <xs:documentation>The name of the metric.</xs:documentation>
+                                                    </xs:annotation>
+                                                </xs:attribute>
+                                                <xs:attribute name="id" type="xs:long">
+                                                    <xs:annotation>
+                                                        <xs:documentation>The id of the metric.</xs:documentation>
+                                                    </xs:annotation>
+                                                </xs:attribute>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                    <xs:attribute name="propertyId" type="xs:long">
+
+                                    </xs:attribute>
+                                    <xs:attribute name="propertyName" type="xs:string">
+
+                                    </xs:attribute>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

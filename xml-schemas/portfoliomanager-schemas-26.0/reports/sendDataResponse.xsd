@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="26.0">
+    <xs:element name="sendDataResponse">
+        <xs:complexType>
+            <xs:all>
+                <xs:element name="additionalEmailAddresses" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation>The additional email addresses to send confirmation email to.</xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="email" type="xs:string" minOccurs="0" maxOccurs="50">
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="fileFormat">
+                    <xs:annotation>
+                        <xs:documentation>The email attachment format to send data in, EXCEL or XML.</xs:documentation>
+                    </xs:annotation>
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="EXCEL"/>
+                            <xs:enumeration value="XML"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="submitWithErrors" type="xs:boolean">
+                    <xs:annotation>
+                        <xs:documentation>Allow to send data when generated response contains errors.</xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
