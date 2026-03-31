@@ -46,9 +46,11 @@ jobs:
       - run: 
           name: Semantic Release with Trusted Publishing via OIDC
           command: |
-            # 1. Fetch the OIDC token from CircleCI
-            # 2. Export it as NPM_ID_TOKEN for the npm CLI/semantic-release to find
-            export NPM_ID_TOKEN=$(circleci run oidc get --claims '{"aud": "npm:registry.npmjs.org"}')
+            ## 1. Fetch the OIDC token with the correct audience for npm
+            export NPM_ID_TOKEN=$(circleci run oidc get --claims '{"aud": "https://registry.npmjs.org/"}')
+            # 2. Set a placeholder NPM_TOKEN to bypass the plugin's 'verifyConditions' check
+            # The npm CLI (v11.5.1+) will prioritize NPM_ID_TOKEN for the actual publish
+            export NPM_TOKEN="unused-placeholder"
             npx semantic-release
        
 
