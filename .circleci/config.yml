@@ -49,7 +49,7 @@ jobs:
           name: Semantic Release with Trusted Publishing via OIDC
           command: |
             ## 1. Fetch the OIDC token with the correct audience for npm
-            export NPM_ID_TOKEN=$(circleci run oidc get --claims '{"aud": "https://registry.npmjs.org/"}')
+            export NPM_ID_TOKEN=$(circleci run oidc get --claims '{"aud": "npm:registry.npmjs.org"}')
             npx semantic-release
        
 
