@@ -328,9 +328,13 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
     const propertyDeleteResponse = await api.propertyPropertyDelete(propertyId);
     expect(propertyDeleteResponse.response["@_status"]).to.equal("Ok");
     untrackId(createdPropertyIds, propertyId);
-    await expect(api.propertyPropertyGet(propertyId)).rejects.toMatchObject({
-      status: 404,
-    });
+    // PM API delete removes property from account list but GET by ID still returns 200.
+    const listAfterDelete = await api.propertyPropertyListGet(account.id || 0);
+    const stillLinked = isIPopulatedResponse(listAfterDelete.response)
+      && listAfterDelete.response.links.link.some(
+        (link) => link["@_id"] === propertyId.toString()
+      );
+    expect(stillLinked, "deleted property should not appear in account property list").to.equal(false);
   }, 90000);
 
   it("meterPropertyAssociationSinglePost + getAssociatedMeters", async () => {

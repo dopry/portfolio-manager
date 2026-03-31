@@ -438,6 +438,13 @@ export class PortfolioManager {
     }
   }
 
+  /**
+   * Deletes a property by unlinking it from the account.
+   *
+   * Note: the PM API performs a soft delete — the property is removed from the
+   * account's property list, but getProperty() will still resolve for the
+   * deleted ID. Any meters on the property become inaccessible (403).
+   */
   async deleteProperty(propertyId: number): Promise<boolean> {
     const response = await this.api.propertyPropertyDelete(propertyId);
     if (response.response?.["@_status"] === "Ok") {
