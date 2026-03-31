@@ -1,4 +1,5 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import { parseLinkId } from "./functions/parseLinkId.js";
 import { mockIProperty, mockMeter } from "./Mocks.js";
 import { PortfolioManager } from "./PortfolioManager.js";
 import { PortfolioManagerApi, PortfolioManagerApiError } from "./PortfolioManagerApi.js";
@@ -121,8 +122,12 @@ describe("PortfolioManager (integration)", () => {
     const deleted = await pm.deleteProperty(created.id || 0);
     expect(deleted).to.equal(true);
     untrackId(createdPropertyIds, created.id);
-
-    await expect(pm.getProperty(created.id || 0)).rejects.toThrow();
+    // PM API delete removes property from account list but GET by ID still returns 200.
+    const linksAfterDelete = await pm.getPropertyLinks();
+    const stillLinked = linksAfterDelete.some(
+      (link) => parseLinkId(link) === created.id
+    );
+    expect(stillLinked, "deleted property should not appear in account property list").to.equal(false);
   }, 90000);
 
   it("createMeter + getMeterLinks + getMeter", async () => {
@@ -173,8 +178,12 @@ describe("PortfolioManager (integration)", () => {
     const propertyDeleted = await pm.deleteProperty(createdProperty.id || 0);
     expect(propertyDeleted).to.equal(true);
     untrackId(createdPropertyIds, createdProperty.id);
-
-    await expect(pm.getProperty(createdProperty.id || 0)).rejects.toThrow();
+    // PM API delete removes property from account list but GET by ID still returns 200.
+    const linksAfterDelete = await pm.getPropertyLinks();
+    const stillLinked = linksAfterDelete.some(
+      (link) => parseLinkId(link) === createdProperty.id
+    );
+    expect(stillLinked, "deleted property should not appear in account property list").to.equal(false);
   }, 120000);
 
   it("getMeters on controlled property", async () => {
