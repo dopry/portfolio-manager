@@ -39,6 +39,8 @@ jobs:
       - checkout
       - node/install-packages: # Install and automatically cache packages
           override-ci-command: npm ci
+      - run: npm --version
+      - run: node --version
       - run: npm run typecheck
       - run: npm run build
       - run: node ./dist/index.js --help # Run the CLI to ensure it works, we had some test releases where this was broken during the esm migration
@@ -48,9 +50,6 @@ jobs:
           command: |
             ## 1. Fetch the OIDC token with the correct audience for npm
             export NPM_ID_TOKEN=$(circleci run oidc get --claims '{"aud": "https://registry.npmjs.org/"}')
-            # 2. Set a placeholder NPM_TOKEN to bypass the plugin's 'verifyConditions' check
-            # The npm CLI (v11.5.1+) will prioritize NPM_ID_TOKEN for the actual publish
-            export NPM_TOKEN="unused-placeholder"
             npx semantic-release
        
 
