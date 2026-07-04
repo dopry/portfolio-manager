@@ -118,7 +118,8 @@ export class PortfolioManagerApi {
         jpath === "pendingList.links.link" ||
         jpath === "pendingList.property" ||
         jpath === "pendingList.account" ||
-        jpath === "pendingList.meter"
+        jpath === "pendingList.meter" ||
+        jpath === "notificationList.notification"
       );
     },
   };

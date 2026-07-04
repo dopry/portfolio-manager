@@ -41,6 +41,7 @@ class PortfolioManagerShareAcceptCommand extends PortfolioManagerBaseCommand {
   constructor() {
     super("accept");
     this.description("Accept a pending property or meter share");
+    this.addPortfolioManagerOptions();
     this.addOption(
       new Option("--type <type>", "The type of share to accept")
         .choices(["property", "meter"])
@@ -72,6 +73,7 @@ class PortfolioManagerShareRejectCommand extends PortfolioManagerBaseCommand {
   constructor() {
     super("reject");
     this.description("Reject a pending property or meter share");
+    this.addPortfolioManagerOptions();
     this.addOption(
       new Option("--type <type>", "The type of share to reject")
         .choices(["property", "meter"])
@@ -100,6 +102,7 @@ class PortfolioManagerShareRemoveCommand extends PortfolioManagerBaseCommand {
   constructor() {
     super("remove");
     this.description("Remove (unshare) an existing property or meter share");
+    this.addPortfolioManagerOptions();
     this.addOption(
       new Option("--type <type>", "The type of share to remove")
         .choices(["property", "meter"])

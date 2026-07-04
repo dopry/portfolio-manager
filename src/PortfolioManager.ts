@@ -29,6 +29,7 @@ import {
   IClientPendingConnectionRequest,
   IClientPendingShareRequest,
   IClientNotification,
+  ICustomFieldList,
   ICustomer,
   INotification,
   ShareLevel,
@@ -670,6 +671,26 @@ export class PortfolioManager {
     }, {});
   }
   /**
+   * Flattens an XML custom field list into a key-value map.
+   * @param customFieldList The raw custom field list from an ESPM response.
+   * @returns A key-value map of custom fields, or undefined when there are none.
+   */
+  private mapCustomFields(
+    customFieldList?: ICustomFieldList
+  ): Record<string, string | number> | undefined {
+    if (!customFieldList?.customField) return undefined;
+    const customFields = Array.isArray(customFieldList.customField)
+      ? customFieldList.customField
+      : [customFieldList.customField];
+    return customFields.filter(Boolean).reduce((acc, field) => {
+      if (field && field["@_name"] && field["#text"] !== undefined) {
+        acc[field["@_name"]] = field["#text"];
+      }
+      return acc;
+    }, {} as Record<string, string | number>);
+  }
+
+  /**
    * Fetches all pending connection requests from other Portfolio Manager users.
    * This method handles pagination automatically.
    * @returns A promise that resolves to an array of simplified pending connection request objects.
@@ -692,23 +713,7 @@ export class PortfolioManager {
           email: account.accountInfo.email,
           organization: account.accountInfo.organization,
           requestedDate: account.connectionAudit?.createdDate || "",
-          customFields: account.customFieldList?.customField
-            ? (Array.isArray(account.customFieldList.customField)
-                ? account.customFieldList.customField
-                : [account.customFieldList.customField]
-              )
-                .filter(Boolean)
-                .reduce((acc, field) => {
-                  if (
-                    field &&
-                    field["@_name"] &&
-                    field["#text"] !== undefined
-                  ) {
-                    acc[field["@_name"]] = field["#text"];
-                  }
-                  return acc;
-                }, {} as Record<string, string | number>)
-            : undefined,
+          customFields: this.mapCustomFields(account.customFieldList),
         });
       }
 
@@ -788,6 +793,7 @@ export class PortfolioManager {
           sharerAccountId: prop.accountId,
           accessLevel: prop.accessLevel as ShareLevel,
           requestedDate: prop.shareAudit?.createdDate || "",
+          customFields: this.mapCustomFields(prop.customFieldList),
         });
       }
       const nextLink = response.pendingList.links?.link.find(
@@ -823,6 +829,7 @@ export class PortfolioManager {
           sharerAccountId: meter.accountId,
           accessLevel: meter.accessLevel as ShareLevel,
           requestedDate: meter.shareAudit?.createdDate || "",
+          customFields: this.mapCustomFields(meter.customFieldList),
         });
       }
       const nextLink = response.pendingList.links?.link.find(
