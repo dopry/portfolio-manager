@@ -4,12 +4,22 @@ on:
   push:
   workflow_dispatch:
 
+# One CI run at a time per branch: back-to-back pushes cancel the stale run
+# instead of doubling load on the ESPM test API. On main/next, queue instead
+# of cancel so an in-flight release is never killed mid-publish.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/next' }}
+
 jobs:
   test:
     name: test (node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
+      # The ESPM test API rate-limits per account; running all node versions
+      # against it concurrently trips the limit, so run them one at a time.
+      max-parallel: 1
       matrix:
         node-version: ["20", "22", "lts/*", "latest"]
     env:
