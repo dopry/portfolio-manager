@@ -53,7 +53,7 @@ in `pmtest` shows up in `wstest` pending lists.
 | Role | Account | Credentials (env) | Purpose |
 |------|---------|-------------------|---------|
 | Provider (SUT) | existing web-services test account | `PM_USERNAME` / `PM_PASSWORD` | The account our SDK acts as; accepts/rejects via API. Must be searchable (Account Settings → Your Preferences → searchable = Yes). |
-| Consumer (seeder) | new standard test account | `PM_CONSUMER_USERNAME` / `PM_CONSUMER_PASSWORD` | Driven by Playwright in `pmtest`; owns fixture property + meters; initiates connections and shares. |
+| Peer (seeder) | persistent peer test account | `PM_USERNAME2` / `PM_PASSWORD2` | Long-lived peer account, driven by Playwright in `pmtest`; owns fixture property + meters; initiates connections and shares. |
 
 ### Runner choice: Playwright as a library inside vitest (recommended)
 
@@ -77,10 +77,12 @@ added value at this scale. Revisit if the UI-automation surface grows.
 
 ### 0. Spike / validate assumptions (do first, ~half day)
 
-- [ ] Create the consumer account manually in `pmtest`; record the procedure
-      in `CONTRIBUTING.md` (test env doesn't send real email; note security
-      questions and searchability settings).
-- [ ] Confirm the consumer account can call the `wstest` API with basic auth
+- [ ] Verify the persistent peer account (`PM_USERNAME2`) exists in the test
+      environment and log in to `pmtest` with it; document its setup and any
+      re-creation procedure in `CONTRIBUTING.md` in case EPA refreshes the
+      test environment (no real email delivery; note security questions and
+      searchability settings).
+- [ ] Confirm the peer account can call the `wstest` API with basic auth
       (used to create fixture property/meter via our own SDK instead of UI
       automation). Fallback: create fixtures through the UI with Playwright.
 - [ ] Manually walk the connect + share flows in `pmtest` against the provider
@@ -102,17 +104,17 @@ added value at this scale. Revisit if the UI-automation surface grows.
     `setupDataExchangeShare({ propertyNames, level })`, `logout()`.
   - `test/e2e/seed.ts` — orchestration helpers combining SDK + UI:
     `ensureCleanState()`, `seedConnectionRequest()`, `seedPropertyShare()`.
-- Env vars: `PM_CONSUMER_USERNAME`, `PM_CONSUMER_PASSWORD`, optional
+- Env vars: `PM_USERNAME2`, `PM_PASSWORD2` (persistent peer account), optional
   `PM_WEB_ENDPOINT` (default `https://portfoliomanager.energystar.gov/pmtest`),
   `E2E_HEADLESS` (default true), `E2E_TRACE` (save trace on failure).
 
 ### 2. Fixture & state management
 
-- Fixture setup (SDK, consumer creds against `wstest`): one property with one
+- Fixture setup (SDK, peer creds against `wstest`): one property with one
   electric meter, names prefixed `e2e-share-` + timestamp for correlation.
 - `ensureCleanState()` before each run, from the provider side (API only):
   reject all pending connections/shares, `disconnect(accountId,
-  { keepShares: false })` for the consumer account if connected. Consumer
+  { keepShares: false })` for the peer account if connected. Peer
   side: delete stale `e2e-share-*` fixture properties.
 - Extend `scripts/wipeTestEnvironment.ts` to also reject all pending
   connections/property/meter shares and disconnect all connected accounts, so
@@ -121,10 +123,10 @@ added value at this scale. Revisit if the UI-automation surface grows.
 ### 3. Integration spec
 
 `src/PortfolioManager.connectionSharing.e2e.spec.ts` (gated: skips unless
-provider + consumer creds are set), sequential lifecycle:
+provider + peer creds are set), sequential lifecycle:
 
 1. **Connection**: seed connection request via UI →
-   `getPendingConnections()` contains consumer account →
+   `getPendingConnections()` contains the peer account →
    `acceptConnection(accountId, note)` → pending list is empty.
 2. **Property share (accept)**: seed Exchange Data share of fixture property
    (bulk, Full Access) → `getPendingPropertyShares()` →
@@ -152,8 +154,7 @@ many requests), `SHAREUPDATE` notifications on permission edits.
   pattern for `*.e2e.spec.ts`); exclude `*.e2e.spec.ts` from the default
   `vitest run` so unit/CI runs stay fast and hermetic.
 - GitHub Actions: new `e2e` job/workflow.
-  - Secrets: `PM_USERNAME`, `PM_PASSWORD`, `PM_CONSUMER_USERNAME`,
-    `PM_CONSUMER_PASSWORD`.
+  - Secrets: `PM_USERNAME`, `PM_PASSWORD`, `PM_USERNAME2`, `PM_PASSWORD2`.
   - **Nightly schedule + manual dispatch**, not per-PR: the shared test
     environment is slow, rate-limited, and stateful; UI drift makes it flaky
     relative to PR signal.
@@ -182,7 +183,7 @@ many requests), `SHAREUPDATE` notifications on permission edits.
 
 ## Open questions
 
-1. Can the consumer (standard) test account call the `wstest` API for fixture
+1. Can the peer test account call the `wstest` API for fixture
    creation, or must fixtures be created through the UI? (spike)
 2. Does `pmtest` login present CAPTCHA/MFA for scripted browsers? (spike)
 3. Are Terms of Use / custom fields configured on the provider test account,
