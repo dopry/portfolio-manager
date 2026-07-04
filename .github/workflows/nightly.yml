@@ -1,0 +1,26 @@
+name: Nightly bleeding edge
+
+on:
+  schedule:
+    # Scheduled workflows run against the default branch (next).
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+jobs:
+  nightly:
+    runs-on: ubuntu-latest
+    env:
+      PM_USERNAME: ${{ secrets.PM_USERNAME }}
+      PM_PASSWORD: ${{ secrets.PM_PASSWORD }}
+      PM_USERNAME2: ${{ secrets.PM_USERNAME2 }}
+      PM_PASSWORD2: ${{ secrets.PM_PASSWORD2 }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: nightly
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+      - run: node ./dist/index.js --help # Run the CLI to ensure it works, we had some test releases where this was broken during the esm migration
+      - run: npm run test:coverage # Run tests with coverage to ensure we fail if there are uncovered lines (e.g. due to a new file missing tests)
