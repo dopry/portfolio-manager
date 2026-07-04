@@ -72,7 +72,7 @@ Safety checks in the script:
 
 ## CI and Release
 
-CircleCI is the current source of truth for the pipeline:
+GitHub Actions (`.github/workflows/ci.yml`) is the source of truth for the pipeline:
 
 1. `npm ci`
 2. `npm run typecheck`
@@ -80,7 +80,7 @@ CircleCI is the current source of truth for the pipeline:
 4. `node ./dist/index.js --help`
 5. `npm test`
 
-Release job runs `npx semantic-release` from configured release branches (`main`, `next`, and maintenance branch patterns in `package.json`).
+The release job runs `npx semantic-release` from configured release branches (`main`, `next`, and maintenance branch patterns in `package.json`), publishing to npm via trusted publishing (OIDC) — no npm token is stored in CI.
 
 ## SDK
 

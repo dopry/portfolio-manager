@@ -54,9 +54,9 @@ We optimize for early detection of upstream Portfolio Manager API changes.
 
 ## CI Source Of Truth
 
-CircleCI is the authoritative pipeline.
+GitHub Actions is the authoritative pipeline (`.github/workflows/ci.yml`).
 
-Expected order:
+The `test` job runs on every push across a Node version matrix (20, 22, `lts/*`, `latest`), in this order:
 
 1. `npm ci`
 2. `npm run typecheck`
@@ -74,11 +74,13 @@ Configured release branches (see `package.json`):
 - `next` (prerelease channel)
 - maintenance branch patterns (for example `1.x`)
 
-When CircleCI `release` job runs on an eligible branch and all checks pass, it executes:
+When the GitHub Actions `release` job runs on an eligible branch and all matrix test jobs pass, it runs the coverage gate (`npm run test:coverage`) and then executes:
 
 ```bash
 npx semantic-release
 ```
+
+Publishing uses npm trusted publishing via OIDC — no npm token is stored in CI. The trusted publisher is configured on npmjs.com for this repository and the `ci.yml` workflow.
 
 ## Release Checklist (Maintainer)
 
