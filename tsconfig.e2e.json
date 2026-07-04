@@ -1,0 +1,11 @@
+{
+  // Typechecks the e2e suite (test/e2e is outside the build tsconfig's rootDir).
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": ".",
+    "baseUrl": "."
+  },
+  "exclude": ["node_modules", "dist", "src/**/*.spec.ts"],
+  "include": ["src", "test/e2e"]
+}

@@ -131,17 +131,70 @@ async function main() {
     }
   }
 
+  // Connections and shares are seeded externally (web UI) and accumulate in
+  // the shared test account; reject all pendings so runs start from baseline.
+  const wipeNote = "wipeTestEnvironment";
+  const authorizationErrors: Array<{ action: string; id: number; error: string }> =
+    [];
+  let rejectedPropertyShares = 0;
+  let rejectedMeterShares = 0;
+  let rejectedConnections = 0;
+
+  for (const share of await pm.getPendingPropertyShares()) {
+    try {
+      await pm.rejectPropertyShare(share.propertyId, wipeNote);
+      rejectedPropertyShares++;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      authorizationErrors.push({
+        action: "rejectPropertyShare",
+        id: share.propertyId,
+        error: message,
+      });
+    }
+  }
+  for (const share of await pm.getPendingMeterShares()) {
+    try {
+      await pm.rejectMeterShare(share.id, wipeNote);
+      rejectedMeterShares++;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      authorizationErrors.push({
+        action: "rejectMeterShare",
+        id: share.id,
+        error: message,
+      });
+    }
+  }
+  for (const connection of await pm.getPendingConnections()) {
+    try {
+      await pm.rejectConnection(connection.accountId, wipeNote);
+      rejectedConnections++;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      authorizationErrors.push({
+        action: "rejectConnection",
+        id: connection.accountId,
+        error: message,
+      });
+    }
+  }
+
   const summary = {
     endpoint: args.endpoint,
     accountId,
     discoveredProperties: uniquePropertyIds.length,
     deletedProperties,
     propertyDeleteErrors,
+    rejectedConnections,
+    rejectedPropertyShares,
+    rejectedMeterShares,
+    authorizationErrors,
   };
 
   console.log(JSON.stringify(summary, null, 2));
 
-  if (propertyDeleteErrors.length > 0) {
+  if (propertyDeleteErrors.length > 0 || authorizationErrors.length > 0) {
     process.exitCode = 1;
   }
 }

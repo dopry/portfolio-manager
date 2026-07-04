@@ -10,8 +10,10 @@ Thanks for contributing to `portfolio-manager`.
 
 Environment variables used by tests:
 
-- `PM_USERNAME` (required)
+- `PM_USERNAME` (required) — web services provider test account (the account under test)
 - `PM_PASSWORD` (required)
+- `PM_USERNAME2` (e2e only) — persistent peer test account that initiates connections/shares
+- `PM_PASSWORD2` (e2e only)
 
 ## Local Workflow
 
@@ -51,6 +53,37 @@ We optimize for early detection of upstream Portfolio Manager API changes.
 - `npm test` is expected to run live API tests by default.
 - Test endpoint is fixed to `https://portfoliomanager.energystar.gov/wstest/`.
 - Required environment variables: `PM_USERNAME` and `PM_PASSWORD`.
+
+## End-to-End Connection & Sharing Tests
+
+ESPM's web services API cannot initiate connection or share requests — a
+standard user must do that through the web UI. The e2e suite
+(`test/e2e/`) drives the **peer account** (`PM_USERNAME2`/`PM_PASSWORD2`)
+through the test web UI (`https://portfoliomanager.energystar.gov/pmtest`)
+with Playwright to seed those requests, then exercises the SDK as the
+**provider account** (`PM_USERNAME`/`PM_PASSWORD`) against `wstest` to
+accept, verify, and clean up. Design and rationale live in
+`plans/connection-sharing-e2e-tests.md`.
+
+```bash
+npx playwright install chromium   # one-time browser download
+npm run typecheck:e2e
+npm run test:e2e
+```
+
+Notes:
+
+- The suite is excluded from `npm test`; it runs nightly in CI
+  (`.github/workflows/e2e.yml`) and serializes on the shared test accounts.
+- The peer account is a persistent, standard (non-provider) account in the
+  test environment. If EPA refreshes the test environment, recreate it via
+  the `pmtest` UI, make it searchable (Account Settings → Your Preferences),
+  and update the `PM_USERNAME2`/`PM_PASSWORD2` secrets.
+- Set `E2E_HEADLESS=false` to watch the browser locally; failed runs write
+  Playwright traces to `test-results/e2e/` (inspect with
+  `npx playwright show-trace <file>.zip`).
+- UI locators live only in `test/e2e/EspmWebUi.ts`; when the ESPM UI changes,
+  that file is the single place to fix.
 
 ## CI Source Of Truth
 
