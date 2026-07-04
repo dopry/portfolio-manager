@@ -75,24 +75,24 @@ added value at this scale. Revisit if the UI-automation surface grows.
 
 ## Work breakdown
 
-### 0. Spike / validate assumptions (do first, ~half day)
+### 0. Spike / validate assumptions — DONE (validated live 2026-07-04)
 
-- [ ] Verify the persistent peer account (`PM_USERNAME2`) exists in the test
-      environment and log in to `pmtest` with it; document its setup and any
-      re-creation procedure in `CONTRIBUTING.md` in case EPA refreshes the
-      test environment (no real email delivery; note security questions and
-      searchability settings).
-- [ ] Confirm the peer account can call the `wstest` API with basic auth
-      (used to create fixture property/meter via our own SDK instead of UI
-      automation). Fallback: create fixtures through the UI with Playwright.
-- [ ] Manually walk the connect + share flows in `pmtest` against the provider
-      account; capture selectors/labels and screenshots for the page objects.
-- [ ] Check for automation blockers on `pmtest` login: CAPTCHA, MFA, WAF
-      (Akamai) challenges, session idle timeouts. If login is blocked
-      headless, test headed/persistent-context; worst case, document a manual
-      seeding procedure and keep the API-side tests gated on pre-seeded state.
-- [ ] Confirm whether the provider account has Terms of Use / required custom
-      fields configured (changes the connect dialog the seeder must handle).
+- [x] Peer account (`PM_USERNAME2`) exists and logs in to `pmtest`.
+- [x] Peer account can call the `wstest` API with basic auth — fixtures are
+      created via the SDK (`ensureStandardProperties`/`ensureStandardMeterFixture`).
+- [x] Connect + share flows walked with `test/e2e/probe.ts`; selectors
+      captured in `test/e2e/EspmWebUi.ts`. Notable findings: pages hang on
+      the `load` event (wait for `domcontentloaded`), page content renders
+      via JS after load, contacts live at `/contact/list` (not `/contacts`),
+      and the share flow is an Angular app (`wsBulkSharing`,
+      `#modalDialogSelectProperties`).
+- [x] No CAPTCHA, MFA, or WAF blockers for headless Chromium login.
+- [x] Provider account had no Terms of Use / custom fields (no agreement
+      checkbox rendered). **Gotcha found:** the provider account was not
+      *searchable*, so the peer's contact search returned zero results.
+      Fixed via `npx tsx test/e2e/probe.ts provider-settings
+      --make-searchable` — a persistent account setting, re-apply after an
+      EPA test-environment refresh.
 
 ### 1. Dependencies & scaffolding
 

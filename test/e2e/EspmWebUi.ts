@@ -56,6 +56,9 @@ export class EspmWebUi {
     this.browser = await chromium.launch({ headless: this.headless });
     this.context = await this.browser.newContext();
     this.context.setDefaultTimeout(this.actionTimeoutMs);
+    // pmtest pages regularly stall on slow subresources; navigation waits for
+    // domcontentloaded (see goto below) but still needs generous headroom.
+    this.context.setDefaultNavigationTimeout(this.actionTimeoutMs * 2);
     if (this.traceDir) {
       await this.context.tracing.start({ screenshots: true, snapshots: true });
     }
@@ -84,10 +87,19 @@ export class EspmWebUi {
     this._page = undefined;
   }
 
+  /**
+   * Navigates waiting only for domcontentloaded: pmtest pages routinely
+   * stall on slow subresources, so waiting for the full load event times out
+   * even though the page is usable.
+   */
+  private async goto(url: string): Promise<void> {
+    await this.page.goto(url, { waitUntil: "domcontentloaded" });
+  }
+
   /** Logs in to the Portfolio Manager web UI. */
   async login(username: string, password: string): Promise<void> {
     const page = this.page;
-    await page.goto(`${this.baseUrl}/login`);
+    await this.goto(`${this.baseUrl}/login`);
     await page
       .locator('input[name="username"], #username')
       .first()
@@ -116,18 +128,15 @@ export class EspmWebUi {
    */
   async sendConnectionRequest(providerUsername: string): Promise<void> {
     const page = this.page;
-    await page.goto(`${this.baseUrl}/contacts`);
+    await this.goto(`${this.baseUrl}/contact/list`);
     await page
-      .getByRole("link", { name: /add (new )?contacts?/i })
-      .or(page.getByRole("button", { name: /add (new )?contacts?/i }))
+      .getByRole("button", { name: /add new contacts/i })
       .first()
       .click();
 
-    await page
-      .locator('input[name*="username" i], input[id*="username" i]')
-      .first()
-      .fill(providerUsername);
-    await page.getByRole("button", { name: /search/i }).first().click();
+    // "Connect with an Existing User for Sharing" search form.
+    await page.locator("#searchContactUsername").fill(providerUsername);
+    await page.getByRole("button", { name: /^search$/i }).first().click();
 
     // Connect from the search-result row for the provider account.
     const resultRow = page
@@ -139,15 +148,17 @@ export class EspmWebUi {
       .first()
       .click();
 
-    // Providers may configure Terms of Use that must be acknowledged.
-    const agreement = page.locator('input[type="checkbox"]');
-    if (await agreement.count()) {
+    // Lands on /dataexchange/sendConnectionRequest. The Terms of Use
+    // agreement checkbox only renders when the provider configured terms.
+    const agreement = page.locator('input[id^="agreement-checkbox"]');
+    if ((await agreement.count()) && (await agreement.first().isVisible())) {
       await agreement.first().check();
     }
     await page
       .getByRole("button", { name: /send connection request/i })
       .first()
       .click();
+    await page.waitForLoadState("domcontentloaded");
   }
 
   /**
@@ -163,7 +174,7 @@ export class EspmWebUi {
     accessLevel: ExchangeDataAccessLevel;
   }): Promise<void> {
     const page = this.page;
-    await page.goto(`${this.baseUrl}/sharing`);
+    await this.goto(`${this.baseUrl}/sharing`);
     await page
       .getByRole("link", {
         name: /set up web services|share .*data exchange|exchanging data/i,
@@ -186,36 +197,39 @@ export class EspmWebUi {
     }
     await providerSelect.selectOption(providerOption);
 
-    // 2. Select Properties — opens a picker dialog.
-    await page
-      .getByRole("button", { name: /select properties/i })
-      .or(page.getByRole("link", { name: /select properties/i }))
-      .first()
-      .click();
+    // 2. Select Properties — opens the Angular picker dialog.
+    await page.locator("#buttonSelectProperties").click();
+    const dialog = page.locator("#modalDialogSelectProperties");
+    await dialog.waitFor({ state: "visible" });
     for (const propertyName of options.propertyNames) {
-      await page
-        .locator("tr", { hasText: propertyName })
+      await dialog
+        .locator("#modalDialogSelectPropertiesTable tbody tr", {
+          hasText: propertyName,
+        })
         .locator('input[type="checkbox"]')
         .first()
         .check();
     }
-    await page
-      .getByRole("button", { name: /apply selection/i })
+    await dialog
+      .getByText(/apply selection/i)
       .first()
       .click();
+    await dialog.waitFor({ state: "hidden" });
 
     // 3. Choose Permissions — bulk exchange-data access for everything.
+    await page.locator('input[name="bulk"][value="yes"]').check();
+    const accessValue =
+      options.accessLevel === "Full Access" ? "FULL_ACCESS" : "READ_ONLY";
     await page
-      .getByText(
-        new RegExp(`exchange data ${options.accessLevel}`.replace(/ /g, "\\s+"), "i")
-      )
-      .first()
-      .click();
+      .locator(`input[name="accessLevel"][value="${accessValue}"]`)
+      .check();
 
-    // 4. Send the sharing request.
+    // 4. Send the sharing request. The button label flips between
+    // "Authorize Exchange" (bulk) and "Set Permissions" (personalized).
     await page
-      .getByRole("button", { name: /authorize exchange/i })
+      .locator("button", { hasText: /authorize exchange/i })
       .first()
       .click();
+    await page.waitForLoadState("domcontentloaded");
   }
 }

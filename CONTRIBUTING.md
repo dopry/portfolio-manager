@@ -77,8 +77,16 @@ Notes:
   (`.github/workflows/e2e.yml`) and serializes on the shared test accounts.
 - The peer account is a persistent, standard (non-provider) account in the
   test environment. If EPA refreshes the test environment, recreate it via
-  the `pmtest` UI, make it searchable (Account Settings → Your Preferences),
-  and update the `PM_USERNAME2`/`PM_PASSWORD2` secrets.
+  the `pmtest` UI and update the `PM_USERNAME2`/`PM_PASSWORD2` secrets.
+- The **provider** account must be searchable or the peer's contact search
+  finds nothing (Account Settings → Your Preferences → "Do you want your
+  username to be searchable..." → Yes). Already enabled; after an EPA test
+  environment refresh, re-apply with
+  `npx tsx test/e2e/probe.ts provider-settings --make-searchable`.
+- `test/e2e/probe.ts` is a selector-maintenance tool: it logs in and dumps
+  page structure (links, controls, dialogs) for each step of the flows, e.g.
+  `npx tsx test/e2e/probe.ts contacts|add|connect|sharing|wsshare`. Use it
+  to revalidate locators when the ESPM UI changes.
 - Set `E2E_HEADLESS=false` to watch the browser locally; failed runs write
   Playwright traces to `test-results/e2e/` (inspect with
   `npx playwright show-trace <file>.zip`).

@@ -68,6 +68,11 @@ describe("Connection & Sharing (e2e)", () => {
         await fn();
       } catch (error) {
         failed = true;
+        try {
+          console.error(`step '${name}' failed with UI at ${ui.page.url()}`);
+        } catch {
+          // Browser already closed; the original error is what matters.
+        }
         throw error;
       }
     });
