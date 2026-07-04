@@ -26,6 +26,10 @@
   "author": {
     "name": "Darrel O'Pry"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dopry/portfolio-manager.git"
+  },
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^25.3.5",
