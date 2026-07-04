@@ -1,4 +1,9 @@
-import { IProperty, IResponse, PropertyMetrics } from "../xml/index.js";
+import {
+  IProperty,
+  IResponse,
+  PropertyMetrics,
+  IPendingPropertyList,
+} from "../xml/index.js";
 import { IParsedXml } from "./IParsedXML.js";
 
 export interface IPropertyPropertyGetResponse extends IParsedXml {
@@ -34,4 +39,8 @@ export interface IPropertyMetricsMonthlyGetResponse extends IParsedXml {
 
 export interface ICreateSamplePropertiesPostResponse extends IParsedXml {
   response: IResponse;
+}
+
+export interface IGetPendingPropertySharesResponse extends IParsedXml {
+  pendingList: IPendingPropertyList;
 }
