@@ -14,8 +14,14 @@
  *   sharing           Sharing tab
  *   wsshare           accept pending connection as provider (SDK), then dump
  *                     the data-exchange share flow incl. property picker
+ *   doshare           perform the full data-exchange share flow (requires a
+ *                     live connection) with viewmodel/network instrumentation;
+ *                     E2E_PROPERTY_NAME overrides the property to share
  *   provider-settings account settings as the PROVIDER account; add
  *                     --make-searchable to enable username searchability
+ *
+ * See also test/e2e/state.ts to dump the provider-side pending/connected
+ * state via the SDK.
  */
 import { EspmWebUi } from "./EspmWebUi.js";
 
