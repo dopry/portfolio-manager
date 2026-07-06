@@ -10,9 +10,10 @@ export default defineConfig({
     testTimeout: 300000,
     hookTimeout: 300000,
     fileParallelism: false,
-    // Lifecycle steps share state (connect -> share -> accept -> teardown),
-    // so a failed step must fail the rest instead of running against a
-    // half-torn-down environment.
+    // Lifecycle steps share state (connect -> share -> accept -> teardown):
+    // run them serially and stop at the first failure so later steps don't
+    // execute (and fail noisily) against a half-torn-down environment.
     sequence: { concurrent: false },
+    bail: 1,
   },
 });

@@ -1,4 +1,4 @@
-import { Browser, BrowserContext, Page, chromium } from "playwright";
+import { Browser, BrowserContext, Page, chromium, errors } from "playwright";
 
 /**
  * Page-object wrapper around the ENERGY STAR Portfolio Manager test web UI
@@ -244,7 +244,10 @@ export class EspmWebUi {
         (r) => r.url().includes("/wsBulkSharing/authorizeExchange.json"),
         { timeout: 180000 }
       )
-      .catch(() => undefined);
+      .catch((error) => {
+        if (error instanceof errors.TimeoutError) return undefined;
+        throw error;
+      });
     await page
       .locator("button", { hasText: /authorize exchange/i })
       .first()
