@@ -974,7 +974,11 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       const pending = retryApi.fetch<{ response: { status: string } }>(
         "property/6"
       );
-      await vi.advanceTimersByTimeAsync(1000);
+      // The header delay (1s) supersedes the 1ms backoff: just before it
+      // elapses the retry must not have fired yet.
+      await vi.advanceTimersByTimeAsync(999);
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      await vi.advanceTimersByTimeAsync(1);
       const result = await pending;
       expect(result.response.status).to.equal("Ok");
       expect(fetchMock).toHaveBeenCalledTimes(2);
