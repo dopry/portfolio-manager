@@ -1,9 +1,21 @@
 /**
- * Selector-maintenance probe for the pmtest web UI. Logs in as the peer
- * account and dumps link/form structure for the page named on the CLI, so
- * EspmWebUi locators can be validated without guessing.
+ * Selector-maintenance probe for the pmtest web UI. Logs in and dumps
+ * link/form structure for the flow step named on the CLI, so EspmWebUi
+ * locators can be validated without guessing.
  *
- *   npx tsx test/e2e/probe.ts home|contacts|add|sharing|wsshare
+ *   npx tsx test/e2e/probe.ts <target>
+ *
+ * Targets (peer account unless noted):
+ *   home              landing page after login
+ *   contacts          contact book
+ *   add               contact book -> Add Contact form
+ *   connect           search for the provider, stop on the request page
+ *   sendconnect       actually send a connection request to the provider
+ *   sharing           Sharing tab
+ *   wsshare           accept pending connection as provider (SDK), then dump
+ *                     the data-exchange share flow incl. property picker
+ *   provider-settings account settings as the PROVIDER account; add
+ *                     --make-searchable to enable username searchability
  */
 import { EspmWebUi } from "./EspmWebUi.js";
 
@@ -15,6 +27,12 @@ const username =
 const password =
   (asProvider ? process.env.PM_PASSWORD : process.env.PM_PASSWORD2) || "";
 if (!username || !password) throw new Error("Set PM_USERNAME(2)/PM_PASSWORD(2)");
+
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) throw new Error(`Set ${name} for the '${target}' target`);
+  return value;
+}
 
 const ui = new EspmWebUi({ headless: process.env.E2E_HEADLESS !== "false" });
 
@@ -87,7 +105,7 @@ try {
       await dump("add contact");
     }
   } else if (target === "connect") {
-    const providerUsername = process.env.PM_USERNAME || "";
+    const providerUsername = requireEnv("PM_USERNAME");
     await page.goto(`${ui.baseUrl}/contact/list`, {
       waitUntil: "domcontentloaded",
     });
@@ -109,7 +127,7 @@ try {
       .click();
     await dump("connection request page");
   } else if (target === "sendconnect") {
-    await ui.sendConnectionRequest(process.env.PM_USERNAME || "");
+    await ui.sendConnectionRequest(requireEnv("PM_USERNAME"));
     await dump("after send connection request");
   } else if (target === "provider-settings") {
     await page
@@ -160,8 +178,8 @@ try {
       const provider = new PortfolioManager(
         new PortfolioManagerApi(
           "https://portfoliomanager.energystar.gov/wstest/",
-          process.env.PM_USERNAME || "",
-          process.env.PM_PASSWORD || ""
+          requireEnv("PM_USERNAME"),
+          requireEnv("PM_PASSWORD")
         )
       );
       const pending = (await provider.getPendingConnections()).find(

@@ -108,10 +108,11 @@ export async function ensurePeerFixtures(
 }
 
 /**
- * Returns the provider account to a known baseline with respect to the peer:
- * rejects any pending connection/share requests from the peer and drops an
- * existing connection (removing shares). Scoped to the peer account so other
- * pending requests in the shared test environment are left alone.
+ * Rejects any pending connection/share requests from the peer, scoped to the
+ * peer account so other pending requests in the shared test environment are
+ * left alone. An already-accepted connection is dropped separately via
+ * disconnectIfConnected (it needs the peer's account id, which pending lists
+ * don't provide once accepted).
  */
 export async function ensureCleanProviderState(
   provider: PortfolioManager,

@@ -9,10 +9,9 @@ import { Browser, BrowserContext, Page, chromium } from "playwright";
  * "Connection and Sharing Guidance for Providers" and "How to Share
  * Properties" documents — see plans/connection-sharing-e2e-tests.md.
  *
- * NOTE: Locators are written from EPA's documentation of the UI (button and
- * link labels) and still need a validation pass against the live pmtest UI
- * (plan spike item). Keep every selector in this file so drift is a
- * single-file fix.
+ * Locators were validated against the live pmtest UI on 2026-07-04 using
+ * test/e2e/probe.ts — rerun that tool to revalidate when the ESPM UI drifts.
+ * Keep every selector in this file so drift is a single-file fix.
  */
 
 export const DEFAULT_WEB_UI_URL =
@@ -186,16 +185,21 @@ export class EspmWebUi {
     // Option labels look like "Org Name (username)", so resolve the option
     // whose text contains the username instead of matching the label exactly.
     const providerSelect = page.locator("select").first();
-    const providerOption = await providerSelect
+    const providerOption = providerSelect
       .locator("option", { hasText: options.providerUsername })
-      .first()
-      .getAttribute("value");
-    if (providerOption === null) {
+      .first();
+    try {
+      await providerOption.waitFor({ state: "attached" });
+    } catch {
       throw new Error(
-        `No connected web services provider option matching '${options.providerUsername}'`
+        `No connected web services provider option matching '${options.providerUsername}' — is the connection accepted?`
       );
     }
-    await providerSelect.selectOption(providerOption);
+    await providerSelect.selectOption(
+      (await providerOption.getAttribute("value")) ?? {
+        label: (await providerOption.innerText()).trim(),
+      }
+    );
 
     // 2. Select Properties — opens the Angular picker dialog.
     await page.locator("#buttonSelectProperties").click();

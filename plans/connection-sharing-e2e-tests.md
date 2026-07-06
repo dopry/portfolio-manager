@@ -122,8 +122,9 @@ added value at this scale. Revisit if the UI-automation surface grows.
 
 ### 3. Integration spec
 
-`src/PortfolioManager.connectionSharing.e2e.spec.ts` (gated: skips unless
-provider + peer creds are set), sequential lifecycle:
+`test/e2e/connectionSharing.e2e.spec.ts` (run only via `npm run test:e2e`;
+fails fast with a clear error unless provider + peer creds are set, matching
+the repo's live-test convention), sequential lifecycle:
 
 1. **Connection**: seed connection request via UI →
    `getPendingConnections()` contains the peer account →
