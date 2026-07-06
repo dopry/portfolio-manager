@@ -98,24 +98,30 @@ added value at this scale. Revisit if the UI-automation surface grows.
 
 - Add `playwright` to `devDependencies`; add `npx playwright install
   chromium` to CI and CONTRIBUTING setup notes.
-- New directory `test/e2e/`:
+- New directory `test/e2e/` (as built):
   - `test/e2e/EspmWebUi.ts` — page-object style helper around a Playwright
     `Page`: `login()`, `sendConnectionRequest(providerUsername)`,
-    `setupDataExchangeShare({ propertyNames, level })`, `logout()`.
-  - `test/e2e/seed.ts` — orchestration helpers combining SDK + UI:
-    `ensureCleanState()`, `seedConnectionRequest()`, `seedPropertyShare()`.
+    `setupDataExchangeShare({ propertyNames, accessLevel })`, `close()`.
+  - `test/e2e/support.ts` — env config plus orchestration helpers combining
+    SDK + UI: `ensureCleanProviderState()`, `disconnectIfConnected()`,
+    `ensurePeerFixtures()`, `waitFor()`.
+  - `test/e2e/probe.ts` / `test/e2e/state.ts` — selector-maintenance and
+    pending-state debug utilities.
 - Env vars: `PM_USERNAME2`, `PM_PASSWORD2` (persistent peer account), optional
   `PM_WEB_ENDPOINT` (default `https://portfoliomanager.energystar.gov/pmtest`),
-  `E2E_HEADLESS` (default true), `E2E_TRACE` (save trace on failure).
+  `E2E_HEADLESS` (default true), `E2E_TRACE_DIR` (trace output directory,
+  default `test-results/e2e`; traces are written on failure).
 
 ### 2. Fixture & state management
 
 - Fixture setup (SDK, peer creds against `wstest`): one property with one
-  electric meter, names prefixed `e2e-share-` + timestamp for correlation.
-- `ensureCleanState()` before each run, from the provider side (API only):
-  reject all pending connections/shares, `disconnect(accountId,
-  { keepShares: false })` for the peer account if connected. Peer
-  side: delete stale `e2e-share-*` fixture properties.
+  electric meter, fixed names (`E2E Share Fixture Property` / `E2E Share
+  Fixture Meter`) reused idempotently across runs via the `ensure*` helpers;
+  correlation happens through timestamped notes on accept/reject calls.
+- Clean state before each run, from the provider side (API only):
+  `ensureCleanProviderState()` rejects pending connections/shares from the
+  peer, and `disconnectIfConnected()` drops an established connection with
+  `keepShares: false`.
 - Extend `scripts/wipeTestEnvironment.ts` to also reject all pending
   connections/property/meter shares and disconnect all connected accounts, so
   `wipe:test-environment` returns the provider account to baseline.

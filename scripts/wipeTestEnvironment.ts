@@ -180,6 +180,21 @@ async function main() {
     }
   }
 
+  let disconnectedAccounts = 0;
+  for (const customer of await pm.getCustomerList()) {
+    try {
+      await pm.disconnect(customer.id, { keepShares: false, note: wipeNote });
+      disconnectedAccounts++;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      rejectErrors.push({
+        action: "disconnect",
+        id: customer.id,
+        error: message,
+      });
+    }
+  }
+
   const summary = {
     endpoint: args.endpoint,
     accountId,
@@ -189,6 +204,7 @@ async function main() {
     rejectedConnections,
     rejectedPropertyShares,
     rejectedMeterShares,
+    disconnectedAccounts,
     rejectErrors,
   };
 
