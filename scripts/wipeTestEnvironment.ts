@@ -134,7 +134,7 @@ async function main() {
   // Connections and shares are seeded externally (web UI) and accumulate in
   // the shared test account; reject all pendings so runs start from baseline.
   const wipeNote = "wipeTestEnvironment";
-  const authorizationErrors: Array<{ action: string; id: number; error: string }> =
+  const rejectErrors: Array<{ action: string; id: number; error: string }> =
     [];
   let rejectedPropertyShares = 0;
   let rejectedMeterShares = 0;
@@ -146,7 +146,7 @@ async function main() {
       rejectedPropertyShares++;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      authorizationErrors.push({
+      rejectErrors.push({
         action: "rejectPropertyShare",
         id: share.propertyId,
         error: message,
@@ -159,7 +159,7 @@ async function main() {
       rejectedMeterShares++;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      authorizationErrors.push({
+      rejectErrors.push({
         action: "rejectMeterShare",
         id: share.id,
         error: message,
@@ -172,7 +172,7 @@ async function main() {
       rejectedConnections++;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      authorizationErrors.push({
+      rejectErrors.push({
         action: "rejectConnection",
         id: connection.accountId,
         error: message,
@@ -189,12 +189,12 @@ async function main() {
     rejectedConnections,
     rejectedPropertyShares,
     rejectedMeterShares,
-    authorizationErrors,
+    rejectErrors,
   };
 
   console.log(JSON.stringify(summary, null, 2));
 
-  if (propertyDeleteErrors.length > 0 || authorizationErrors.length > 0) {
+  if (propertyDeleteErrors.length > 0 || rejectErrors.length > 0) {
     process.exitCode = 1;
   }
 }

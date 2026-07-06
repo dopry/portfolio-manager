@@ -177,10 +177,16 @@ describe("Connection & Sharing (e2e)", () => {
   });
 
   step("disconnect returns the accounts to baseline", async () => {
+    const connectedBefore = await provider.pm.getCustomerList();
+    expect(connectedBefore.map((c) => c.id)).toContain(peerAccountId);
+
     await provider.pm.disconnect(peerAccountId, {
       keepShares: false,
       note: "e2e disconnect",
     });
+
+    const connectedAfter = await provider.pm.getCustomerList();
+    expect(connectedAfter.map((c) => c.id)).not.toContain(peerAccountId);
 
     const pendingConnections = await provider.pm.getPendingConnections();
     expect(
