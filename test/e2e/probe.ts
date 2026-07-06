@@ -264,9 +264,10 @@ try {
         }))
     );
     console.log("authorize buttons:", JSON.stringify(authorizeButtons, null, 1));
+    // Log only — EspmWebUi.launch() already registers an accepting handler,
+    // and a second accept() would reject with "dialog is already handled".
     page.on("dialog", (d) => {
       console.log(`DIALOG type=${d.type()} message=${d.message()}`);
-      void d.accept();
     });
     page.on("response", (r) => {
       if (r.request().method() === "POST") {
