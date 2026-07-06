@@ -1,0 +1,45 @@
+name: E2E
+
+# Connection/sharing lifecycle against the shared ESPM test environment.
+# Runs nightly (and on demand) rather than per-PR: the suite drives the
+# pmtest web UI with Playwright, mutates shared stateful test accounts, and
+# is subject to upstream UI drift — see plans/connection-sharing-e2e-tests.md.
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+# The provider/peer test accounts are a shared singleton; runs must serialize.
+concurrency:
+  group: espm-test-env
+  cancel-in-progress: false
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    env:
+      PM_USERNAME: ${{ secrets.PM_USERNAME }}
+      PM_PASSWORD: ${{ secrets.PM_PASSWORD }}
+      PM_USERNAME2: ${{ secrets.PM_USERNAME2 }}
+      PM_PASSWORD2: ${{ secrets.PM_PASSWORD2 }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: lts/*
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run typecheck:e2e
+      - run: npm run test:e2e
+      # Tracing starts after login (EspmWebUi), so no credentials appear in
+      # these artifacts; residual content is post-auth pages/session data for
+      # throwaway test-environment accounts.
+      - name: Upload Playwright traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-traces
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 14

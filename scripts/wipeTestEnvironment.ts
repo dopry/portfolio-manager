@@ -131,17 +131,86 @@ async function main() {
     }
   }
 
+  // Connections and shares are seeded externally (web UI) and accumulate in
+  // the shared test account; reject all pendings so runs start from baseline.
+  const wipeNote = "wipeTestEnvironment";
+  const rejectErrors: Array<{ action: string; id: number; error: string }> =
+    [];
+  let rejectedPropertyShares = 0;
+  let rejectedMeterShares = 0;
+  let rejectedConnections = 0;
+
+  for (const share of await pm.getPendingPropertyShares()) {
+    try {
+      await pm.rejectPropertyShare(share.propertyId, wipeNote);
+      rejectedPropertyShares++;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      rejectErrors.push({
+        action: "rejectPropertyShare",
+        id: share.propertyId,
+        error: message,
+      });
+    }
+  }
+  for (const share of await pm.getPendingMeterShares()) {
+    try {
+      await pm.rejectMeterShare(share.id, wipeNote);
+      rejectedMeterShares++;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      rejectErrors.push({
+        action: "rejectMeterShare",
+        id: share.id,
+        error: message,
+      });
+    }
+  }
+  for (const connection of await pm.getPendingConnections()) {
+    try {
+      await pm.rejectConnection(connection.accountId, wipeNote);
+      rejectedConnections++;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      rejectErrors.push({
+        action: "rejectConnection",
+        id: connection.accountId,
+        error: message,
+      });
+    }
+  }
+
+  let disconnectedAccounts = 0;
+  for (const customer of await pm.getCustomerList()) {
+    try {
+      await pm.disconnect(customer.id, { keepShares: false, note: wipeNote });
+      disconnectedAccounts++;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      rejectErrors.push({
+        action: "disconnect",
+        id: customer.id,
+        error: message,
+      });
+    }
+  }
+
   const summary = {
     endpoint: args.endpoint,
     accountId,
     discoveredProperties: uniquePropertyIds.length,
     deletedProperties,
     propertyDeleteErrors,
+    rejectedConnections,
+    rejectedPropertyShares,
+    rejectedMeterShares,
+    disconnectedAccounts,
+    rejectErrors,
   };
 
   console.log(JSON.stringify(summary, null, 2));
 
-  if (propertyDeleteErrors.length > 0) {
+  if (propertyDeleteErrors.length > 0 || rejectErrors.length > 0) {
     process.exitCode = 1;
   }
 }
