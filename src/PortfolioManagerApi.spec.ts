@@ -1,5 +1,6 @@
 import { XMLParser } from "fast-xml-parser";
 import fetch, { Response } from "node-fetch";
+import { Readable } from "node:stream";
 import {
   afterAll,
   afterEach,
@@ -1002,6 +1003,32 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     });
     // initial request + maxRetries retries
     expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+
+  it("fetch does not retry 429 responses when the body is not replayable", async () => {
+    const retryApi = new PortfolioManagerApi(
+      "https://example.test/",
+      "test-user",
+      "test-pass",
+      { maxRetries: 2, retryBaseDelayMs: 1 }
+    );
+    const fetchMock = vi.mocked(fetch).mockResolvedValue(
+      new Response("<response status='Error' />", {
+        status: 429,
+        statusText: "Too Many Requests",
+      })
+    );
+
+    await expect(
+      retryApi.fetch("property/8", {
+        method: "POST",
+        body: Readable.from(["<property />"]),
+      })
+    ).rejects.toMatchObject({
+      status: 429,
+      statusText: "Too Many Requests",
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it("fetch omits auth header for POST account and includes it otherwise", async () => {

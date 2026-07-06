@@ -189,10 +189,12 @@ export class PortfolioManagerApi {
     let response = await fetch(url, init);
 
     // Retrying is safe even for POST/PUT: a rate-limited request is rejected
-    // before it is processed. Request bodies are strings, so they can be resent.
+    // before it is processed. Only requests with replayable (string or empty)
+    // bodies are retried; a consumed stream body cannot be resent.
+    const isReplayable = init.body == null || typeof init.body === "string";
     for (
       let attempt = 0;
-      response.status === 429 && attempt < this.maxRetries;
+      isReplayable && response.status === 429 && attempt < this.maxRetries;
       attempt++
     ) {
       const delay = this.retryDelayMs(response, attempt);
