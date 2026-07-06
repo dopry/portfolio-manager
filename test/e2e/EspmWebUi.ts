@@ -58,9 +58,6 @@ export class EspmWebUi {
     // pmtest pages regularly stall on slow subresources; navigation waits for
     // domcontentloaded (see goto below) but still needs generous headroom.
     this.context.setDefaultNavigationTimeout(this.actionTimeoutMs * 2);
-    if (this.traceDir) {
-      await this.context.tracing.start({ screenshots: true, snapshots: true });
-    }
     this._page = await this.context.newPage();
     // ESPM uses native confirm() dialogs (e.g. re-sharing when the contact
     // already had access). Playwright dismisses dialogs by default, which
@@ -125,6 +122,13 @@ export class EspmWebUi {
       .getByRole("link", { name: /myportfolio/i })
       .first()
       .waitFor({ state: "visible" });
+
+    // Tracing starts only after authentication so credentials never appear
+    // in trace snapshots — traces are uploaded as CI artifacts, which are
+    // publicly downloadable on a public repository.
+    if (this.traceDir && this.context) {
+      await this.context.tracing.start({ screenshots: true, snapshots: true });
+    }
   }
 
   /**

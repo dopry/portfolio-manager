@@ -32,6 +32,9 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run typecheck:e2e
       - run: npm run test:e2e
+      # Tracing starts after login (EspmWebUi), so no credentials appear in
+      # these artifacts; residual content is post-auth pages/session data for
+      # throwaway test-environment accounts.
       - name: Upload Playwright traces
         if: failure()
         uses: actions/upload-artifact@v4
