@@ -204,6 +204,9 @@ export class PortfolioManagerApi {
       attempt++
     ) {
       const delay = this.retryDelayMs(response, attempt);
+      // Drain the throttled response before discarding it so node-fetch can
+      // release the underlying socket.
+      await response.text();
       await new Promise((resolve) => setTimeout(resolve, delay));
       response = await fetch(url, init);
     }

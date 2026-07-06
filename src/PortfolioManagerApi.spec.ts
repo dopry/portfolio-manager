@@ -1063,11 +1063,12 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       "test-pass",
       { maxRetries: 2, retryBaseDelayMs: 1 }
     );
-    const fetchMock = vi.mocked(fetch).mockResolvedValue(
-      new Response("<response status='Error' />", {
-        status: 429,
-        statusText: "Too Many Requests",
-      })
+    const fetchMock = vi.mocked(fetch).mockImplementation(
+      async () =>
+        new Response("<response status='Error' />", {
+          status: 429,
+          statusText: "Too Many Requests",
+        })
     );
 
     await expect(retryApi.fetch("property/7")).rejects.toMatchObject({
