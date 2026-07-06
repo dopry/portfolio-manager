@@ -171,7 +171,10 @@ try {
       .locator("option", { hasText: requireEnv("PM_USERNAME") })
       .first();
     await opt.waitFor({ state: "attached" });
-    await providerSelect.selectOption((await opt.getAttribute("value")) || "");
+    const optValue = await opt.getAttribute("value");
+    await providerSelect.selectOption(
+      optValue ? optValue : { label: (await opt.innerText()).trim() }
+    );
     await page.locator("#buttonSelectProperties").click();
     const dialog = page.locator("#modalDialogSelectProperties");
     await dialog.waitFor({ state: "visible" });
