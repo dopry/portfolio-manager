@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { PortfolioManagerApiError } from "../../src/PortfolioManagerApi.js";
 import { EspmWebUi } from "./EspmWebUi.js";
 import {
   createClient,
@@ -67,6 +68,22 @@ describe("Connection & Sharing (e2e)", () => {
       // Shared test environment: never mask a test failure with cleanup noise.
     }
   });
+
+  /**
+   * Asserts the call fails specifically because access is revoked (ESPM
+   * answers 403 Access Denied, occasionally 404), so transient failures
+   * (5xx, network) don't masquerade as successful revocation.
+   */
+  async function expectNoAccess(promise: Promise<unknown>): Promise<void> {
+    try {
+      await promise;
+    } catch (error) {
+      expect(error).toBeInstanceOf(PortfolioManagerApiError);
+      expect([403, 404]).toContain((error as PortfolioManagerApiError).status);
+      return;
+    }
+    throw new Error("Expected access to be revoked, but the call succeeded");
+  }
 
   function step(name: string, fn: () => Promise<void>): void {
     it(name, async () => {
@@ -153,9 +170,7 @@ describe("Connection & Sharing (e2e)", () => {
     await provider.pm.unshareMeter(fixture.meterId, "e2e unshare");
     await provider.pm.unshareProperty(fixture.propertyId, "e2e unshare");
 
-    await expect(
-      provider.pm.getProperty(fixture.propertyId)
-    ).rejects.toThrow();
+    await expectNoAccess(provider.pm.getProperty(fixture.propertyId));
 
     // Seed a second share and exercise the reject path.
     await ui.setupDataExchangeShare({
@@ -177,9 +192,7 @@ describe("Connection & Sharing (e2e)", () => {
       }
     }
 
-    await expect(
-      provider.pm.getProperty(fixture.propertyId)
-    ).rejects.toThrow();
+    await expectNoAccess(provider.pm.getProperty(fixture.propertyId));
   });
 
   step("disconnect returns the accounts to baseline", async () => {

@@ -2,11 +2,15 @@
 import { PortfolioManager } from "../../src/PortfolioManager.js";
 import { PortfolioManagerApi } from "../../src/PortfolioManagerApi.js";
 
+if (!process.env.PM_USERNAME || !process.env.PM_PASSWORD) {
+  throw new Error("Set PM_USERNAME and PM_PASSWORD (provider account)");
+}
+
 const pm = new PortfolioManager(
   new PortfolioManagerApi(
     process.env.PM_ENDPOINT || "https://portfoliomanager.energystar.gov/wstest/",
-    process.env.PM_USERNAME || "",
-    process.env.PM_PASSWORD || ""
+    process.env.PM_USERNAME,
+    process.env.PM_PASSWORD
   )
 );
 
