@@ -167,9 +167,14 @@ export class PortfolioManagerApi {
    * header, when present and numeric, takes precedence over exponential backoff.
    */
   private retryDelayMs(response: Response, attempt: number): number {
-    const retryAfter = Number(response.headers.get("retry-after"));
-    if (Number.isFinite(retryAfter) && retryAfter > 0) {
-      return retryAfter * 1000;
+    // Retry-After is delta-seconds, where 0 (retry immediately) is valid.
+    // Non-numeric forms (e.g. an HTTP-date) fall back to exponential backoff.
+    const header = response.headers.get("retry-after");
+    if (header !== null) {
+      const retryAfter = Number(header);
+      if (Number.isFinite(retryAfter) && retryAfter >= 0) {
+        return retryAfter * 1000;
+      }
     }
     return this.retryBaseDelayMs * 2 ** attempt;
   }

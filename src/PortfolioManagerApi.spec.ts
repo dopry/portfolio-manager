@@ -983,6 +983,75 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     }
   });
 
+  it("fetch honors Retry-After: 0 as an immediate retry", async () => {
+    const retryApi = new PortfolioManagerApi(
+      "https://example.test/",
+      "test-user",
+      "test-pass",
+      { maxRetries: 2, retryBaseDelayMs: 1 }
+    );
+    const fetchMock = vi
+      .mocked(fetch)
+      .mockResolvedValueOnce(
+        new Response("<response status='Error' />", {
+          status: 429,
+          statusText: "Too Many Requests",
+          headers: { "Retry-After": "0" },
+        })
+      )
+      .mockResolvedValueOnce(
+        new Response("<response><status>Ok</status></response>", {
+          status: 200,
+          statusText: "OK",
+        })
+      );
+
+    const result = await retryApi.fetch<{ response: { status: string } }>(
+      "property/9"
+    );
+
+    expect(result.response.status).to.equal("Ok");
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("fetch falls back to exponential backoff for non-numeric or negative Retry-After", async () => {
+    const retryApi = new PortfolioManagerApi(
+      "https://example.test/",
+      "test-user",
+      "test-pass",
+      { maxRetries: 2, retryBaseDelayMs: 1 }
+    );
+    const fetchMock = vi
+      .mocked(fetch)
+      .mockResolvedValueOnce(
+        new Response("<response status='Error' />", {
+          status: 429,
+          statusText: "Too Many Requests",
+          headers: { "Retry-After": "Wed, 21 Oct 2026 07:28:00 GMT" },
+        })
+      )
+      .mockResolvedValueOnce(
+        new Response("<response status='Error' />", {
+          status: 429,
+          statusText: "Too Many Requests",
+          headers: { "Retry-After": "-1" },
+        })
+      )
+      .mockResolvedValueOnce(
+        new Response("<response><status>Ok</status></response>", {
+          status: 200,
+          statusText: "OK",
+        })
+      );
+
+    const result = await retryApi.fetch<{ response: { status: string } }>(
+      "property/10"
+    );
+
+    expect(result.response.status).to.equal("Ok");
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+
   it("fetch gives up after maxRetries consecutive 429 responses", async () => {
     const retryApi = new PortfolioManagerApi(
       "https://example.test/",
