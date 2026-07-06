@@ -85,7 +85,8 @@ export interface PortfolioManagerApiOptions {
   maxRetries?: number;
   /**
    * Base delay in milliseconds between retries, doubled on each attempt.
-   * Ignored when the response carries a Retry-After header.
+   * Ignored when the response carries a numeric (delta-seconds) Retry-After
+   * header; HTTP-date or negative values fall back to this backoff.
    */
   retryBaseDelayMs?: number;
 }
