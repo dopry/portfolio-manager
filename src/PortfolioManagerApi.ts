@@ -80,6 +80,17 @@ export function isPortfolioManagerApiError(
   return obj instanceof PortfolioManagerApiError;
 }
 
+export interface PortfolioManagerApiOptions {
+  /** Number of times to retry a request after a 429 Too Many Requests response. */
+  maxRetries?: number;
+  /**
+   * Base delay in milliseconds between retries, doubled on each attempt.
+   * Ignored when the response carries a numeric (delta-seconds) Retry-After
+   * header; HTTP-date or negative values fall back to this backoff.
+   */
+  retryBaseDelayMs?: number;
+}
+
 /**
  * Gateway to the the Portfolio Manager API.
  * see: https://portfoliomanager.energystar.gov/webservices/home/api
@@ -139,11 +150,35 @@ export class PortfolioManagerApi {
     },
   };
 
+  private readonly maxRetries: number;
+  private readonly retryBaseDelayMs: number;
+
   constructor(
     private readonly endpoint: string,
     private readonly username: string,
-    private readonly password: string
-  ) {}
+    private readonly password: string,
+    options: PortfolioManagerApiOptions = {}
+  ) {
+    this.maxRetries = options.maxRetries ?? 3;
+    this.retryBaseDelayMs = options.retryBaseDelayMs ?? 1000;
+  }
+
+  /**
+   * The ESPM API rate-limits requests (429, errorNumber -200). A Retry-After
+   * header, when present and numeric, takes precedence over exponential backoff.
+   */
+  private retryDelayMs(response: Response, attempt: number): number {
+    // Retry-After is delta-seconds, where 0 (retry immediately) is valid.
+    // Non-numeric forms (e.g. an HTTP-date) fall back to exponential backoff.
+    const header = response.headers.get("retry-after");
+    if (header !== null) {
+      const retryAfter = Number(header);
+      if (Number.isFinite(retryAfter) && retryAfter >= 0) {
+        return retryAfter * 1000;
+      }
+    }
+    return this.retryBaseDelayMs * 2 ** attempt;
+  }
 
   async fetch<RESP>(path: string, options: RequestInit = {}): Promise<RESP> {
     const headers: Record<string, string> = {
@@ -157,7 +192,24 @@ export class PortfolioManagerApi {
     const defaults = { method: "GET", headers } as RequestInit;
     const init: RequestInit = deepmerge({}, defaults, options);
     const url = this.endpoint + path;
-    const response = await fetch(url, init);
+    let response = await fetch(url, init);
+
+    // Retrying is safe even for POST/PUT: a rate-limited request is rejected
+    // before it is processed. Only requests with replayable (string or empty)
+    // bodies are retried; a consumed stream body cannot be resent.
+    const isReplayable = init.body == null || typeof init.body === "string";
+    for (
+      let attempt = 0;
+      isReplayable && response.status === 429 && attempt < this.maxRetries;
+      attempt++
+    ) {
+      const delay = this.retryDelayMs(response, attempt);
+      // Drain the throttled response before discarding it so node-fetch can
+      // release the underlying socket.
+      await response.text();
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      response = await fetch(url, init);
+    }
 
     // raise exception on 400-599 status codes
     if (response.status >= 400 && response.status < 600) {

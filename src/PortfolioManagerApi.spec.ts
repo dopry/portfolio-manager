@@ -1,5 +1,6 @@
 import { XMLParser } from "fast-xml-parser";
 import fetch, { Response } from "node-fetch";
+import { Readable } from "node:stream";
 import {
   afterAll,
   afterEach,
@@ -913,6 +914,195 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       statusText: "OK",
       responseText: expect.stringContaining("Unknown XML parse failure"),
     });
+  });
+
+  it("fetch retries 429 responses and succeeds once the rate limit clears", async () => {
+    const retryApi = new PortfolioManagerApi(
+      "https://example.test/",
+      "test-user",
+      "test-pass",
+      { maxRetries: 2, retryBaseDelayMs: 1 }
+    );
+    const fetchMock = vi
+      .mocked(fetch)
+      .mockResolvedValueOnce(
+        new Response("<response status='Error' />", {
+          status: 429,
+          statusText: "Too Many Requests",
+        })
+      )
+      .mockResolvedValueOnce(
+        new Response("<response><status>Ok</status></response>", {
+          status: 200,
+          statusText: "OK",
+        })
+      );
+
+    const result = await retryApi.fetch<{ response: { status: string } }>(
+      "property/5"
+    );
+
+    expect(result.response.status).to.equal("Ok");
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("fetch waits for a numeric Retry-After header before retrying", async () => {
+    const retryApi = new PortfolioManagerApi(
+      "https://example.test/",
+      "test-user",
+      "test-pass",
+      { maxRetries: 2, retryBaseDelayMs: 1 }
+    );
+    const fetchMock = vi
+      .mocked(fetch)
+      .mockResolvedValueOnce(
+        new Response("<response status='Error' />", {
+          status: 429,
+          statusText: "Too Many Requests",
+          headers: { "Retry-After": "1" },
+        })
+      )
+      .mockResolvedValueOnce(
+        new Response("<response><status>Ok</status></response>", {
+          status: 200,
+          statusText: "OK",
+        })
+      );
+
+    vi.useFakeTimers();
+    try {
+      const pending = retryApi.fetch<{ response: { status: string } }>(
+        "property/6"
+      );
+      // The header delay (1s) supersedes the 1ms backoff: just before it
+      // elapses the retry must not have fired yet.
+      await vi.advanceTimersByTimeAsync(999);
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      await vi.advanceTimersByTimeAsync(1);
+      const result = await pending;
+      expect(result.response.status).to.equal("Ok");
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("fetch honors Retry-After: 0 as an immediate retry", async () => {
+    const retryApi = new PortfolioManagerApi(
+      "https://example.test/",
+      "test-user",
+      "test-pass",
+      { maxRetries: 2, retryBaseDelayMs: 1 }
+    );
+    const fetchMock = vi
+      .mocked(fetch)
+      .mockResolvedValueOnce(
+        new Response("<response status='Error' />", {
+          status: 429,
+          statusText: "Too Many Requests",
+          headers: { "Retry-After": "0" },
+        })
+      )
+      .mockResolvedValueOnce(
+        new Response("<response><status>Ok</status></response>", {
+          status: 200,
+          statusText: "OK",
+        })
+      );
+
+    const result = await retryApi.fetch<{ response: { status: string } }>(
+      "property/9"
+    );
+
+    expect(result.response.status).to.equal("Ok");
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("fetch falls back to exponential backoff for non-numeric or negative Retry-After", async () => {
+    const retryApi = new PortfolioManagerApi(
+      "https://example.test/",
+      "test-user",
+      "test-pass",
+      { maxRetries: 2, retryBaseDelayMs: 1 }
+    );
+    const fetchMock = vi
+      .mocked(fetch)
+      .mockResolvedValueOnce(
+        new Response("<response status='Error' />", {
+          status: 429,
+          statusText: "Too Many Requests",
+          headers: { "Retry-After": "Wed, 21 Oct 2026 07:28:00 GMT" },
+        })
+      )
+      .mockResolvedValueOnce(
+        new Response("<response status='Error' />", {
+          status: 429,
+          statusText: "Too Many Requests",
+          headers: { "Retry-After": "-1" },
+        })
+      )
+      .mockResolvedValueOnce(
+        new Response("<response><status>Ok</status></response>", {
+          status: 200,
+          statusText: "OK",
+        })
+      );
+
+    const result = await retryApi.fetch<{ response: { status: string } }>(
+      "property/10"
+    );
+
+    expect(result.response.status).to.equal("Ok");
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+
+  it("fetch gives up after maxRetries consecutive 429 responses", async () => {
+    const retryApi = new PortfolioManagerApi(
+      "https://example.test/",
+      "test-user",
+      "test-pass",
+      { maxRetries: 2, retryBaseDelayMs: 1 }
+    );
+    const fetchMock = vi.mocked(fetch).mockImplementation(
+      async () =>
+        new Response("<response status='Error' />", {
+          status: 429,
+          statusText: "Too Many Requests",
+        })
+    );
+
+    await expect(retryApi.fetch("property/7")).rejects.toMatchObject({
+      status: 429,
+      statusText: "Too Many Requests",
+    });
+    // initial request + maxRetries retries
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+  });
+
+  it("fetch does not retry 429 responses when the body is not replayable", async () => {
+    const retryApi = new PortfolioManagerApi(
+      "https://example.test/",
+      "test-user",
+      "test-pass",
+      { maxRetries: 2, retryBaseDelayMs: 1 }
+    );
+    const fetchMock = vi.mocked(fetch).mockResolvedValue(
+      new Response("<response status='Error' />", {
+        status: 429,
+        statusText: "Too Many Requests",
+      })
+    );
+
+    await expect(
+      retryApi.fetch("property/8", {
+        method: "POST",
+        body: Readable.from(["<property />"]),
+      })
+    ).rejects.toMatchObject({
+      status: 429,
+      statusText: "Too Many Requests",
+    });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it("fetch omits auth header for POST account and includes it otherwise", async () => {
