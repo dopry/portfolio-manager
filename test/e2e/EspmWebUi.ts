@@ -65,7 +65,11 @@ export class EspmWebUi {
     // ESPM uses native confirm() dialogs (e.g. re-sharing when the contact
     // already had access). Playwright dismisses dialogs by default, which
     // silently cancels the action — accept them instead.
-    this._page.on("dialog", (dialog) => void dialog.accept());
+    this._page.on("dialog", (dialog) =>
+      dialog.accept().catch(() => {
+        // Page/context closed while the dialog was pending — nothing to do.
+      })
+    );
   }
 
   /**
