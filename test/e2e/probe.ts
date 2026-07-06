@@ -34,7 +34,10 @@ function requireEnv(name: string): string {
   return value;
 }
 
-const ui = new EspmWebUi({ headless: process.env.E2E_HEADLESS !== "false" });
+const ui = new EspmWebUi({
+  baseUrl: process.env.PM_WEB_ENDPOINT,
+  headless: process.env.E2E_HEADLESS !== "false",
+});
 
 async function dump(label: string) {
   const page = ui.page;
@@ -175,9 +178,10 @@ try {
       const { PortfolioManagerApi } = await import(
         "../../src/PortfolioManagerApi.js"
       );
+      const { DEFAULT_API_URL } = await import("./support.js");
       const provider = new PortfolioManager(
         new PortfolioManagerApi(
-          "https://portfoliomanager.energystar.gov/wstest/",
+          process.env.PM_ENDPOINT || DEFAULT_API_URL,
           requireEnv("PM_USERNAME"),
           requireEnv("PM_PASSWORD")
         )
