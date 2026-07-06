@@ -1,5 +1,8 @@
 import { PortfolioManager } from "../../src/PortfolioManager.js";
-import { PortfolioManagerApi } from "../../src/PortfolioManagerApi.js";
+import {
+  PortfolioManagerApi,
+  PortfolioManagerApiError,
+} from "../../src/PortfolioManagerApi.js";
 import { ensureStandardMeterFixture } from "../../src/test/ensureStandardMeterFixture.js";
 import { ensureStandardProperties } from "../../src/test/ensureStandardProperties.js";
 import { DEFAULT_WEB_UI_URL } from "./EspmWebUi.js";
@@ -139,8 +142,9 @@ export async function ensureCleanProviderState(
 }
 
 /**
- * Best-effort disconnect from the peer account, removing any accepted shares.
- * Errors (e.g. "not connected") are swallowed: baseline is the goal.
+ * Disconnects from the peer account, removing any accepted shares. The
+ * not-connected case (ESPM answers 403 "Access Denied", or 404) is treated as
+ * already-at-baseline; anything else (auth, network, 5xx) is a real failure.
  */
 export async function disconnectIfConnected(
   provider: PortfolioManager,
@@ -151,7 +155,13 @@ export async function disconnectIfConnected(
       keepShares: false,
       note: "e2e cleanup",
     });
-  } catch {
-    // Not connected — already at baseline.
+  } catch (error) {
+    if (
+      error instanceof PortfolioManagerApiError &&
+      (error.status === 403 || error.status === 404)
+    ) {
+      return; // Not connected — already at baseline.
+    }
+    throw error;
   }
 }

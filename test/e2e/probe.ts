@@ -52,7 +52,7 @@ async function dump(label: string) {
     .locator("body")
     .innerText()
     .catch(() => "");
-  console.log("body text:", bodyText.replace(/\s+/g, " ").slice(0, 1500));
+  console.log("body text:", bodyText.replace(/\s+/g, " ").slice(0, 6000));
   const links = await page
     .locator("a")
     .evaluateAll((els) =>
@@ -129,6 +129,157 @@ try {
       .first()
       .click();
     await dump("connection request page");
+  } else if (target === "doshare") {
+    // Reproduce the full share flow with dumps after each phase. Assumes a
+    // live connection (run sendconnect + wsshare first, or the e2e step 1).
+    page.on("response", (r) => {
+      if (r.url().includes("portfoliomanager") && r.status() >= 400) {
+        console.log(`HTTP ${r.status()} ${r.request().method()} ${r.url()}`);
+      }
+    });
+    page.on("request", (r) => {
+      if (r.url().includes("wsBulkSharing")) {
+        console.log(`REQ ${r.method()} ${r.url()}`);
+      }
+    });
+    page.on("requestfailed", (r) => {
+      console.log(
+        `REQFAILED ${r.method()} ${r.url().slice(0, 140)} => ${r.failure()?.errorText}`
+      );
+    });
+    page.on("requestfinished", (r) => {
+      if (r.url().includes("authorizeExchange")) {
+        console.log(`REQFINISHED ${r.method()} ${r.url()}`);
+      }
+    });
+    await page.goto(`${ui.baseUrl}/sharing`, { waitUntil: "domcontentloaded" });
+    await page
+      .getByRole("link", {
+        name: /set up web services|share .*data exchange|exchanging data/i,
+      })
+      .first()
+      .click();
+    await page.waitForLoadState("domcontentloaded");
+    const providerSelect = page.locator("select").first();
+    const opt = providerSelect
+      .locator("option", { hasText: requireEnv("PM_USERNAME") })
+      .first();
+    await opt.waitFor({ state: "attached" });
+    await providerSelect.selectOption((await opt.getAttribute("value")) || "");
+    await page.locator("#buttonSelectProperties").click();
+    const dialog = page.locator("#modalDialogSelectProperties");
+    await dialog.waitFor({ state: "visible" });
+    await dialog
+      .locator("#modalDialogSelectPropertiesTable tbody tr", {
+        hasText: process.env.E2E_PROPERTY_NAME || "E2E Share Fixture Property",
+      })
+      .locator('input[type="checkbox"]')
+      .first()
+      .check();
+    await dialog.getByText(/apply selection/i).first().click();
+    await dialog.waitFor({ state: "hidden" });
+    await page.locator('input[name="bulk"][value="yes"]').click();
+    await page.locator('input[name="accessLevel"][value="FULL_ACCESS"]').click();
+    const radioState = () =>
+      page.evaluate(() => ({
+        bulk: (
+          document.querySelector('input[name="bulk"]:checked') as
+            | HTMLInputElement
+            | null
+        )?.value,
+        accessLevel: (
+          document.querySelector('input[name="accessLevel"]:checked') as
+            | HTMLInputElement
+            | null
+        )?.value,
+        accessLevelBindings: Array.from(
+          document.querySelectorAll('input[name="accessLevel"]')
+        ).map((e) => e.getAttribute("data-bind")),
+        errors: Array.from(
+          document.querySelectorAll(
+            '[class*="error" i], [class*="alert" i], [class*="notice" i]'
+          )
+        )
+          .filter((e) => (e as HTMLElement).offsetParent !== null)
+          .map((e) => (e.textContent || "").replace(/\s+/g, " ").trim().slice(0, 200)),
+        koLoading: (() => {
+          const w = window as unknown as {
+            ko?: { dataFor: (e: Element | null) => { loading?: () => boolean } };
+          };
+          try {
+            return w.ko
+              ?.dataFor(document.querySelector("#choose-permissions-form"))
+              ?.loading?.();
+          } catch {
+            return "ko-error";
+          }
+        })(),
+      }));
+    console.log("radio state before:", JSON.stringify(await radioState()));
+    const handlerSource = await page.evaluate(async () => {
+      const out: string[] = [];
+      const srcs = Array.from(document.scripts)
+        .map((s) => s.src)
+        .filter(Boolean);
+      for (const src of srcs) {
+        try {
+          const text = await fetch(src).then((r) => r.text());
+          let i = text.indexOf("authorizeExchange");
+          while (i >= 0 && out.length < 4) {
+            out.push(
+              `--- ${src}\n` + text.slice(Math.max(0, i - 300), i + 2200)
+            );
+            i = text.indexOf("authorizeExchange", i + 1);
+          }
+        } catch {
+          // cross-origin or fetch failure — skip
+        }
+      }
+      return out.join("\n\n");
+    });
+    console.log("authorizeExchange source:\n", handlerSource.slice(0, 9000));
+    page.on("console", (m) => {
+      if (m.type() === "error" || m.type() === "warning") {
+        console.log(`CONSOLE ${m.type()}: ${m.text().slice(0, 300)}`);
+      }
+    });
+    page.on("pageerror", (e) => console.log(`PAGEERROR: ${String(e).slice(0, 300)}`));
+    await dump("before authorize");
+    const authorizeButtons = await page.evaluate(() =>
+      Array.from(document.querySelectorAll("button, input, a"))
+        .filter((e) =>
+          /authorize exchange/i.test(
+            (e.textContent || "") + " " + ((e as HTMLInputElement).value || "")
+          )
+        )
+        .map((e) => ({
+          html: e.outerHTML.slice(0, 400),
+          visible: (e as HTMLElement).offsetParent !== null,
+        }))
+    );
+    console.log("authorize buttons:", JSON.stringify(authorizeButtons, null, 1));
+    page.on("dialog", (d) => {
+      console.log(`DIALOG type=${d.type()} message=${d.message()}`);
+      void d.accept();
+    });
+    page.on("response", (r) => {
+      if (r.request().method() === "POST") {
+        console.log(`POST ${r.status()} ${r.url()}`);
+      }
+    });
+    const responsePromise = page
+      .waitForResponse((r) => r.url().includes("authorizeExchange.json"), {
+        timeout: 240000,
+      })
+      .then((r) => console.log(`AUTHORIZE RESPONSE ${r.status()} after wait`))
+      .catch(() => console.log("AUTHORIZE RESPONSE never arrived in 240s"));
+    await page
+      .locator("button", { hasText: /authorize exchange/i })
+      .first()
+      .click();
+    await responsePromise;
+    console.log("radio state after:", JSON.stringify(await radioState()));
+    await dump("after authorize");
   } else if (target === "sendconnect") {
     await ui.sendConnectionRequest(requireEnv("PM_USERNAME"));
     await dump("after send connection request");

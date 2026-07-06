@@ -62,6 +62,10 @@ export class EspmWebUi {
       await this.context.tracing.start({ screenshots: true, snapshots: true });
     }
     this._page = await this.context.newPage();
+    // ESPM uses native confirm() dialogs (e.g. re-sharing when the contact
+    // already had access). Playwright dismisses dialogs by default, which
+    // silently cancels the action — accept them instead.
+    this._page.on("dialog", (dialog) => void dialog.accept());
   }
 
   /**
@@ -230,10 +234,33 @@ export class EspmWebUi {
 
     // 4. Send the sharing request. The button label flips between
     // "Authorize Exchange" (bulk) and "Set Permissions" (personalized).
+    // The page submits via XHR to /wsBulkSharing/authorizeExchange.json and
+    // swallows failures silently (its error handler just stops the spinner),
+    // so verify the actual response instead of the DOM. The endpoint has been
+    // observed taking minutes before answering when the test environment is
+    // degraded — hence the generous timeout.
+    const authorizeResponse = page
+      .waitForResponse(
+        (r) => r.url().includes("/wsBulkSharing/authorizeExchange.json"),
+        { timeout: 180000 }
+      )
+      .catch(() => undefined);
     await page
       .locator("button", { hasText: /authorize exchange/i })
       .first()
       .click();
-    await page.waitForLoadState("domcontentloaded");
+    const response = await authorizeResponse;
+    if (!response) {
+      throw new Error(
+        "No response from wsBulkSharing/authorizeExchange.json within 180s — " +
+          "the ESPM test environment is likely degraded."
+      );
+    }
+    if (response.status() !== 200) {
+      throw new Error(
+        `wsBulkSharing/authorizeExchange.json returned HTTP ${response.status()} — ` +
+          "ESPM test environment error while creating the share request."
+      );
+    }
   }
 }

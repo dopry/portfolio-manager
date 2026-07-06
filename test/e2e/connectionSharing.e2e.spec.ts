@@ -31,22 +31,28 @@ describe("Connection & Sharing (e2e)", () => {
   let failed = false;
 
   beforeAll(async () => {
-    provider = createClient(config, config.provider);
-    peer = createClient(config, config.peer);
+    try {
+      provider = createClient(config, config.provider);
+      peer = createClient(config, config.peer);
 
-    peerAccountId = await peer.pm.getAccountId();
-    fixture = await ensurePeerFixtures(peer);
+      peerAccountId = await peer.pm.getAccountId();
+      fixture = await ensurePeerFixtures(peer);
 
-    await ensureCleanProviderState(provider.pm, config.peer.username);
-    await disconnectIfConnected(provider.pm, peerAccountId);
+      await ensureCleanProviderState(provider.pm, config.peer.username);
+      await disconnectIfConnected(provider.pm, peerAccountId);
 
-    ui = new EspmWebUi({
-      baseUrl: config.webUiUrl,
-      headless: config.headless,
-      traceDir: config.traceDir,
-    });
-    await ui.launch();
-    await ui.login(config.peer.username, config.peer.password);
+      ui = new EspmWebUi({
+        baseUrl: config.webUiUrl,
+        headless: config.headless,
+        traceDir: config.traceDir,
+      });
+      await ui.launch();
+      await ui.login(config.peer.username, config.peer.password);
+    } catch (error) {
+      // Ensure afterAll writes the trace for setup failures too.
+      failed = true;
+      throw error;
+    }
   });
 
   afterAll(async () => {
