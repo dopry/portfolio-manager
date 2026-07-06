@@ -203,10 +203,11 @@ export class EspmWebUi {
         `No connected web services provider option matching '${options.providerUsername}' — is the connection accepted?`
       );
     }
+    const providerValue = await providerOption.getAttribute("value");
     await providerSelect.selectOption(
-      (await providerOption.getAttribute("value")) ?? {
-        label: (await providerOption.innerText()).trim(),
-      }
+      providerValue // blank value attribute would select the placeholder
+        ? providerValue
+        : { label: (await providerOption.innerText()).trim() }
     );
 
     // 2. Select Properties — opens the Angular picker dialog.
