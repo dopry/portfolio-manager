@@ -88,8 +88,12 @@ Notes:
   `npx tsx test/e2e/probe.ts contacts|add|connect|sharing|wsshare`. Use it
   to revalidate locators when the ESPM UI changes.
 - Set `E2E_HEADLESS=false` to watch the browser locally; failed runs write
-  Playwright traces to `test-results/e2e/` (inspect with
-  `npx playwright show-trace <file>.zip`).
+  Playwright traces to `test-results/e2e/` (override with `E2E_TRACE_DIR`;
+  inspect with `npx playwright show-trace <file>.zip`).
+- Endpoints are overridable for alternate environments: `PM_WEB_ENDPOINT`
+  (web UI, default `https://portfoliomanager.energystar.gov/pmtest`) and
+  `PM_ENDPOINT` (web services API, default
+  `https://portfoliomanager.energystar.gov/wstest/`).
 - UI locators live only in `test/e2e/EspmWebUi.ts`; when the ESPM UI changes,
   that file is the single place to fix.
 
