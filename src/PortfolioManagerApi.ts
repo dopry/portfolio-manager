@@ -5,6 +5,7 @@ import {
   XmlBuilderOptions,
 } from "fast-xml-parser";
 import { isDate } from "util/types";
+import { ARRAY_JPATHS } from "./types/xml/arrayJPaths.js";
 import {
   IAccountAccountGetResponse,
   IAdditionalIdentifier,
@@ -105,29 +106,11 @@ export interface PortfolioManagerApiOptions {
 export class PortfolioManagerApi {
   xmlParserOptions: Partial<X2jOptions> = {
     ignoreAttributes: false,
-    isArray: (_name, jpath): boolean => {
-      // ensure response.links.link is always an array even when there
-      // is only one link which results in  object by default
-      return (
-        jpath === "response.links.link" ||
-        jpath === "propertyMetrics.metric" ||
-        jpath === "meterData.links.link" ||
-        jpath ===
-          "meterPropertyAssociationList.waterMeterAssociation.meters.meterId" ||
-        jpath ===
-          "meterPropertyAssociationList.energyMeterAssociation.meters.meterId" ||
-        jpath ===
-          "meterPropertyAssociationList.wasteMeterAssociation.meters.meterId" ||
-        jpath === "meterData.meterDelivery" ||
-        jpath === "meterData.meterConsumption" ||
-        jpath === "additionalIdentifiers.additionalIdentifier" ||
-        jpath === "pendingList.links.link" ||
-        jpath === "pendingList.property" ||
-        jpath === "pendingList.account" ||
-        jpath === "pendingList.meter" ||
-        jpath === "notificationList.notification"
-      );
-    },
+    // fast-xml-parser collapses single-occurrence elements to plain
+    // objects; ARRAY_JPATHS (generated from the vendored XSDs by
+    // `npm run generate:xml`) pins every schema-repeatable element to
+    // array shape so responses parse consistently.
+    isArray: (_name, jpath): boolean => ARRAY_JPATHS.has(jpath),
   };
   xmlBuilderOptions: Partial<XmlBuilderOptions> = {
     ignoreAttributes: false,
