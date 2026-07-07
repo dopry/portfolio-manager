@@ -1869,3 +1869,12 @@ export const METRICS: MetricTuple[] = [
 ["systemEstimatedDataCenterSiteTotalKwh","2242","Numeric","kWh","n/a","Data Center Metrics","2",true,false,false,false,false,false,false,false,false,"Get-Metrics","Data Center - Portfolio Manager-Estimated Site Energy (kWh)",false],
 ["scoreMotivationText","2176","String","n/a","n/a","No group assignment","",true,false,false,false,false,false,false,false,false,"Get-Metrics","No corresponding resource bundle object",false],
 ];
+
+export const METRICS_INDEX = METRICS.reduce<Record<string, MetricTuple>>(
+  (acc, metric: MetricTuple) => {
+    const slug = metric[0] as string;
+    acc[slug] = metric;
+    return acc;
+  },
+  {},
+);

@@ -176,6 +176,15 @@ export type MetricTuple = [
 export const METRICS: MetricTuple[] = [
 ${tuples.join("\n")}
 ];
+
+export const METRICS_INDEX = METRICS.reduce<Record<string, MetricTuple>>(
+  (acc, metric: MetricTuple) => {
+    const slug = metric[0] as string;
+    acc[slug] = metric;
+    return acc;
+  },
+  {},
+);
 `;
 
 writeFileSync(OUTPUT_FILE, output);

@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { METRICS } from "./METRICS.js";
+import { METRICS, METRICS_INDEX } from "./METRICS.js";
 
 describe("METRICS (generated from the metric inventory)", () => {
+  it("indexes every metric by slug in METRICS_INDEX", () => {
+    expect(Object.keys(METRICS_INDEX).length).to.equal(METRICS.length);
+    expect(METRICS_INDEX["score"]?.[0]).to.equal("score");
+  });
+
   it("has unique slugs", () => {
     const slugs = METRICS.map((m) => m[0]);
     expect(new Set(slugs).size).to.equal(slugs.length);
