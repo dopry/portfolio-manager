@@ -1876,5 +1876,7 @@ export const METRICS_INDEX = METRICS.reduce<Record<string, MetricTuple>>(
     acc[slug] = metric;
     return acc;
   },
-  {},
+  // Null prototype: slugs come from an external workbook, so keep lookups
+  // free of prototype-chain collisions.
+  Object.create(null) as Record<string, MetricTuple>,
 );
