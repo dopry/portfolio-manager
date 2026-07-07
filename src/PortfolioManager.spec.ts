@@ -525,6 +525,34 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
     await expect(pm.getMeters(1)).rejects.toThrow("Invalid meter id in link");
   });
 
+  it("getProperties caps fan-out at the configured concurrency", async () => {
+    const api = createMinimalMockApi();
+    const pm = new PortfolioManager(api, { concurrency: 2 });
+
+    vi.spyOn(pm, "getPropertyLinks").mockResolvedValue(
+      [1, 2, 3, 4, 5].map((id) => ({
+        "@_id": String(id),
+        "@_link": `/property/${id}`,
+        "@_linkDescription": "This is the GET url for this Property.",
+        "@_httpMethod": "GET",
+      })) as never,
+    );
+
+    let inFlight = 0;
+    let maxInFlight = 0;
+    vi.spyOn(pm, "getProperty").mockImplementation(async (id) => {
+      inFlight++;
+      maxInFlight = Math.max(maxInFlight, inFlight);
+      await new Promise((resolve) => setImmediate(resolve));
+      inFlight--;
+      return { id } as never;
+    });
+
+    const properties = await pm.getProperties(99);
+    expect(properties.map((property) => property.id)).toEqual([1, 2, 3, 4, 5]);
+    expect(maxInFlight).to.equal(2);
+  });
+
   it("getProperties maps link ids and rejects invalid ids", async () => {
     const api = createMinimalMockApi();
     const pm = new PortfolioManager(api);
