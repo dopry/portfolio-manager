@@ -554,6 +554,9 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
 
     expect(logged.length).to.equal(1);
     expect(logged[0][0]).to.equal("Error getting meter property association");
+    // The rejection reason is forwarded as the second argument.
+    expect(logged[0][1]).to.be.instanceOf(Error);
+    expect((logged[0][1] as Error).message).to.equal("assoc failed");
     expect(consoleSpy).not.toHaveBeenCalled();
     consoleSpy.mockRestore();
   });
