@@ -1097,7 +1097,8 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       statusText: "Too Many Requests",
     });
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    // undici requires duplex for stream bodies; fetch() sets it automatically.
+    // undici requires duplex for stream bodies; PortfolioManagerApi.fetch
+    // populates it before invoking the (stubbed) global fetch.
     const streamInit = fetchMock.mock.calls[0][1] as
       | Record<string, unknown>
       | undefined;
