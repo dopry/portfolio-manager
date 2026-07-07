@@ -106,7 +106,7 @@ The `test` job runs on every push across a Node version matrix (20, 22, `lts/*`,
 1. `npm ci`
 2. `npm run typecheck`
 3. `npm run build`
-4. `node ./dist/index.js --help`
+4. `node ./dist/cli.js --help`
 5. `npm test`
 
 ## Release Process
@@ -130,7 +130,7 @@ Publishing uses npm trusted publishing via OIDC — no npm token is stored in CI
 ## Release Checklist (Maintainer)
 
 1. Confirm branch is eligible for release (`main`, `next`, or maintenance pattern).
-2. Confirm CI is green, including CLI startup check (`node ./dist/index.js --help`).
+2. Confirm CI is green, including CLI startup check (`node ./dist/cli.js --help`).
 3. Confirm dependency lockfile changes are intentional.
 4. Merge through normal review flow; do not manually publish from local machine.
 5. Verify release artifacts/changelog in npm/Git provider after CI release job completes.
