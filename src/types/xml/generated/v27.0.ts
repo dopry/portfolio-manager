@@ -1271,94 +1271,94 @@ export interface DemandTrackingType {
 export interface DesignBaseType {
   /** Most property use characteristics XML attributes (the id, currentAsOf, and temporary) are not applicable and will be ignored if provided. */
   propertyUses: {
-    prison?: OtherType;
-    refrigeratedWarehouse?: RefrigeratedWarehouseType;
-    retail?: RetailType;
-    hospital?: HospitalType;
-    medicalOffice?: MedicalOfficeType;
-    dataCenter?: DataCenterType;
-    courthouse?: CourthouseType;
-    singleFamilyHome?: SingleFamilyHomeType;
-    nonRefrigeratedWarehouse?: NonRefrigeratedWarehouseType;
-    multifamilyHousing?: MultifamilyHousingType;
-    office?: OfficeType;
-    wholesaleClubSupercenter?: WholesaleClubSupercenterType;
-    selfStorageFacility?: SelfStorageFacilityType;
-    seniorLivingCommunity?: SeniorLivingCommunityType;
-    residentialCareFacility?: ResidentialCareFacilityType;
-    swimmingPool?: SwimmingPoolType;
-    residenceHallDormitory?: ResidenceHallDormitoryType;
-    wastewaterTreatmentPlant?: WastewaterTreatmentPlantType;
-    distributionCenter?: DistributionCenterType;
-    worshipFacility?: WorshipFacilityType;
-    financialOffice?: FinancialOfficeType;
-    drinkingWaterTreatmentAndDistribution?: DrinkingWaterTreatmentAndDistributionType;
-    parking?: ParkingType;
-    supermarket?: SupermarketType;
-    barracks?: BarracksType;
-    hotel?: HotelType;
-    k12School?: K12SchoolType;
-    bankBranch?: BankBranchType;
-    cegep?: CegepType;
-    collegeUniversity?: CollegeUniversityType;
-    indoorArena?: IndoorArenaType;
-    otherStadium?: OtherStadiumType;
-    stadiumClosed?: StadiumClosedType;
-    stadiumOpen?: StadiumOpenType;
-    manufacturingIndustrialPlant?: ManufacturingIndustrialPlantType;
-    ambulatorySurgicalCenter?: OtherType;
-    bowlingAlley?: BowlingAlley;
-    otherPublicServices?: OtherType;
-    otherLodgingResidential?: OtherType;
-    casino?: OtherType;
-    personalServices?: OtherType;
-    mailingCenterPostOffice?: MailingCenterPostOfficeType;
-    library?: LibraryType;
-    otherSpecialityHospital?: OtherType;
-    conventionCenter?: OtherType;
-    veterinaryOffice?: OtherType;
-    urgentCareClinicOtherOutpatient?: OtherType;
-    energyPowerStation?: OtherType;
-    otherServices?: OtherType;
-    barNightclub?: OtherType;
-    otherUtility?: OtherType;
-    zoo?: OtherType;
-    vehicleDealership?: VehicleDealershipType;
-    museum?: MuseumType;
-    otherRecreation?: OtherType;
-    otherRestaurantBar?: OtherType;
-    lifestyleCenter?: OtherType;
-    policeStation?: OtherType;
-    preschoolDaycare?: PreschoolDaycareType;
-    raceTrack?: OtherType;
-    fastFoodRestaurant?: FastFoodRestaurantType;
-    laboratory?: OtherType;
-    convenienceStoreWithoutGasStation?: ConvenienceStoreWithoutGasStationType;
-    vehicleRepairServices?: VehicleRepairServicesType;
-    otherTechnologyScience?: OtherType;
-    fireStation?: FireStationType;
-    foodSales?: FoodSalesType;
-    performingArts?: OtherType;
-    outpatientRehabilitationPhysicalTherapy?: OtherType;
-    stripMall?: OtherType;
-    rollerRink?: OtherType;
-    otherEducation?: OtherType;
-    fitnessCenterHealthClubGym?: FitnessCenterHealthClubGym;
-    aquarium?: OtherType;
-    foodService?: OtherType;
-    restaurant?: RestaurantType;
-    enclosedMall?: OtherType;
-    iceCurlingRink?: IceCurlingRinkType;
-    adultEducation?: OtherType;
-    otherEntertainmentPublicAssembly?: OtherType;
-    movieTheater?: OtherType;
-    transportationTerminalStation?: OtherType;
-    vocationalSchool?: OtherType;
-    communityCenterAndSocialMeetingHall?: CommunityCenterAndSocialMeetingHall;
-    otherMall?: OtherType;
-    convenienceStoreWithGasStation?: ConvenienceStoreWithGasStationType;
-    other?: OtherType;
-    electricVehicleChargingStation?: EvChargingStationType;
+    prison?: OtherType[];
+    refrigeratedWarehouse?: RefrigeratedWarehouseType[];
+    retail?: RetailType[];
+    hospital?: HospitalType[];
+    medicalOffice?: MedicalOfficeType[];
+    dataCenter?: DataCenterType[];
+    courthouse?: CourthouseType[];
+    singleFamilyHome?: SingleFamilyHomeType[];
+    nonRefrigeratedWarehouse?: NonRefrigeratedWarehouseType[];
+    multifamilyHousing?: MultifamilyHousingType[];
+    office?: OfficeType[];
+    wholesaleClubSupercenter?: WholesaleClubSupercenterType[];
+    selfStorageFacility?: SelfStorageFacilityType[];
+    seniorLivingCommunity?: SeniorLivingCommunityType[];
+    residentialCareFacility?: ResidentialCareFacilityType[];
+    swimmingPool?: SwimmingPoolType[];
+    residenceHallDormitory?: ResidenceHallDormitoryType[];
+    wastewaterTreatmentPlant?: WastewaterTreatmentPlantType[];
+    distributionCenter?: DistributionCenterType[];
+    worshipFacility?: WorshipFacilityType[];
+    financialOffice?: FinancialOfficeType[];
+    drinkingWaterTreatmentAndDistribution?: DrinkingWaterTreatmentAndDistributionType[];
+    parking?: ParkingType[];
+    supermarket?: SupermarketType[];
+    barracks?: BarracksType[];
+    hotel?: HotelType[];
+    k12School?: K12SchoolType[];
+    bankBranch?: BankBranchType[];
+    cegep?: CegepType[];
+    collegeUniversity?: CollegeUniversityType[];
+    indoorArena?: IndoorArenaType[];
+    otherStadium?: OtherStadiumType[];
+    stadiumClosed?: StadiumClosedType[];
+    stadiumOpen?: StadiumOpenType[];
+    manufacturingIndustrialPlant?: ManufacturingIndustrialPlantType[];
+    ambulatorySurgicalCenter?: OtherType[];
+    bowlingAlley?: BowlingAlley[];
+    otherPublicServices?: OtherType[];
+    otherLodgingResidential?: OtherType[];
+    casino?: OtherType[];
+    personalServices?: OtherType[];
+    mailingCenterPostOffice?: MailingCenterPostOfficeType[];
+    library?: LibraryType[];
+    otherSpecialityHospital?: OtherType[];
+    conventionCenter?: OtherType[];
+    veterinaryOffice?: OtherType[];
+    urgentCareClinicOtherOutpatient?: OtherType[];
+    energyPowerStation?: OtherType[];
+    otherServices?: OtherType[];
+    barNightclub?: OtherType[];
+    otherUtility?: OtherType[];
+    zoo?: OtherType[];
+    vehicleDealership?: VehicleDealershipType[];
+    museum?: MuseumType[];
+    otherRecreation?: OtherType[];
+    otherRestaurantBar?: OtherType[];
+    lifestyleCenter?: OtherType[];
+    policeStation?: OtherType[];
+    preschoolDaycare?: PreschoolDaycareType[];
+    raceTrack?: OtherType[];
+    fastFoodRestaurant?: FastFoodRestaurantType[];
+    laboratory?: OtherType[];
+    convenienceStoreWithoutGasStation?: ConvenienceStoreWithoutGasStationType[];
+    vehicleRepairServices?: VehicleRepairServicesType[];
+    otherTechnologyScience?: OtherType[];
+    fireStation?: FireStationType[];
+    foodSales?: FoodSalesType[];
+    performingArts?: OtherType[];
+    outpatientRehabilitationPhysicalTherapy?: OtherType[];
+    stripMall?: OtherType[];
+    rollerRink?: OtherType[];
+    otherEducation?: OtherType[];
+    fitnessCenterHealthClubGym?: FitnessCenterHealthClubGym[];
+    aquarium?: OtherType[];
+    foodService?: OtherType[];
+    restaurant?: RestaurantType[];
+    enclosedMall?: OtherType[];
+    iceCurlingRink?: IceCurlingRinkType[];
+    adultEducation?: OtherType[];
+    otherEntertainmentPublicAssembly?: OtherType[];
+    movieTheater?: OtherType[];
+    transportationTerminalStation?: OtherType[];
+    vocationalSchool?: OtherType[];
+    communityCenterAndSocialMeetingHall?: CommunityCenterAndSocialMeetingHall[];
+    otherMall?: OtherType[];
+    convenienceStoreWithGasStation?: ConvenienceStoreWithGasStationType[];
+    other?: OtherType[];
+    electricVehicleChargingStation?: EvChargingStationType[];
   };
   /** The planned average daily flow for a Water Treatment and Distribution Plant. This value must be specified if one of the property uses is of the type Water Distribution. */
   drinkingWaterInfluentFlow?: number;
@@ -2333,12 +2333,13 @@ export interface OffsiteGreenPowerPurchaseType {
   };
   /** The Renewable Generation Technology types. */
   renewableGenerationTechnologies?: {
-    technology?:
+    technology?: (
       | "Solar PV- Carports"
       | "Solar PV- Ground-mounted"
       | "Solar PV- Rooftop"
       | "Solar Thermal- Concentrating Solar Power"
-      | "Other"[];
+      | "Other"
+    )[];
   };
   /** The rated capacity of project/offtake. */
   ratedCapacity?: { "@_uom": string; value: number };
@@ -2380,12 +2381,13 @@ export interface OnsiteRenewableOptionalInfoType {
   projectName?: string;
   /** The Renewable Generation Technology types. */
   renewableGenerationTechnologies?: {
-    technology?:
+    technology?: (
       | "Solar PV- Carports"
       | "Solar PV- Ground-mounted"
       | "Solar PV- Rooftop"
       | "Solar Thermal- Concentrating Solar Power"
-      | "Other"[];
+      | "Other"
+    )[];
   };
   /** The rated capacity of project/offtake. */
   ratedCapacity?: { "@_uom": string; value: number };
@@ -3530,7 +3532,7 @@ export interface TargetTypeScoreType {
 
 export interface TenantCommonAreaEnergyUseInformationType {
   /** Indicates the various energy uses if a "Combination of Tenant and Common Area Consumption" meter configuration type is selected. This is only required when a metering configuration type of "Combination of Tenant and Common Area Consumption" is specified. At least one of the 8 options must be selected. */
-  energyUse:
+  energyUse: (
     | "Tenant Heating"
     | "Tenant Cooling"
     | "Tenant Hot Water"
@@ -3538,7 +3540,8 @@ export interface TenantCommonAreaEnergyUseInformationType {
     | "Common Area Heating"
     | "Common Area Cooling"
     | "Common Area Hot Water"
-    | "Common Area Plug Load/Electricity"[];
+    | "Common Area Plug Load/Electricity"
+  )[];
 }
 
 export interface TerminateShareResponseType {
@@ -3685,94 +3688,94 @@ export interface UnAuthDesignType {
   propertyInfo: PropertyDesignType;
   /** Most property use characteristics XML attributes (id, currentAsOf, and temporary) are not applicable and will be ignored if provided. */
   propertyUses: {
-    prison?: OtherType;
-    refrigeratedWarehouse?: RefrigeratedWarehouseType;
-    retail?: RetailType;
-    hospital?: HospitalType;
-    medicalOffice?: MedicalOfficeType;
-    dataCenter?: DataCenterType;
-    courthouse?: CourthouseType;
-    singleFamilyHome?: SingleFamilyHomeType;
-    nonRefrigeratedWarehouse?: NonRefrigeratedWarehouseType;
-    multifamilyHousing?: MultifamilyHousingType;
-    office?: OfficeType;
-    wholesaleClubSupercenter?: WholesaleClubSupercenterType;
-    selfStorageFacility?: SelfStorageFacilityType;
-    seniorLivingCommunity?: SeniorLivingCommunityType;
-    residentialCareFacility?: ResidentialCareFacilityType;
-    swimmingPool?: SwimmingPoolType;
-    residenceHallDormitory?: ResidenceHallDormitoryType;
-    wastewaterTreatmentPlant?: WastewaterTreatmentPlantType;
-    distributionCenter?: DistributionCenterType;
-    worshipFacility?: WorshipFacilityType;
-    financialOffice?: FinancialOfficeType;
-    drinkingWaterTreatmentAndDistribution?: DrinkingWaterTreatmentAndDistributionType;
-    parking?: ParkingType;
-    supermarket?: SupermarketType;
-    barracks?: BarracksType;
-    hotel?: HotelType;
-    k12School?: K12SchoolType;
-    bankBranch?: BankBranchType;
-    cegep?: CegepType;
-    collegeUniversity?: CollegeUniversityType;
-    indoorArena?: IndoorArenaType;
-    otherStadium?: OtherStadiumType;
-    stadiumClosed?: StadiumClosedType;
-    stadiumOpen?: StadiumOpenType;
-    manufacturingIndustrialPlant?: ManufacturingIndustrialPlantType;
-    ambulatorySurgicalCenter?: OtherType;
-    bowlingAlley?: BowlingAlley;
-    otherPublicServices?: OtherType;
-    otherLodgingResidential?: OtherType;
-    casino?: OtherType;
-    personalServices?: OtherType;
-    mailingCenterPostOffice?: MailingCenterPostOfficeType;
-    library?: LibraryType;
-    otherSpecialityHospital?: OtherType;
-    conventionCenter?: OtherType;
-    veterinaryOffice?: OtherType;
-    urgentCareClinicOtherOutpatient?: OtherType;
-    energyPowerStation?: OtherType;
-    otherServices?: OtherType;
-    barNightclub?: OtherType;
-    otherUtility?: OtherType;
-    zoo?: OtherType;
-    vehicleDealership?: VehicleDealershipType;
-    museum?: MuseumType;
-    otherRecreation?: OtherType;
-    otherRestaurantBar?: OtherType;
-    lifestyleCenter?: OtherType;
-    policeStation?: OtherType;
-    preschoolDaycare?: PreschoolDaycareType;
-    raceTrack?: OtherType;
-    fastFoodRestaurant?: FastFoodRestaurantType;
-    laboratory?: OtherType;
-    convenienceStoreWithoutGasStation?: ConvenienceStoreWithoutGasStationType;
-    vehicleRepairServices?: VehicleRepairServicesType;
-    otherTechnologyScience?: OtherType;
-    fireStation?: FireStationType;
-    foodSales?: FoodSalesType;
-    performingArts?: OtherType;
-    outpatientRehabilitationPhysicalTherapy?: OtherType;
-    stripMall?: OtherType;
-    rollerRink?: OtherType;
-    otherEducation?: OtherType;
-    fitnessCenterHealthClubGym?: FitnessCenterHealthClubGym;
-    aquarium?: OtherType;
-    foodService?: OtherType;
-    restaurant?: RestaurantType;
-    enclosedMall?: OtherType;
-    iceCurlingRink?: IceCurlingRinkType;
-    adultEducation?: OtherType;
-    otherEntertainmentPublicAssembly?: OtherType;
-    movieTheater?: OtherType;
-    transportationTerminalStation?: OtherType;
-    vocationalSchool?: OtherType;
-    communityCenterAndSocialMeetingHall?: CommunityCenterAndSocialMeetingHall;
-    otherMall?: OtherType;
-    convenienceStoreWithGasStation?: ConvenienceStoreWithGasStationType;
-    other?: OtherType;
-    electricVehicleChargingStation?: EvChargingStationType;
+    prison?: OtherType[];
+    refrigeratedWarehouse?: RefrigeratedWarehouseType[];
+    retail?: RetailType[];
+    hospital?: HospitalType[];
+    medicalOffice?: MedicalOfficeType[];
+    dataCenter?: DataCenterType[];
+    courthouse?: CourthouseType[];
+    singleFamilyHome?: SingleFamilyHomeType[];
+    nonRefrigeratedWarehouse?: NonRefrigeratedWarehouseType[];
+    multifamilyHousing?: MultifamilyHousingType[];
+    office?: OfficeType[];
+    wholesaleClubSupercenter?: WholesaleClubSupercenterType[];
+    selfStorageFacility?: SelfStorageFacilityType[];
+    seniorLivingCommunity?: SeniorLivingCommunityType[];
+    residentialCareFacility?: ResidentialCareFacilityType[];
+    swimmingPool?: SwimmingPoolType[];
+    residenceHallDormitory?: ResidenceHallDormitoryType[];
+    wastewaterTreatmentPlant?: WastewaterTreatmentPlantType[];
+    distributionCenter?: DistributionCenterType[];
+    worshipFacility?: WorshipFacilityType[];
+    financialOffice?: FinancialOfficeType[];
+    drinkingWaterTreatmentAndDistribution?: DrinkingWaterTreatmentAndDistributionType[];
+    parking?: ParkingType[];
+    supermarket?: SupermarketType[];
+    barracks?: BarracksType[];
+    hotel?: HotelType[];
+    k12School?: K12SchoolType[];
+    bankBranch?: BankBranchType[];
+    cegep?: CegepType[];
+    collegeUniversity?: CollegeUniversityType[];
+    indoorArena?: IndoorArenaType[];
+    otherStadium?: OtherStadiumType[];
+    stadiumClosed?: StadiumClosedType[];
+    stadiumOpen?: StadiumOpenType[];
+    manufacturingIndustrialPlant?: ManufacturingIndustrialPlantType[];
+    ambulatorySurgicalCenter?: OtherType[];
+    bowlingAlley?: BowlingAlley[];
+    otherPublicServices?: OtherType[];
+    otherLodgingResidential?: OtherType[];
+    casino?: OtherType[];
+    personalServices?: OtherType[];
+    mailingCenterPostOffice?: MailingCenterPostOfficeType[];
+    library?: LibraryType[];
+    otherSpecialityHospital?: OtherType[];
+    conventionCenter?: OtherType[];
+    veterinaryOffice?: OtherType[];
+    urgentCareClinicOtherOutpatient?: OtherType[];
+    energyPowerStation?: OtherType[];
+    otherServices?: OtherType[];
+    barNightclub?: OtherType[];
+    otherUtility?: OtherType[];
+    zoo?: OtherType[];
+    vehicleDealership?: VehicleDealershipType[];
+    museum?: MuseumType[];
+    otherRecreation?: OtherType[];
+    otherRestaurantBar?: OtherType[];
+    lifestyleCenter?: OtherType[];
+    policeStation?: OtherType[];
+    preschoolDaycare?: PreschoolDaycareType[];
+    raceTrack?: OtherType[];
+    fastFoodRestaurant?: FastFoodRestaurantType[];
+    laboratory?: OtherType[];
+    convenienceStoreWithoutGasStation?: ConvenienceStoreWithoutGasStationType[];
+    vehicleRepairServices?: VehicleRepairServicesType[];
+    otherTechnologyScience?: OtherType[];
+    fireStation?: FireStationType[];
+    foodSales?: FoodSalesType[];
+    performingArts?: OtherType[];
+    outpatientRehabilitationPhysicalTherapy?: OtherType[];
+    stripMall?: OtherType[];
+    rollerRink?: OtherType[];
+    otherEducation?: OtherType[];
+    fitnessCenterHealthClubGym?: FitnessCenterHealthClubGym[];
+    aquarium?: OtherType[];
+    foodService?: OtherType[];
+    restaurant?: RestaurantType[];
+    enclosedMall?: OtherType[];
+    iceCurlingRink?: IceCurlingRinkType[];
+    adultEducation?: OtherType[];
+    otherEntertainmentPublicAssembly?: OtherType[];
+    movieTheater?: OtherType[];
+    transportationTerminalStation?: OtherType[];
+    vocationalSchool?: OtherType[];
+    communityCenterAndSocialMeetingHall?: CommunityCenterAndSocialMeetingHall[];
+    otherMall?: OtherType[];
+    convenienceStoreWithGasStation?: ConvenienceStoreWithGasStationType[];
+    other?: OtherType[];
+    electricVehicleChargingStation?: EvChargingStationType[];
   };
   /** The planned average daily flow for a Water Treatment and Distribution Plant. This value must be specified if one of the property uses is of the type Water Distribution. */
   drinkingWaterInfluentFlow?: number;
@@ -4104,7 +4107,7 @@ export interface CustomerElement {
 export interface DataExchangeSettingsElement {
   /** The list of meter types that you support. */
   supportedMeterTypes?: {
-    meterType?:
+    meterType?: (
       | "Coal Anthracite"
       | "Coal Bituminous"
       | "Coke"
@@ -4216,7 +4219,8 @@ export interface DataExchangeSettingsElement {
       | "Recycled - Paper - Mixed"
       | "Recycled - Plastics - Mixed"
       | "Recycled - Plastics - Wrap/Film"
-      | "Recycled - Textiles/Clothing"[];
+      | "Recycled - Textiles/Clothing"
+    )[];
   };
   termsOfUse?: { none?: ""; text?: string; url?: string };
 }
@@ -4674,248 +4678,248 @@ export interface StationElement {
 export interface UseDetailsElement {
   links?: LinksType;
   /** Quantity of laundry processed at the property. */
-  amountOfLaundryProcessedAnnually?: AmountOfLaundryProcessedAnnuallyType;
+  amountOfLaundryProcessedAnnually?: AmountOfLaundryProcessedAnnuallyType[];
   /** The concentration of effluent Biological Oxygen Demand (BOD5) at a wastewater treatment plant. */
-  averageEffluentBiologicalOxygenDemand?: UseDecimalType;
+  averageEffluentBiologicalOxygenDemand?: UseDecimalType[];
   /** The concentration of influent Biological Oxygen Demand (BOD5) at a wastewater treatment plant. */
-  averageInfluentBiologicalOxygenDemand?: UseDecimalType;
+  averageInfluentBiologicalOxygenDemand?: UseDecimalType[];
   /** Annual average number of residents at the property. */
-  averageNumberOfResidents?: UseDecimalType;
+  averageNumberOfResidents?: UseDecimalType[];
   /** Area of parking garage that is completely enclosed. */
-  completelyEnclosedFootage?: GrossFloorAreaType;
+  completelyEnclosedFootage?: GrossFloorAreaType[];
   /** Whether there are Cooking Facilities. */
-  cookingFacilities?: UseYesNoType;
+  cookingFacilities?: UseYesNoType[];
   /** Level of redundancy for the cooling equipment in a Data Center. */
-  coolingEquipmentRedundancy?: CoolingEquipmentRedundancyType;
+  coolingEquipmentRedundancy?: CoolingEquipmentRedundancyType[];
   /** Total enclosed floor area at a Stadium/Arena. */
-  enclosedFloorArea?: OptionalFloorAreaType;
-  enrollment?: UseDecimalType;
+  enclosedFloorArea?: OptionalFloorAreaType[];
+  enrollment?: UseDecimalType[];
   /** Whether there is an Exterior Entrance to the Public. */
-  exteriorEntranceToThePublic?: UseYesNoType;
+  exteriorEntranceToThePublic?: UseYesNoType[];
   /** Whether there is a Fixed Film Trickle Filtration Process. */
-  fixedFilmTrickleFiltrationProcess?: UseYesNoType;
+  fixedFilmTrickleFiltrationProcess?: UseYesNoType[];
   /** Floor area associated with a Full Service Spa. */
-  fullServiceSpaFloorArea?: OptionalFloorAreaType;
+  fullServiceSpaFloorArea?: OptionalFloorAreaType[];
   /** Area of all walk-in refrigeration/freezer units - include only commercial type units that a person actually walks into to retrieve goods. See numberOfWalkInRefrigerationUnits for more information. */
-  areaOfAllWalkInRefrigerationUnits?: OptionalFloorAreaType;
+  areaOfAllWalkInRefrigerationUnits?: OptionalFloorAreaType[];
   /** Length of all open or closed Refrigeration or Freezer cases that are used for the sale or storage of perishable goods. Include display-type refrigerated open or closed cases and cabinets, as well as display-type freezer units. These are typically found on the sales floor. See numberOfOpenClosedRefrigerationUnits for more information. */
-  lengthOfAllOpenClosedRefrigerationUnits?: LengthOfUseDetailType;
+  lengthOfAllOpenClosedRefrigerationUnits?: LengthOfUseDetailType[];
   /** Whether this is housing that is subsidized by the local, state, or Federal government. */
-  governmentSubsidizedHousing?: UseYesNoType;
-  grantDollars?: UseDecimalType;
+  governmentSubsidizedHousing?: UseYesNoType[];
+  grantDollars?: UseDecimalType[];
   /** Floor area associated with a Gym/Fitness Center. */
-  gymCenterFloorArea?: OptionalFloorAreaType;
+  gymCenterFloorArea?: OptionalFloorAreaType[];
   /** Floor area associated with a gymnasium at a K12 School. */
-  gymnasiumFloorArea?: OptionalFloorAreaType;
+  gymnasiumFloorArea?: OptionalFloorAreaType[];
   /** Whether there is a Computer Lab. */
-  hasComputerLab?: UseYesNoType;
+  hasComputerLab?: UseYesNoType[];
   /** Whether there is a Dining Hall. */
-  hasDiningHall?: UseYesNoType;
+  hasDiningHall?: UseYesNoType[];
   /** Presence of a laboratory (Yes/No). */
-  hasLaboratory?: UseYesNoType;
+  hasLaboratory?: UseYesNoType[];
   /** Number of hours per day a typical guest spends at the property (Less Than 15, 15 To 19, More Than 20) */
-  hoursPerDayGuestsOnsite?: HoursPerDayGuestsOnsiteType;
+  hoursPerDayGuestsOnsite?: HoursPerDayGuestsOnsiteType[];
   /** Are there ice-related events such as Hockey, Skating, Ice Capades? */
-  iceEvents?: UseYesNoType;
+  iceEvents?: UseYesNoType[];
   /** Presence of a High School, as indicated by education of grades 10, 11, and/or 12 (Yes/No). */
-  isHighSchool?: UseYesNoType;
+  isHighSchool?: UseYesNoType[];
   /** Presence of tertiary medical care, specialized care beyond a typical secondary level, such as Level 1 trauma centers, organ transplant, or prenatal intensive care units (Yes/No). */
-  isTertiaryCare?: UseYesNoType;
+  isTertiaryCare?: UseYesNoType[];
   /** The IT Energy Configuration/location of IT Energy meters at a data center. */
-  itEnergyMeterConfiguration?: ItEnergyConfigurationType;
+  itEnergyMeterConfiguration?: ItEnergyConfigurationType[];
   /** Type of laundry processed at the property (linens, Terry, Linens & Terry) */
-  laundryFacility?: OnsiteLaundryType;
+  laundryFacility?: OnsiteLaundryType[];
   /** Maximum number of floors in the tallest building at the property. */
-  maximumNumberOfFloors?: UseIntegerType;
+  maximumNumberOfFloors?: UseIntegerType[];
   /** Maximum capacity of residents, based on the design of the facility. */
-  maximumResidentCapacity?: UseDecimalType;
+  maximumResidentCapacity?: UseDecimalType[];
   /** Licensed Bed Capacity is the total number of beds that your hospital is licensed to have in operation. This may be more than your Staffed Beds, which are those that are set up and ready for use. */
-  licensedBedCapacity?: UseDecimalType;
+  licensedBedCapacity?: UseDecimalType[];
   /** Number of months per year the property is in use. */
-  monthsInUse?: MonthsInUseType;
+  monthsInUse?: MonthsInUseType[];
   /** Number of months per year the property is in use. */
-  monthsMainIndoorIceRinkInUse?: MonthsInUseType;
+  monthsMainIndoorIceRinkInUse?: MonthsInUseType[];
   /** Number of bedrooms. */
-  numberOfBedrooms?: UseDecimalType;
+  numberOfBedrooms?: UseDecimalType[];
   /** Number of cash registers. */
-  numberOfCashRegisters?: UseDecimalType;
+  numberOfCashRegisters?: UseDecimalType[];
   /** Number of Commercial Refrigeration/Freezer cases, including any open or closed commercial type case, and including any walk-in units. */
-  numberOfCommercialRefrigerationUnits?: UseDecimalType;
+  numberOfCommercialRefrigerationUnits?: UseDecimalType[];
   /** Number of commercial-type washing machines. (This does not include residential or coin-operated machines) */
-  numberOfCommercialWashingMachines?: UseDecimalType;
+  numberOfCommercialWashingMachines?: UseDecimalType[];
   /** Number of computers and servers at the property. */
-  numberOfComputers?: UseDecimalType;
+  numberOfComputers?: UseDecimalType[];
   /** Number of concert/show events per year. */
-  numberOfConcertShowEventsPerYear?: UseIntegerType;
+  numberOfConcertShowEventsPerYear?: UseIntegerType[];
   /** Number of units located in individual buildings that are 1 to 4 stories in height, as well as units located wings/portions of larger buildings that fall in this height range (e.g. if Wing A is 6 stories and Wing B is 3 stories, only units in Wing B would be counted here). */
-  numberOfResidentialLivingUnitsLowRiseSetting?: UseDecimalType;
+  numberOfResidentialLivingUnitsLowRiseSetting?: UseDecimalType[];
   /** Number of full-time equivalent workers (total number of hours worked by all workers, divided by the standard hours in a full time shift). */
-  numberOfFTEWorkers?: UseDecimalType;
+  numberOfFTEWorkers?: UseDecimalType[];
   /** Total number of guest meals (also called meal covers) served each year. */
-  numberOfGuestMealsServedPerYear?: UseIntegerType;
+  numberOfGuestMealsServedPerYear?: UseIntegerType[];
   /** The total number of laundry hookups in all individual living units (counting hookups, whether or not there is a machine). */
-  numberOfLaundryHookupsInAllUnits?: UseIntegerType;
+  numberOfLaundryHookupsInAllUnits?: UseIntegerType[];
   /** The total number of laundry hookups in all common areas (counting hookups, whether or not there is a machine). */
-  numberOfLaundryHookupsInCommonArea?: UseIntegerType;
+  numberOfLaundryHookupsInCommonArea?: UseIntegerType[];
   /** Number of MRI Machines. */
-  numberOfMriMachines?: UseDecimalType;
+  numberOfMriMachines?: UseDecimalType[];
   /** The Number of Open or Closed Refrigeration/Freezer Units is the count of open or closed cases that are used for the sale or storage of perishable goods. This includes display-type refrigerated open or closed cases and cabinets as well as display-type freezer units typically found on a sales floor. Each case or cabinet section, typically 4 to 12 feet in length, should be considered 1 unit. Include those cases located inside and immediately adjacent to the building. These units may be portable or permanent, and may have doors, plastic strips, or other flexible cover. This count should not include vending machines. If your property is in the design phase, use your best estimate for the intended conditions when the property is fully operational. */
-  numberOfOpenClosedRefrigerationUnits?: UseDecimalType;
+  numberOfOpenClosedRefrigerationUnits?: UseDecimalType[];
   /** Number of people living in the home. */
-  numberOfPeople?: UseIntegerType;
+  numberOfPeople?: UseIntegerType[];
   /** Number of residential electronic lift systems. */
-  numberOfResidentialLiftSystems?: UseDecimalType;
+  numberOfResidentialLiftSystems?: UseDecimalType[];
   /** Total number of residential living units (apartments or condominiums) at the property. This value must equal the sum of the number of residential living units in a low-rise setting, mid-rise setting, and high-rise setting. A 0.9 tolerance is allowed. */
-  numberOfResidentialLivingUnits?: UseDecimalType;
+  numberOfResidentialLivingUnits?: UseDecimalType[];
   /** Number of residential-type washing machines. */
-  numberOfResidentialWashingMachines?: UseDecimalType;
+  numberOfResidentialWashingMachines?: UseDecimalType[];
   /** Total number of rooms for a lodging type of property (hotel, dormitory, etc). */
-  numberOfRooms?: UseDecimalType;
+  numberOfRooms?: UseDecimalType[];
   /** Total number of rooms for a lodging type of property (hotel). */
-  numberOfHotelRooms?: UseDecimalType;
+  numberOfHotelRooms?: UseDecimalType[];
   /** Number of special/other events per year at a stadium/arena (i.e. events that are neither concerts/shows nor athletic events). */
-  numberOfSpecialOtherEventsPerYear?: UseIntegerType;
+  numberOfSpecialOtherEventsPerYear?: UseIntegerType[];
   /** Number of sporting/athletic events per year. */
-  numberOfSportingEventsPerYear?: UseIntegerType;
+  numberOfSportingEventsPerYear?: UseIntegerType[];
   /** Number of beds set up and staffed for use at a hospital. */
-  numberOfStaffedBeds?: UseDecimalType;
+  numberOfStaffedBeds?: UseDecimalType[];
   /** Number of beds associated with surgical operation at a medial office/outpatient healthcare facility. */
-  numberOfSurgicalOperatingBeds?: UseDecimalType;
+  numberOfSurgicalOperatingBeds?: UseDecimalType[];
   /** Number of walk-in refrigeration/freezer units - including only those commercial type units that you can completely enter to retrieve goods. */
-  numberOfWalkInRefrigerationUnits?: UseDecimalType;
+  numberOfWalkInRefrigerationUnits?: UseDecimalType[];
   /** Number of weekdays (Monday through Friday) the property is open. This will be an number between 0 and 5. */
-  numberOfWeekdaysOpen?: NumberOfWeekdaysType;
+  numberOfWeekdaysOpen?: NumberOfWeekdaysType[];
   /** The total number of workers during the primary (largest shift) - this is only a total number of people in the building at a single time. */
-  numberOfWorkers?: UseDecimalType;
+  numberOfWorkers?: UseDecimalType[];
   /** Number of indoor ice rinks used for indoor hockey, ringette, public or figure skating. This does not include curling sheets. */
-  numberOfIndoorIceRinks?: UseIntegerType;
+  numberOfIndoorIceRinks?: UseIntegerType[];
   /** Total number of floods in a week using ice resurfacing machines after typical ice rink use for all indoor hockey, ringette, public or figure skating ice rinks in the facility. This does not include curling sheet resurfacing or pebbling. For multiple rinks, sum the total number of weekly resurfacing for all rinks. */
-  numberOfWeeklyIceResurfacingForAllRinks?: NumberOfWeeklyIceResurfacingType;
+  numberOfWeeklyIceResurfacingForAllRinks?: NumberOfWeeklyIceResurfacingType[];
   /** Number of ice sheets specifically for the purpose of the game of curling. */
-  numberOfCurlingSheets?: UseIntegerType;
+  numberOfCurlingSheets?: UseIntegerType[];
   /** Presence of a nutrient removal system at a wastewater treatment plant (Yes/No). */
-  nutrientRemoval?: UseYesNoType;
+  nutrientRemoval?: UseYesNoType[];
   /** Presence of an on-site Laundry Facility (Yes/No). */
-  onSiteLaundryFacility?: UseYesNoType;
+  onSiteLaundryFacility?: UseYesNoType[];
   /** Total area of open parking lots/areas. */
-  openFootage?: GrossFloorAreaType;
+  openFootage?: GrossFloorAreaType[];
   /** Indication of regular activities that occur on either Saturday or Sunday (Yes/No). */
-  openOnWeekends?: UseYesNoType;
+  openOnWeekends?: UseYesNoType[];
   /** Indication of whether the property is owned by a private, not-for profit, or government organization. */
-  ownedBy?: OwnedByType;
+  ownedBy?: OwnedByType[];
   /** Total area of all parking structures that are only partially enclosed (i.e. multi-level structures that only have partial walls). */
-  partiallyEnclosedFootage?: GrossFloorAreaType;
+  partiallyEnclosedFootage?: GrossFloorAreaType[];
   /** The percent of the property that can be cooled by mechanical cooling equipment. */
-  percentCooled?: PercentCooledType;
+  percentCooled?: PercentCooledType[];
   /** The percent of the property that can be heated by mechanical heating equipment. */
-  percentHeated?: PercentHeatedType;
+  percentHeated?: PercentHeatedType[];
   /** Number of units located in individual buildings that are 5 to 9 stories in height, as well as units located wings/portions of larger buildings that fall in this height range (e.g. if Wing A is 6 stories and Wing B is 3 stories, only units in Wing A would be counted here). */
-  numberOfResidentialLivingUnitsMidRiseSetting?: UseDecimalType;
+  numberOfResidentialLivingUnitsMidRiseSetting?: UseDecimalType[];
   /** The percent of the Gross Floor Area that is common space (not individual tenant areas) */
-  percentOfGrossFloorAreaThatIsCommonSpaceOnly?: UseDecimalType;
-  percentOfficeCooled?: PercentOfficeCooledType;
-  percentOfficeHeated?: PercentOfficeHeatedType;
+  percentOfGrossFloorAreaThatIsCommonSpaceOnly?: UseDecimalType[];
+  percentOfficeCooled?: PercentOfficeCooledType[];
+  percentOfficeHeated?: PercentOfficeHeatedType[];
   /** The indoor ice rink surface area is the total area covered by ice of all the ice rinks used for indoor hockey, ringette, public or figure skating and can be estimated by multiplying the length of the ice surface with the width of the ice surface and adding together the calculated area for each ice rink in the facility. This surface area does not include curling sheets. */
-  totalIceRinkSurfaceAreaForAllRinks?: OptionalFloorAreaType;
+  totalIceRinkSurfaceAreaForAllRinks?: OptionalFloorAreaType[];
   /** The designed flow rate of a wastewater treatment plant (e.g. the capacity of the plant) in million gallons per day (MGD). */
-  plantDesignFlowRate?: PlantDesignFlowRateType;
+  plantDesignFlowRate?: PlantDesignFlowRateType[];
   /** Indication of whether a pool is indoor or outdoor. */
-  poolLocation?: PoolType;
+  poolLocation?: PoolType[];
   /** Approximate size of a swimming pool (Short Course, Recreational, Olympic). */
-  poolSize?: PoolSizeType;
+  poolSize?: PoolSizeType[];
   /** Number of units located in individual buildings that are 10 or more stories in height, as well as units located in wings/portions of buildings that fall in this range (e.g. if Wing A is 10 stories and Wing B is 5 stories, only units in Wing A would be counted here). */
-  numberOfResidentialLivingUnitsHighRiseSetting?: UseDecimalType;
+  numberOfResidentialLivingUnitsHighRiseSetting?: UseDecimalType[];
   /** An indication of the type of residents living at the property, if applicable (e.g. student, military, senior, etc). */
-  residentPopulation?: ResidentPopulationType;
+  residentPopulation?: ResidentPopulationType[];
   /** The school district in which the school is located. */
-  schoolDistrict?: UseStringType;
+  schoolDistrict?: UseStringType[];
   /** The seating capacity associated with the main areas of worship in a worship facility. */
-  seatingCapacity?: UseDecimalType;
+  seatingCapacity?: UseDecimalType[];
   /** Indication that a Retail Store is a single store (Yes/No). */
-  singleStore?: UseYesNoType;
-  totalGrossFloorArea?: GrossFloorAreaType;
+  singleStore?: UseYesNoType[];
+  totalGrossFloorArea?: GrossFloorAreaType[];
   /** Whether Data Center IT energy estimates are applied. */
-  estimatesApplied?: UseYesNoType;
+  estimatesApplied?: UseYesNoType[];
   /** Level of redundancy for the Uninterruptible Power Supply (UPS) system in a Data Center. */
-  upsSystemRedundancy?: UpsSystemRedundancyType;
+  upsSystemRedundancy?: UpsSystemRedundancyType[];
   /** The total size of electronic score boards at a stadium/arena. */
-  sizeOfElectronicScoreBoards?: OptionalFloorAreaType;
+  sizeOfElectronicScoreBoards?: OptionalFloorAreaType[];
   /** Number of ice sheets specifically for the purpose of the game of curling. */
-  spectatorSeatingCapacity?: UseDecimalType;
+  spectatorSeatingCapacity?: UseDecimalType[];
   /** Presence of supplemental heating systems in a parking garage (Yes/No). */
-  supplementalHeating?: UseYesNoType;
+  supplementalHeating?: UseYesNoType[];
   /** The number of students the school can accommodate (including portable classrooms). */
-  studentSeatingCapacity?: UseDecimalType;
+  studentSeatingCapacity?: UseDecimalType[];
   /** The area within a medical office or outpatient healthcare property devoted to surgery. */
-  surgeryCenterFloorArea?: OptionalFloorAreaType;
+  surgeryCenterFloorArea?: OptionalFloorAreaType[];
   /** The total number of hours per week that the property is occupied by the majority of the employees. It does not include hours when the property is occupied only by maintenance, security, or other support personnel. */
-  weeklyOperatingHours?: UseDecimalType;
+  weeklyOperatingHours?: UseDecimalType[];
   /** The total percentage of your property that is enclosed insulated storage space intended for the cooling or freezing of goods, merchandise, raw materials, or manufactured products in buildings (or portions of buildings), at or less than 50 degrees F. */
-  percentUsedForColdStorage?: UseIntegerType;
+  percentUsedForColdStorage?: UseIntegerType[];
   /** The Gross Floor Area Used for Food Preparation is the total size of all large/commercial kitchen areas used for the storage and preparation of food. This will be a subset of Gross Floor Area for the property. */
-  grossFloorAreaUsedForFoodPreparation?: OptionalFloorAreaType;
+  grossFloorAreaUsedForFoodPreparation?: OptionalFloorAreaType[];
   /** The Gross Floor Area that is Hotel Conference Space is the total size of all conference spaces. This will be a subset of Gross Floor Area for the property. */
-  grossFloorAreaHotelConferenceSpace?: OptionalFloorAreaType;
+  grossFloorAreaHotelConferenceSpace?: OptionalFloorAreaType[];
   /** The distance measured from the floor to the lowest overhead obstruction for the majority of the warehouse space. */
-  clearHeight?: ClearHeightUnitsType;
+  clearHeight?: ClearHeightUnitsType[];
   /** Number of working autoclaves and sterilizers in the building. */
-  numberOfSterilizationUnits?: UseDecimalType;
+  numberOfSterilizationUnits?: UseDecimalType[];
   /** Indicates presence of common entrance: Yes and No are 2 options and 1 or 0 is used. */
-  commonEntrance?: UseYesNoType;
+  commonEntrance?: UseYesNoType[];
   /** Number of cooking equipment units in a convenience store. */
-  numberOfCookingEquipmentUnits?: UseIntegerType;
+  numberOfCookingEquipmentUnits?: UseIntegerType[];
   /** Number of warming/heating equipment units in a convenience store. */
-  numberOfWarmingHeatingEquipmentUnits?: UseIntegerType;
+  numberOfWarmingHeatingEquipmentUnits?: UseIntegerType[];
   /** The maximum vertical distance measured from floor to ceiling. */
-  ceilingHeight?: CeilingHeightUnitsType;
+  ceilingHeight?: CeilingHeightUnitsType[];
   /** The average number of vehicles in inventory, not including vehicles housed at off-site locations. */
-  averageNumberOfVehiclesInInventory?: UseDecimalType;
+  averageNumberOfVehiclesInInventory?: UseDecimalType[];
   /** Denotes if a facility delivers mail products directly from the building to offsite customers at their residence or place of business. */
-  deliveryFacility?: UseYesNoType;
+  deliveryFacility?: UseYesNoType[];
   /** The number of letters and packages per year is the typical sum of mail products (such as lettermail, flyers, packages, parcels etc.) processed for outbound delivery in this facility in a 12 month period. */
-  numberOfLettersPackagesPerYear?: UseIntegerType;
+  numberOfLettersPackagesPerYear?: UseIntegerType[];
   /** Custom Use Detail #1 */
-  customUseDetail1?: CustomUseDetailsType;
+  customUseDetail1?: CustomUseDetailsType[];
   /** Custom Use Detail #2 */
-  customUseDetail2?: CustomUseDetailsType;
+  customUseDetail2?: CustomUseDetailsType[];
   /** Indicates presence of precise humidity and temperature control: Yes and No are 2 options and 1 or 0 is used. */
-  precisionControlsForTemperatureAndHumidity?: UseYesNoType;
+  precisionControlsForTemperatureAndHumidity?: UseYesNoType[];
   /** The Gross Floor Area refers to the total area used for public collection display areas. It is a subset of the total Gross Floor Area. It should not include outdoor public collection display areas. */
-  grossFloorAreaThatIsExhibitSpace?: OptionalFloorAreaType;
+  grossFloorAreaThatIsExhibitSpace?: OptionalFloorAreaType[];
   /** The number of paint bays is the number of spaces in a contained booth for painting or painting preparatory work. */
-  numberOfPaintBays?: UseDecimalType;
+  numberOfPaintBays?: UseDecimalType[];
   /** The number of repair bays is the count of designated spaces for a single vehicle to receive maintenance or repair. */
-  numberOfRepairBays?: UseDecimalType;
+  numberOfRepairBays?: UseDecimalType[];
   /** This is the length of all commercial kitchen exhaust hoods in metres. Kitchen Exhaust hood is defined in ASHRAE Handbook - HVAC Applications Chapter: Kitchen Ventilation. Commercial kitchen exhaust hoods are used primarily to remove cooking effluent from kitchens. */
-  lengthOfAllCommercialKitchenHoods?: LengthOfUseDetailType;
+  lengthOfAllCommercialKitchenHoods?: LengthOfUseDetailType[];
   /** Denotes if hot or cold food is prepared by cooking and assembling raw ingredients at the property location. */
-  cookingLocatedOnsite?: UseYesNoType;
+  cookingLocatedOnsite?: UseYesNoType[];
   /** Buildings used for manufacturing or assembling goods. Includes the plant type and sub type classification (if any). */
-  plantType?: PlantDataType;
+  plantType?: PlantDataType[];
   /** The number of emergency vehicles is the count of vehicles that are housed at and deployed from a station. */
-  numberOfEmergencyVehicles?: UseDecimalType;
+  numberOfEmergencyVehicles?: UseDecimalType[];
   /** The number of annual emergency incidents is the typical count of instances a station deploys equipment, personnel, or vehicles for its facility in a 12-month period. */
-  numberOfAnnualEmergencyIncidents?: UseDecimalType;
+  numberOfAnnualEmergencyIncidents?: UseDecimalType[];
   /** The number of hours per week that at least one worker or volunteer is in the building. */
-  weeklyBuildingOccupiedHours?: UseDecimalType;
+  weeklyBuildingOccupiedHours?: UseDecimalType[];
   /** Number of Level One electric vehicle charging stations. */
-  numberOfLevelOneEvChargingStations?: UseDecimalType;
+  numberOfLevelOneEvChargingStations?: UseDecimalType[];
   /** Number of Level Two electric vehicle charging stations. */
-  numberOfLevelTwoEvChargingStations?: UseDecimalType;
+  numberOfLevelTwoEvChargingStations?: UseDecimalType[];
   /** Number of DC Fast electric vehicle charging stations. */
-  numberOfDcFastEvChargingStations?: UseDecimalType;
+  numberOfDcFastEvChargingStations?: UseDecimalType[];
   /** Number of students enrolled at the campus in the indicated semester that are considered full time status by the school. */
-  numberOfFullTimeStudentsEnrolledMayToAugust?: UseDecimalType;
+  numberOfFullTimeStudentsEnrolledMayToAugust?: UseDecimalType[];
   /** Number of students enrolled at the campus in the indicated semester that are considered full time status by the school. */
-  numberOfFullTimeStudentsEnrolledJanuaryToApril?: UseDecimalType;
+  numberOfFullTimeStudentsEnrolledJanuaryToApril?: UseDecimalType[];
   /** Number of students enrolled at the campus in the indicated semester that are considered full time status by the school. */
-  numberOfFullTimeStudentsEnrolledSeptemberToDecember?: UseDecimalType;
+  numberOfFullTimeStudentsEnrolledSeptemberToDecember?: UseDecimalType[];
   /** The amount of money this campus spends on research and development in a typical year. */
-  annualResearchExpenditure?: AnnualResearchExpenditureType;
+  annualResearchExpenditure?: AnnualResearchExpenditureType[];
   /** The percentage of the floor area of this campus that is specialized instruction or research space that caters to specific uses. */
-  percentOfLabFloorArea?: UseIntegerType;
+  percentOfLabFloorArea?: UseIntegerType[];
   /** The Highest Level of Award for higher education institutions is based on the highest level of degree, diploma, or certificate offered by the institution. */
-  highestAwardLevel?: HighestAwardLevelType;
+  highestAwardLevel?: HighestAwardLevelType[];
 }
 
 export interface VerificationElement {

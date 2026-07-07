@@ -295,6 +295,15 @@ interface EmittedProp {
   doc: string;
 }
 
+/**
+ * Renders a prop's value type, parenthesizing unions before appending `[]`
+ * (`(A | B)[]`, not `A | B[]` which would only array-ify the last member).
+ */
+function renderValueType(prop: EmittedProp): string {
+  if (!prop.many) return prop.tsType;
+  return /[|&]/.test(prop.tsType) ? `(${prop.tsType})[]` : `${prop.tsType}[]`;
+}
+
 /** Resolves an element's value type; may recurse into inline complex types. */
 function elementTsType(element: XsdNode, stack: string[]): string {
   const typeName = element["@_type"] as string | undefined;
@@ -312,7 +321,7 @@ function elementTsType(element: XsdNode, stack: string[]): string {
     const props = body.props
       .map(
         (prop) =>
-          `${JSON.stringify(prop.name) === `"${prop.name}"` && /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(prop.name) ? prop.name : JSON.stringify(prop.name)}${prop.optional ? "?" : ""}: ${prop.tsType}${prop.many ? "[]" : ""}`,
+          `${JSON.stringify(prop.name) === `"${prop.name}"` && /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(prop.name) ? prop.name : JSON.stringify(prop.name)}${prop.optional ? "?" : ""}: ${renderValueType(prop)}`,
       )
       .join("; ");
     return props.length > 0 ? `{ ${props} }` : "Record<string, unknown>";
@@ -345,13 +354,20 @@ function complexTypeBody(
     }
   };
 
-  const addCompositors = (owner: XsdNode, optional: boolean) => {
+  // forcedMany mirrors walkCompositor: a repeating enclosing compositor or
+  // group reference makes every element inside it repeatable regardless of
+  // the element's own maxOccurs.
+  const addCompositors = (
+    owner: XsdNode,
+    optional: boolean,
+    forcedMany: boolean,
+  ) => {
     if (!owner) return;
     for (const kind of ["sequence", "all", "choice"]) {
       for (const compositor of owner[kind] ?? []) {
         const compositorOptional =
           optional || kind === "choice" || compositor["@_minOccurs"] === "0";
-        const compositorMany = isMany(compositor);
+        const compositorMany = forcedMany || isMany(compositor);
         for (const element of compositor.element ?? []) {
           const target = element["@_ref"]
             ? topLevelElements.get(element["@_ref"])
@@ -370,15 +386,21 @@ function complexTypeBody(
           const group = groupRef["@_ref"]
             ? groups.get(groupRef["@_ref"])
             : undefined;
-          if (group) addCompositors(group, compositorOptional);
+          if (group) {
+            addCompositors(
+              group,
+              compositorOptional || groupRef["@_minOccurs"] === "0",
+              compositorMany || isMany(groupRef),
+            );
+          }
         }
-        addCompositors(compositor, compositorOptional);
+        addCompositors(compositor, compositorOptional, compositorMany);
       }
     }
   };
 
   addAttributes(type);
-  addCompositors(type, false);
+  addCompositors(type, false, false);
 
   for (const contentKind of ["complexContent", "simpleContent"]) {
     const extension = type[contentKind]?.extension;
@@ -396,7 +418,7 @@ function complexTypeBody(
       });
     }
     addAttributes(extension);
-    addCompositors(extension, false);
+    addCompositors(extension, false, false);
   }
 
   return { extendsBase, props };
@@ -408,7 +430,7 @@ function renderProps(props: EmittedProp[]): string {
       const key = /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(prop.name)
         ? prop.name
         : JSON.stringify(prop.name);
-      return `${prop.doc}  ${key}${prop.optional ? "?" : ""}: ${prop.tsType}${prop.many ? "[]" : ""};`;
+      return `${prop.doc}  ${key}${prop.optional ? "?" : ""}: ${renderValueType(prop)};`;
     })
     .join("\n");
 }
