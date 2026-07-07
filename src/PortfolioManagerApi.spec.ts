@@ -850,6 +850,26 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     expect(isPortfolioManagerApiError({})).to.equal(false);
   });
 
+  it("post sends no body for body-less endpoints", async () => {
+    // fast-xml-parser >= 5.7 delegates to fast-xml-builder, whose build()
+    // throws on undefined input where older versions returned "" — so
+    // body-less endpoints must bypass the builder entirely.
+    fetchMock.mockResolvedValue(
+      new Response('<response status="Ok" />', {
+        status: 200,
+        statusText: "OK",
+      }),
+    );
+
+    await expect(
+      unitApi.meterPropertyAssociationSinglePost(1, 2),
+    ).resolves.toBeTruthy();
+
+    const [, init] = fetchMock.mock.calls[0];
+    expect(init?.method).to.equal("POST");
+    expect(init?.body).to.equal(undefined);
+  });
+
   it("fetch throws PortfolioManagerApiError on 5xx responses", async () => {
     fetchMock.mockResolvedValue(
       new Response("<response status='Error' />", {
