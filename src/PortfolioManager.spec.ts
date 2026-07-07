@@ -535,6 +535,39 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
     );
   });
 
+  it("rejects a logger without an error method at construction", () => {
+    const api = createMinimalMockApi();
+    expect(() => new PortfolioManager(api, { logger: {} as never })).toThrow(
+      "Invalid logger option",
+    );
+  });
+
+  it("routes facade error logging through an injected logger", async () => {
+    const api = createMinimalMockApi();
+    const logged: unknown[][] = [];
+    const pm = new PortfolioManager(api, {
+      logger: {
+        error: (...args: unknown[]) => {
+          logged.push(args);
+        },
+      },
+    });
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    vi.spyOn(pm, "getAssociatedMeters").mockRejectedValue(
+      new Error("assoc failed"),
+    );
+    await expect(pm.getMetersPropertiesAssociation([1])).resolves.toEqual([]);
+
+    expect(logged.length).to.equal(1);
+    expect(logged[0][0]).to.equal("Error getting meter property association");
+    // The rejection reason is forwarded as the second argument.
+    expect(logged[0][1]).to.be.instanceOf(Error);
+    expect((logged[0][1] as Error).message).to.equal("assoc failed");
+    expect(consoleSpy).not.toHaveBeenCalled();
+    consoleSpy.mockRestore();
+  });
+
   it("getProperties caps fan-out at the configured concurrency", async () => {
     const api = createMinimalMockApi();
     const pm = new PortfolioManager(api, { concurrency: 2 });
