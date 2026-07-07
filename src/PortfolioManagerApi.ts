@@ -254,14 +254,27 @@ export class PortfolioManagerApi {
     }
   }
 
+  /**
+   * Some endpoints (e.g. meter/property association, sample properties)
+   * take no request body — the whole operation is expressed in the URL.
+   * fast-xml-parser >= 5.7 delegates building to fast-xml-builder, whose
+   * build() throws on nullish input where older versions returned "", so
+   * body-less requests must skip the builder entirely (an absent body and
+   * an empty body are equivalent on the wire).
+   */
+  private buildBody(data: unknown): string | undefined {
+    if (data == null) return undefined;
+    const builder = new XMLBuilder(this.xmlBuilderOptions);
+    return builder.build(data) as string;
+  }
+
   /** Options (e.g. an AbortSignal) are forwarded; method and body win. */
   async post<REQ, RESP>(
     path: string,
     data: REQ,
     options: RequestInit = {},
   ): Promise<RESP> {
-    const builder = new XMLBuilder(this.xmlBuilderOptions);
-    const body: string = builder.build(data);
+    const body = this.buildBody(data);
     return await this.fetch<RESP>(path, { ...options, method: "POST", body });
   }
 
@@ -271,8 +284,7 @@ export class PortfolioManagerApi {
     data: REQ,
     options: RequestInit = {},
   ): Promise<RESP> {
-    const builder = new XMLBuilder(this.xmlBuilderOptions);
-    const body: string = builder.build(data);
+    const body = this.buildBody(data);
     return await this.fetch<RESP>(path, { ...options, method: "PUT", body });
   }
 
