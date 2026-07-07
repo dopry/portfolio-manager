@@ -109,8 +109,11 @@ export class PortfolioManagerApi {
     // fast-xml-parser collapses single-occurrence elements to plain
     // objects; ARRAY_JPATHS (generated from the vendored XSDs by
     // `npm run generate:xml`) pins every schema-repeatable element to
-    // array shape so responses parse consistently.
-    isArray: (_name, jpath): boolean => ARRAY_JPATHS.has(jpath),
+    // array shape so responses parse consistently. Since fxp 5.9 the
+    // callback receives a MatcherView instead of a string when the
+    // jPath option is off; stringifying covers both (MatcherView's
+    // toString() yields the dotted jpath).
+    isArray: (_name, jpath): boolean => ARRAY_JPATHS.has(String(jpath)),
   };
   xmlBuilderOptions: Partial<XmlBuilderOptions> = {
     ignoreAttributes: false,
