@@ -543,7 +543,7 @@ export class PortfolioManager {
           )
             ? null
             : monthly["value"];
-          if (exclude_null && !value) return acc;
+          if (exclude_null && value === null) return acc;
           const month = parseInt(monthly["@_month"], 10);
           const year = parseInt(monthly["@_year"], 10);
           if (Number.isNaN(month) || Number.isNaN(year)) {
@@ -599,7 +599,7 @@ export class PortfolioManager {
           )
             ? null
             : monthly["value"];
-          if (exclude_null && !monthlyValue) return monthlyAcc;
+          if (exclude_null && monthlyValue === null) return monthlyAcc;
           const month = parseInt(monthly["@_month"], 10);
           const year = parseInt(monthly["@_year"], 10);
           if (Number.isNaN(month) || Number.isNaN(year)) {
@@ -666,7 +666,7 @@ export class PortfolioManager {
         const value = isIPropertyMetricValueNull(series["value"])
           ? null
           : series["value"];
-        if (exclude_null && !value) return acc;
+        if (exclude_null && value === null) return acc;
         acc[name] = { propertyId, name, uom, year, month, value };
       }
       return acc;

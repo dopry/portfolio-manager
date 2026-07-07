@@ -831,6 +831,7 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
               monthlyMetric: [
                 { "@_month": "1", "@_year": "2024", value: 10 },
                 { "@_month": "2", "@_year": "2024", value: { "@_xsi:nil": "true" } },
+                { "@_month": "3", "@_year": "2024", value: 0 },
               ],
             },
           ],
@@ -857,8 +858,10 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
       ["siteTotal"],
       true
     );
+    // 0 is a legitimate metric value; exclude_null must only drop xsi:nil.
     expect(includeNullFiltered.siteTotal.value).toEqual([
       { month: 1, year: 2024, value: 10 },
+      { month: 3, year: 2024, value: 0 },
     ]);
 
     const allFilteredOut = await pm.getPropertyMonthlyMetrics2(
@@ -935,13 +938,24 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
                 "@_year": "2024",
                 value: { "@_xsi:nil": "true" },
               },
+              { "@_month": "2", "@_year": "2024", value: 0 },
             ],
           },
         ],
       },
     } as never);
+    // exclude_null drops only the xsi:nil month, not the legitimate 0 value.
     await expect(pm.getPropertyMonthlyMetrics(3, 2024, 1, ["monthly"], true)).resolves.toEqual(
-      []
+      [
+        {
+          propertyId: 3,
+          name: "monthly",
+          uom: "kBtu",
+          month: 2,
+          year: 2024,
+          value: 0,
+        },
+      ]
     );
   });
 
@@ -997,6 +1011,21 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
 
     const nonNull = await pm.getPropertyMetrics(5, 2024, 1, ["score"], true);
     expect(nonNull.score.value).to.equal("123");
+
+    vi.mocked(api.propertyMetricsGet).mockResolvedValueOnce({
+      propertyMetrics: {
+        metric: [
+          {
+            "@_name": "score",
+            "@_dataType": "NUMBER",
+            value: 0,
+          },
+        ],
+      },
+    } as never);
+    // 0 is a legitimate value; exclude_null must only drop xsi:nil.
+    const zeroValue = await pm.getPropertyMetrics(5, 2024, 1, ["score"], true);
+    expect(zeroValue.score.value).to.equal(0);
   });
 
   it("getMeterConsumption returns empty list for unknown meterData shape", async () => {
