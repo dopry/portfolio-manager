@@ -1193,6 +1193,12 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     expect(fetchMock.mock.calls[1][0]).to.equal(
       "https://example.test/property/1",
     );
+
+    // fetch() is public API: a legacy leading-slash path still joins cleanly.
+    await noSlashApi.fetch("/property/1");
+    expect(fetchMock.mock.calls[2][0]).to.equal(
+      "https://example.test/property/1",
+    );
   });
 
   it("post and put forward an AbortSignal to fetch", async () => {

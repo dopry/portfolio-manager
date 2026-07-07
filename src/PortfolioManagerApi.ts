@@ -210,11 +210,13 @@ export class PortfolioManagerApi {
     if (init.body instanceof ReadableStream && streamInit.duplex == null) {
       streamInit.duplex = "half";
     }
-    // Path convention: endpoint paths are relative (no leading slash);
+    // Path convention: endpoint paths are relative (no leading slash), but
+    // fetch() is public API, so strip a legacy leading slash defensively;
     // tolerate endpoints configured with or without a trailing slash.
+    const relativePath = path.startsWith("/") ? path.slice(1) : path;
     const url = this.endpoint.endsWith("/")
-      ? this.endpoint + path
-      : `${this.endpoint}/${path}`;
+      ? this.endpoint + relativePath
+      : `${this.endpoint}/${relativePath}`;
     let response = await fetch(url, init);
 
     // Retrying is safe even for POST/PUT: a rate-limited request is rejected
