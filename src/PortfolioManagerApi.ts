@@ -75,21 +75,6 @@ export function isPortfolioManagerApiError(
   return obj instanceof PortfolioManagerApiError;
 }
 
-/**
- * Normalizes any HeadersInit form (Headers instance, tuple array, or plain
- * record) to a plain record so it can be spread over the default headers.
- * Spreading a Headers instance directly would yield {} and a tuple array
- * would yield numeric keys, silently dropping caller-provided headers.
- */
-function toHeaderRecord(
-  headers: RequestInit["headers"]
-): Record<string, string | undefined> {
-  if (!headers) return {};
-  if (headers instanceof Headers) return Object.fromEntries(headers);
-  if (Array.isArray(headers)) return Object.fromEntries(headers);
-  return headers;
-}
-
 export interface PortfolioManagerApiOptions {
   /** Number of times to retry a request after a 429 Too Many Requests response. */
   maxRetries?: number;
@@ -204,13 +189,18 @@ export class PortfolioManagerApi {
         "Basic " +
         Buffer.from(`${this.username}:${this.password}`).toString("base64");
     }
+    // Merge through Headers so every HeadersInit form (Headers instance,
+    // tuple array, plain record) is accepted and keys merge
+    // case-insensitively — a spread would duplicate e.g. Content-Type and
+    // content-type, and would mangle non-record forms entirely.
+    const mergedHeaders = new Headers(headers);
+    new Headers(options.headers).forEach((value, key) => {
+      mergedHeaders.set(key, value);
+    });
     const init: RequestInit = {
       method: "GET",
       ...options,
-      headers: {
-        ...headers,
-        ...toHeaderRecord(options.headers),
-      },
+      headers: mergedHeaders,
     };
     const url = this.endpoint + path;
     let response = await fetch(url, init);

@@ -1111,19 +1111,15 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     const postAccountInit = fetchMock.mock.calls[0][1] as
       | Record<string, unknown>
       | undefined;
-    const postAccountHeaders = postAccountInit?.headers as
-      | Record<string, string>
-      | undefined;
-    expect(postAccountHeaders?.Authorization).to.equal(undefined);
+    const postAccountHeaders = postAccountInit?.headers as Headers;
+    expect(postAccountHeaders.get("authorization")).to.equal(null);
 
     await unitApi.fetch("account", { method: "GET" });
     const getAccountInit = fetchMock.mock.calls[1][1] as
       | Record<string, unknown>
       | undefined;
-    const getAccountHeaders = getAccountInit?.headers as
-      | Record<string, string>
-      | undefined;
-    expect(getAccountHeaders?.Authorization).to.be.a("string");
+    const getAccountHeaders = getAccountInit?.headers as Headers;
+    expect(getAccountHeaders.get("authorization")).to.be.a("string");
 
     await unitApi.fetch("property/1", {
       method: "GET",
@@ -1132,12 +1128,10 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     const getPropertyInit = fetchMock.mock.calls[2][1] as
       | Record<string, unknown>
       | undefined;
-    const getPropertyHeaders = getPropertyInit?.headers as
-      | Record<string, string>
-      | undefined;
-    expect(getPropertyHeaders?.Authorization).to.be.a("string");
-    expect(getPropertyHeaders?.["X-Test"]).to.equal("yes");
-    expect(getPropertyHeaders?.["Content-Type"]).to.equal("application/xml");
+    const getPropertyHeaders = getPropertyInit?.headers as Headers;
+    expect(getPropertyHeaders.get("authorization")).to.be.a("string");
+    expect(getPropertyHeaders.get("x-test")).to.equal("yes");
+    expect(getPropertyHeaders.get("content-type")).to.equal("application/xml");
   });
 
   it("fetch preserves caller headers passed as Headers instances or tuple arrays", async () => {
@@ -1149,15 +1143,20 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     });
 
     await unitApi.fetch("property/1", {
-      headers: new Headers({ "X-From-Headers": "yes" }),
+      headers: new Headers({
+        "X-From-Headers": "yes",
+        // Headers instances normalize keys to lowercase; the merge must
+        // still override the default Content-Type instead of duplicating
+        // it under a second casing.
+        "Content-Type": "text/xml",
+      }),
     });
     const headersInit = fetchMock.mock.calls[0][1] as
       | Record<string, unknown>
       | undefined;
-    const headersRecord = headersInit?.headers as Record<string, string>;
-    // The Headers class normalizes keys to lowercase.
-    expect(headersRecord["x-from-headers"]).to.equal("yes");
-    expect(headersRecord["Content-Type"]).to.equal("application/xml");
+    const sentHeaders = headersInit?.headers as Headers;
+    expect(sentHeaders.get("x-from-headers")).to.equal("yes");
+    expect(sentHeaders.get("content-type")).to.equal("text/xml");
 
     await unitApi.fetch("property/1", {
       headers: [["X-From-Tuples", "also yes"]],
@@ -1165,9 +1164,9 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     const tupleInit = fetchMock.mock.calls[1][1] as
       | Record<string, unknown>
       | undefined;
-    const tupleRecord = tupleInit?.headers as Record<string, string>;
-    expect(tupleRecord["X-From-Tuples"]).to.equal("also yes");
-    expect(tupleRecord["Content-Type"]).to.equal("application/xml");
+    const tupleHeaders = tupleInit?.headers as Headers;
+    expect(tupleHeaders.get("x-from-tuples")).to.equal("also yes");
+    expect(tupleHeaders.get("content-type")).to.equal("application/xml");
   });
 
   it("post, put, and get delegate to fetch with expected init", async () => {
