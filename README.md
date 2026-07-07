@@ -14,7 +14,7 @@ The Node.js SDK makes the platform more accessible to JavaScript developers.
 
 - Node.js: `>=20`
 - Package format: ESM-only (`"type": "module"`)
-- CLI bin entry: `dist/index.js`
+- CLI bin entry: `dist/cli.js`
 
 If you are consuming the SDK in your own code, use ESM imports.
 
@@ -77,7 +77,7 @@ GitHub Actions (`.github/workflows/ci.yml`) is the source of truth for the pipel
 1. `npm ci`
 2. `npm run typecheck`
 3. `npm run build`
-4. `node ./dist/index.js --help`
+4. `node ./dist/cli.js --help`
 5. `npm test`
 
 The release job runs `npx semantic-release` from configured release branches (`main`, `next`, and maintenance branch patterns in `package.json`), publishing to npm via trusted publishing (OIDC) — no npm token is stored in CI.
