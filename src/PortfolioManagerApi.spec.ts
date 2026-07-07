@@ -11,10 +11,12 @@ import {
   vi,
 } from "vitest";
 
-// Wrap the global fetch so unit tests can stub responses while integration
-// tests pass through to the real network. mockReset() restores the original
-// passthrough implementation between tests.
-const fetchMock = vi.fn(globalThis.fetch);
+// Wrap the real fetch (captured before stubbing) so unit tests can stub
+// responses while integration tests pass through to the network. Vitest's
+// mockReset() — unlike Jest's — restores the original implementation given
+// to vi.fn(), i.e. this passthrough, between unit tests.
+const realFetch = globalThis.fetch;
+const fetchMock = vi.fn(realFetch);
 vi.stubGlobal("fetch", fetchMock);
 import {
   mockIProperty,
@@ -1136,6 +1138,36 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     expect(getPropertyHeaders?.Authorization).to.be.a("string");
     expect(getPropertyHeaders?.["X-Test"]).to.equal("yes");
     expect(getPropertyHeaders?.["Content-Type"]).to.equal("application/xml");
+  });
+
+  it("fetch preserves caller headers passed as Headers instances or tuple arrays", async () => {
+    fetchMock.mockImplementation(async () => {
+      return new Response("<response><status>Ok</status></response>", {
+        status: 200,
+        statusText: "OK",
+      });
+    });
+
+    await unitApi.fetch("property/1", {
+      headers: new Headers({ "X-From-Headers": "yes" }),
+    });
+    const headersInit = fetchMock.mock.calls[0][1] as
+      | Record<string, unknown>
+      | undefined;
+    const headersRecord = headersInit?.headers as Record<string, string>;
+    // The Headers class normalizes keys to lowercase.
+    expect(headersRecord["x-from-headers"]).to.equal("yes");
+    expect(headersRecord["Content-Type"]).to.equal("application/xml");
+
+    await unitApi.fetch("property/1", {
+      headers: [["X-From-Tuples", "also yes"]],
+    });
+    const tupleInit = fetchMock.mock.calls[1][1] as
+      | Record<string, unknown>
+      | undefined;
+    const tupleRecord = tupleInit?.headers as Record<string, string>;
+    expect(tupleRecord["X-From-Tuples"]).to.equal("also yes");
+    expect(tupleRecord["Content-Type"]).to.equal("application/xml");
   });
 
   it("post, put, and get delegate to fetch with expected init", async () => {

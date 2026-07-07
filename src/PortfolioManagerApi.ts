@@ -75,6 +75,21 @@ export function isPortfolioManagerApiError(
   return obj instanceof PortfolioManagerApiError;
 }
 
+/**
+ * Normalizes any HeadersInit form (Headers instance, tuple array, or plain
+ * record) to a plain record so it can be spread over the default headers.
+ * Spreading a Headers instance directly would yield {} and a tuple array
+ * would yield numeric keys, silently dropping caller-provided headers.
+ */
+function toHeaderRecord(
+  headers: RequestInit["headers"]
+): Record<string, string | undefined> {
+  if (!headers) return {};
+  if (headers instanceof Headers) return Object.fromEntries(headers);
+  if (Array.isArray(headers)) return Object.fromEntries(headers);
+  return headers;
+}
+
 export interface PortfolioManagerApiOptions {
   /** Number of times to retry a request after a 429 Too Many Requests response. */
   maxRetries?: number;
@@ -194,7 +209,7 @@ export class PortfolioManagerApi {
       ...options,
       headers: {
         ...headers,
-        ...(options.headers as Record<string, string> | undefined),
+        ...toHeaderRecord(options.headers),
       },
     };
     const url = this.endpoint + path;
