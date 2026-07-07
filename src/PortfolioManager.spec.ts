@@ -420,53 +420,39 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
     const api = createMinimalMockApi();
     const pm = new PortfolioManager(api);
 
-    vi.mocked(api.meterConsumptionDataGet)
-      .mockResolvedValueOnce({
-        meterData: {
-          meterConsumption: [],
-          links: { link: [] },
+    vi.mocked(api.meterConsumptionDataGet).mockResolvedValueOnce({
+      meterData: {
+        meterConsumption: [],
+        links: {
+          link: [
+            {
+              "@_linkDescription": "next page",
+              "@_link": "/meter/1/consumptionData?page=bad",
+              "@_httpMethod": "GET",
+            },
+          ],
         },
-      } as never)
-      .mockResolvedValueOnce({
-        meterData: {
-          meterConsumption: [],
-          links: {
-            link: [
-              {
-                "@_linkDescription": "next page",
-                "@_link": "/meter/1/consumptionData?page=bad",
-                "@_httpMethod": "GET",
-              },
-            ],
-          },
-        },
-      } as never);
+      },
+    } as never);
 
     await expect(pm.getMeterConsumption(1)).rejects.toThrow(
       "Invalid next page link for meter 1"
     );
 
-    vi.mocked(api.meterConsumptionDataGet)
-      .mockResolvedValueOnce({
-        meterData: {
-          meterConsumption: [],
-          links: { link: [] },
+    vi.mocked(api.meterConsumptionDataGet).mockResolvedValueOnce({
+      meterData: {
+        meterConsumption: [],
+        links: {
+          link: [
+            {
+              "@_linkDescription": "next page",
+              "@_link": "/meter/1/consumptionData?page=",
+              "@_httpMethod": "GET",
+            },
+          ],
         },
-      } as never)
-      .mockResolvedValueOnce({
-        meterData: {
-          meterConsumption: [],
-          links: {
-            link: [
-              {
-                "@_linkDescription": "next page",
-                "@_link": "/meter/1/consumptionData?page=",
-                "@_httpMethod": "GET",
-              },
-            ],
-          },
-        },
-      } as never);
+      },
+    } as never);
     await expect(pm.getMeterConsumption(1)).rejects.toThrow(
       "Invalid next page link for meter 1"
     );
@@ -1035,12 +1021,6 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
     vi.mocked(api.meterConsumptionDataGet)
       .mockResolvedValueOnce({
         meterData: {
-          meterDelivery: [{ quantity: 1 }],
-          links: { link: [] },
-        },
-      } as never)
-      .mockResolvedValueOnce({
-        meterData: {
           meterDelivery: [{ quantity: 2 }],
           links: {
             link: [
@@ -1064,6 +1044,9 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
       { quantity: 2 },
       { quantity: 5 },
     ]);
+    // The first page is fetched exactly once (previously a probe request
+    // duplicated it), and each subsequent page once.
+    expect(api.meterConsumptionDataGet).toHaveBeenCalledTimes(2);
 
     vi.mocked(api.meterConsumptionDataGet).mockResolvedValueOnce({ response: {} } as never);
     await expect(pm.getMeterConsumption(1)).rejects.toThrow("No meter consumption found");
