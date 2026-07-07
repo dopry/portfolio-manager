@@ -69,17 +69,25 @@ group reference.
 - `src/types/xml/arrayJPaths.spec.ts` pins the legacy 14 as a regression
   floor and asserts the known drift fixes and exclusions.
 
-## Phase 2 — generated interfaces, no consumer changes (planned)
+## Phase 2 — generated interfaces, no consumer changes (built)
 
-Extend the generator to emit TypeScript interfaces per complexType/document
-root into `src/types/xml/generated/v<ver>/`:
+The generator emits TypeScript mirrors per schema version into
+`src/types/xml/generated/v<ver>.ts` (one file per version):
 
-- attributes as `"@_name"` props (matching fast-xml-parser conventions),
-  optionality from `minOccurs`, `T[]` where the array list says so,
-  enumeration restrictions as string-literal unions, `xs:documentation` as
-  JSDoc.
-- A drift-check spec asserts the existing hand-written types remain
-  assignable to the generated ones. Hand types stay the public exports.
+- named simple types as aliases (enumeration restrictions become
+  string-literal unions, `xs:union`s become TS unions), named complex types
+  as interfaces (`xs:extension` maps to `extends`), and document roots with
+  inline types as `<Name>Element` interfaces.
+- attributes as `"@_name"`-prefixed **string** props (the runtime parser
+  keeps attribute values unparsed), element values as `number`/`boolean`/
+  `string` per the runtime's tag-value parsing, optionality from
+  `minOccurs`/`choice`, `T[]` for `maxOccurs > 1`, and `xs:documentation`
+  as JSDoc.
+- `src/types/xml/generated/typeDrift.ts` (types only, no runtime code)
+  asserts hand-written types stay assignable to their generated mirrors.
+  Day-one catch: `IAudit` account ids were mistyped as required strings —
+  the schema says optional `xs:long`, which parses to `number` at runtime.
+  Hand types remain the public exports until phase 3.
 
 ## Phase 3 — migrate consumers domain by domain (planned)
 
