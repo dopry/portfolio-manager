@@ -75,7 +75,13 @@ export class PortfolioManager {
     protected api: PortfolioManagerApi,
     options: PortfolioManagerOptions = {},
   ) {
-    this.logger = options.logger ?? console;
+    const logger = options.logger ?? console;
+    if (typeof logger.error !== "function") {
+      throw new Error(
+        "Invalid logger option: expected an object with an error method",
+      );
+    }
+    this.logger = logger;
     const concurrency = options.concurrency ?? 5;
     // Fail fast on misconfiguration instead of erroring later inside the
     // first fan-out call.

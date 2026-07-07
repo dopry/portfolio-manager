@@ -535,6 +535,13 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
     );
   });
 
+  it("rejects a logger without an error method at construction", () => {
+    const api = createMinimalMockApi();
+    expect(() => new PortfolioManager(api, { logger: {} as never })).toThrow(
+      "Invalid logger option",
+    );
+  });
+
   it("routes facade error logging through an injected logger", async () => {
     const api = createMinimalMockApi();
     const logged: unknown[][] = [];
