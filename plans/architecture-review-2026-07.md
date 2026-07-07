@@ -188,10 +188,10 @@ dependency set stays fresh without manual sweeps.
    `getPropertyMonthlyMetrics2`, and `getPropertyMetrics` overlap, and the
    `2` suffix is a placeholder name that will be frozen by semver the moment
    1.0 ships. Pick the keyed-by-name shape (the `2` variant) or the flat
-   shape, name it properly, and deprecate the others now. (Also:
-   `getPropertyMonthlyMetrics2` crashes with a TypeError on
-   `value.length` when a series has no `monthlyMetric` — the optional chain
-   produces `undefined` and the guard reads `.length` from it.)
+   shape, name it properly, and deprecate the others now. (A note from
+   verifying this section: the `series.monthlyMetric?.` optional chains in
+   both monthly methods are dead code — `isIPropertyMonthlyMetric` already
+   guarantees `monthlyMetric` is defined — and can be simplified away.)
 
 6. **Reconsider `getAccount()`'s cache as the only cache.** The
    promise-memoization with rollback-on-failure is correct and a good
@@ -276,8 +276,7 @@ throws at import time when `PM_USERNAME` is unset).
 2. tsconfig: `target ES2022`, `module/moduleResolution nodenext`, drop `baseUrl` (B).
 3. `exports` map + `types` + `sideEffects` in package.json (A.1).
 4. `parseAsync` + exit-code handling in the CLI entry (A.3).
-5. Fix double first-page fetch in `getMeterConsumption` (E.1) and the
-   `monthlyMetric` undefined crash (E.5).
+5. Fix double first-page fetch in `getMeterConsumption` (E.1).
 6. Linter + formatter + CI step + dependabot (H).
 
 **Medium (shapes the 1.x API, do before stabilizing):**
