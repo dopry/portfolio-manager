@@ -202,6 +202,11 @@ export class PortfolioManagerApi {
       ...options,
       headers: mergedHeaders,
     };
+    // undici requires duplex: "half" for streaming request bodies and throws
+    // a TypeError otherwise (node-fetch had no such requirement).
+    if (init.body instanceof ReadableStream && init.duplex == null) {
+      init.duplex = "half";
+    }
     const url = this.endpoint + path;
     let response = await fetch(url, init);
 
