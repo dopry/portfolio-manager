@@ -57,16 +57,25 @@ export interface PortfolioManagerOptions {
    * so unbounded fan-out over large accounts trips 429s. Defaults to 5.
    */
   concurrency?: number;
+  /**
+   * Sink for facade error logging (partial failures in fan-outs, unexpected
+   * response shapes). Defaults to console, which suits stdout/stderr log
+   * collection in containerized deployments; inject a custom sink to
+   * redirect or silence it.
+   */
+  logger?: Pick<Console, "error">;
 }
 
 export class PortfolioManager {
   protected _accountPromise: Promise<IAccount> | undefined;
   protected readonly concurrency: number;
+  protected readonly logger: Pick<Console, "error">;
 
   constructor(
     protected api: PortfolioManagerApi,
     options: PortfolioManagerOptions = {},
   ) {
+    this.logger = options.logger ?? console;
     const concurrency = options.concurrency ?? 5;
     // Fail fast on misconfiguration instead of erroring later inside the
     // first fan-out call.
@@ -275,7 +284,7 @@ export class PortfolioManager {
       if (isIDeliveryMeterData(meterData)) {
         return meterData.meterDelivery;
       }
-      console.error(
+      this.logger.error(
         `Unable to determine meter consumption type returning an empty array`,
         { meterId, startDate, endDate, meterData },
       );
@@ -445,7 +454,7 @@ export class PortfolioManager {
         try {
           return await this.getAssociatedMeters(propertyId);
         } catch (reason) {
-          console.error("Error getting meter property association", reason);
+          this.logger.error("Error getting meter property association", reason);
           return undefined;
         }
       },

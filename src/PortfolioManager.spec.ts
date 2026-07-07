@@ -535,6 +535,29 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
     );
   });
 
+  it("routes facade error logging through an injected logger", async () => {
+    const api = createMinimalMockApi();
+    const logged: unknown[][] = [];
+    const pm = new PortfolioManager(api, {
+      logger: {
+        error: (...args: unknown[]) => {
+          logged.push(args);
+        },
+      },
+    });
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    vi.spyOn(pm, "getAssociatedMeters").mockRejectedValue(
+      new Error("assoc failed"),
+    );
+    await expect(pm.getMetersPropertiesAssociation([1])).resolves.toEqual([]);
+
+    expect(logged.length).to.equal(1);
+    expect(logged[0][0]).to.equal("Error getting meter property association");
+    expect(consoleSpy).not.toHaveBeenCalled();
+    consoleSpy.mockRestore();
+  });
+
   it("getProperties caps fan-out at the configured concurrency", async () => {
     const api = createMinimalMockApi();
     const pm = new PortfolioManager(api, { concurrency: 2 });
