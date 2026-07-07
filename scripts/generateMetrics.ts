@@ -68,7 +68,13 @@ const API_FLAGS = [
   "Get-Property-PGP-List",
 ];
 
-const rows = parseCsv(readFileSync(INPUT_FILE, "utf8"));
+// Excel CSV exports often begin with a UTF-8 BOM; strip it so the header
+// comparison sees the real first column name.
+const csvText = readFileSync(INPUT_FILE, "utf8").replace(/^\uFEFF/, "");
+const rows = parseCsv(csvText);
+if (rows.length < 2) {
+  throw new Error(`${INPUT_FILE} is empty or has no data rows`);
+}
 const header = rows[0];
 const expectedHeader = [
   "Metric Group",
@@ -90,7 +96,7 @@ if (JSON.stringify(header) !== JSON.stringify(expectedHeader)) {
 const seen = new Set<string>();
 const tuples: string[] = [];
 const unknownTokens = new Set<string>();
-for (const row of rows.slice(1)) {
+for (const [index, row] of rows.slice(1).entries()) {
   const [
     group,
     groupId,
@@ -103,6 +109,12 @@ for (const row of rows.slice(1)) {
     method,
   ] = row;
   if (!slug) continue;
+  if (row.length < expectedHeader.length || !method) {
+    throw new Error(
+      `Malformed inventory row ${index + 2} (${slug}): expected ` +
+        `${expectedHeader.length} columns, got ${row.length}`,
+    );
+  }
   if (seen.has(slug)) {
     throw new Error(`Duplicate Web Services Name in inventory: ${slug}`);
   }
