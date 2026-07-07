@@ -1,4 +1,3 @@
-
 // xml: logType
 export interface IAudit {
   createdBy: string;

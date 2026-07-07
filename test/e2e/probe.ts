@@ -32,7 +32,8 @@ const username =
   (asProvider ? process.env.PM_USERNAME : process.env.PM_USERNAME2) || "";
 const password =
   (asProvider ? process.env.PM_PASSWORD : process.env.PM_PASSWORD2) || "";
-if (!username || !password) throw new Error("Set PM_USERNAME(2)/PM_PASSWORD(2)");
+if (!username || !password)
+  throw new Error("Set PM_USERNAME(2)/PM_PASSWORD(2)");
 
 function requireEnv(name: string): string {
   const value = process.env[name];
@@ -47,28 +48,25 @@ const ui = new EspmWebUi({
 
 async function dump(label: string) {
   const page = ui.page;
-  await page.waitForLoadState("networkidle", { timeout: 30000 }).catch(() => {});
+  await page
+    .waitForLoadState("networkidle", { timeout: 30000 })
+    .catch(() => {});
   console.log(`\n=== ${label} @ ${page.url()}`);
   console.log(`title: ${await page.title()}`);
-  console.log(
-    "frames:",
-    JSON.stringify(page.frames().map((f) => f.url()))
-  );
+  console.log("frames:", JSON.stringify(page.frames().map((f) => f.url())));
   const bodyText = await page
     .locator("body")
     .innerText()
     .catch(() => "");
   console.log("body text:", bodyText.replace(/\s+/g, " ").slice(0, 6000));
-  const links = await page
-    .locator("a")
-    .evaluateAll((els) =>
-      els
-        .map((e) => ({
-          text: (e.textContent || "").replace(/\s+/g, " ").trim().slice(0, 70),
-          href: (e.getAttribute("href") || "").slice(0, 90),
-        }))
-        .filter((l) => l.text)
-    );
+  const links = await page.locator("a").evaluateAll((els) =>
+    els
+      .map((e) => ({
+        text: (e.textContent || "").replace(/\s+/g, " ").trim().slice(0, 70),
+        href: (e.getAttribute("href") || "").slice(0, 90),
+      }))
+      .filter((l) => l.text),
+  );
   console.log("links:", JSON.stringify(links.slice(0, 120), null, 1));
   const inputs = await page
     .locator("input, select, button")
@@ -80,7 +78,7 @@ async function dump(label: string) {
         id: e.getAttribute("id"),
         value: (e.getAttribute("value") || "").slice(0, 40),
         text: (e.textContent || "").replace(/\s+/g, " ").trim().slice(0, 60),
-      }))
+      })),
     );
   console.log("controls:", JSON.stringify(inputs.slice(0, 80), null, 1));
 }
@@ -92,7 +90,10 @@ try {
 
   const page = ui.page;
   if (target === "contacts" || target === "add") {
-    await page.getByRole("link", { name: /contacts/i }).first().click();
+    await page
+      .getByRole("link", { name: /contacts/i })
+      .first()
+      .click();
     await page.waitForLoadState("domcontentloaded");
     await dump("contacts");
     if (target === "add") {
@@ -106,10 +107,13 @@ try {
             const value = (e as HTMLInputElement).value || "";
             return /add new contacts/i.test(direct + " " + value);
           })
-          .map((e) => e.outerHTML.slice(0, 400))
+          .map((e) => e.outerHTML.slice(0, 400)),
       );
       console.log("add candidates:", JSON.stringify(addCandidates, null, 1));
-      await page.getByText(/add new contacts/i).first().click();
+      await page
+        .getByText(/add new contacts/i)
+        .first()
+        .click();
       await page.waitForLoadState("domcontentloaded");
       await dump("add contact");
     }
@@ -125,9 +129,12 @@ try {
     await page.locator("#searchContactUsername").fill(providerUsername);
     console.log(
       "username field value after fill:",
-      await page.locator("#searchContactUsername").inputValue()
+      await page.locator("#searchContactUsername").inputValue(),
     );
-    await page.getByRole("button", { name: /^search$/i }).first().click();
+    await page
+      .getByRole("button", { name: /^search$/i })
+      .first()
+      .click();
     await dump("search results");
     await page
       .getByRole("button", { name: /^connect$/i })
@@ -150,7 +157,7 @@ try {
     });
     page.on("requestfailed", (r) => {
       console.log(
-        `REQFAILED ${r.method()} ${r.url().slice(0, 140)} => ${r.failure()?.errorText}`
+        `REQFAILED ${r.method()} ${r.url().slice(0, 140)} => ${r.failure()?.errorText}`,
       );
     });
     page.on("requestfinished", (r) => {
@@ -173,7 +180,7 @@ try {
     await opt.waitFor({ state: "attached" });
     const optValue = await opt.getAttribute("value");
     await providerSelect.selectOption(
-      optValue ? optValue : { label: (await opt.innerText()).trim() }
+      optValue ? optValue : { label: (await opt.innerText()).trim() },
     );
     await page.locator("#buttonSelectProperties").click();
     const dialog = page.locator("#modalDialogSelectProperties");
@@ -185,35 +192,44 @@ try {
       .locator('input[type="checkbox"]')
       .first()
       .check();
-    await dialog.getByText(/apply selection/i).first().click();
+    await dialog
+      .getByText(/apply selection/i)
+      .first()
+      .click();
     await dialog.waitFor({ state: "hidden" });
     await page.locator('input[name="bulk"][value="yes"]').click();
-    await page.locator('input[name="accessLevel"][value="FULL_ACCESS"]').click();
+    await page
+      .locator('input[name="accessLevel"][value="FULL_ACCESS"]')
+      .click();
     const radioState = () =>
       page.evaluate(() => ({
         bulk: (
-          document.querySelector('input[name="bulk"]:checked') as
-            | HTMLInputElement
-            | null
+          document.querySelector(
+            'input[name="bulk"]:checked',
+          ) as HTMLInputElement | null
         )?.value,
         accessLevel: (
-          document.querySelector('input[name="accessLevel"]:checked') as
-            | HTMLInputElement
-            | null
+          document.querySelector(
+            'input[name="accessLevel"]:checked',
+          ) as HTMLInputElement | null
         )?.value,
         accessLevelBindings: Array.from(
-          document.querySelectorAll('input[name="accessLevel"]')
+          document.querySelectorAll('input[name="accessLevel"]'),
         ).map((e) => e.getAttribute("data-bind")),
         errors: Array.from(
           document.querySelectorAll(
-            '[class*="error" i], [class*="alert" i], [class*="notice" i]'
-          )
+            '[class*="error" i], [class*="alert" i], [class*="notice" i]',
+          ),
         )
           .filter((e) => (e as HTMLElement).offsetParent !== null)
-          .map((e) => (e.textContent || "").replace(/\s+/g, " ").trim().slice(0, 200)),
+          .map((e) =>
+            (e.textContent || "").replace(/\s+/g, " ").trim().slice(0, 200),
+          ),
         koLoading: (() => {
           const w = window as unknown as {
-            ko?: { dataFor: (e: Element | null) => { loading?: () => boolean } };
+            ko?: {
+              dataFor: (e: Element | null) => { loading?: () => boolean };
+            };
           };
           try {
             return w.ko
@@ -236,7 +252,7 @@ try {
           let i = text.indexOf("authorizeExchange");
           while (i >= 0 && out.length < 4) {
             out.push(
-              `--- ${src}\n` + text.slice(Math.max(0, i - 300), i + 2200)
+              `--- ${src}\n` + text.slice(Math.max(0, i - 300), i + 2200),
             );
             i = text.indexOf("authorizeExchange", i + 1);
           }
@@ -252,21 +268,26 @@ try {
         console.log(`CONSOLE ${m.type()}: ${m.text().slice(0, 300)}`);
       }
     });
-    page.on("pageerror", (e) => console.log(`PAGEERROR: ${String(e).slice(0, 300)}`));
+    page.on("pageerror", (e) =>
+      console.log(`PAGEERROR: ${String(e).slice(0, 300)}`),
+    );
     await dump("before authorize");
     const authorizeButtons = await page.evaluate(() =>
       Array.from(document.querySelectorAll("button, input, a"))
         .filter((e) =>
           /authorize exchange/i.test(
-            (e.textContent || "") + " " + ((e as HTMLInputElement).value || "")
-          )
+            (e.textContent || "") + " " + ((e as HTMLInputElement).value || ""),
+          ),
         )
         .map((e) => ({
           html: e.outerHTML.slice(0, 400),
           visible: (e as HTMLElement).offsetParent !== null,
-        }))
+        })),
     );
-    console.log("authorize buttons:", JSON.stringify(authorizeButtons, null, 1));
+    console.log(
+      "authorize buttons:",
+      JSON.stringify(authorizeButtons, null, 1),
+    );
     // Log only — EspmWebUi.launch() already registers an accepting handler,
     // and a second accept() would reject with "dialog is already handled".
     page.on("dialog", (d) => {
@@ -302,18 +323,18 @@ try {
     await dump("account settings");
     const radios = await page.evaluate(() =>
       Array.from(
-        document.querySelectorAll("#contact-is-searchable-div input")
-      ).map((e) => e.outerHTML)
+        document.querySelectorAll("#contact-is-searchable-div input"),
+      ).map((e) => e.outerHTML),
     );
     console.log("searchable radios:", JSON.stringify(radios, null, 1));
     const submits = await page.evaluate(() =>
       Array.from(
         document.querySelectorAll(
-          'button[type="submit"], input[type="submit"], button'
-        )
+          'button[type="submit"], input[type="submit"], button',
+        ),
       )
         .map((e) => e.outerHTML.slice(0, 200))
-        .slice(0, 20)
+        .slice(0, 20),
     );
     console.log("submit candidates:", JSON.stringify(submits, null, 1));
     if (process.argv[3] === "--make-searchable") {
@@ -335,20 +356,20 @@ try {
     if (target === "wsshare") {
       // A share needs a live connection: peer sends the request via the UI,
       // provider accepts via the SDK.
-      const { PortfolioManager } = await import("../../src/PortfolioManager.js");
-      const { PortfolioManagerApi } = await import(
-        "../../src/PortfolioManagerApi.js"
-      );
+      const { PortfolioManager } =
+        await import("../../src/PortfolioManager.js");
+      const { PortfolioManagerApi } =
+        await import("../../src/PortfolioManagerApi.js");
       const { DEFAULT_API_URL } = await import("./support.js");
       const provider = new PortfolioManager(
         new PortfolioManagerApi(
           process.env.PM_ENDPOINT || DEFAULT_API_URL,
           requireEnv("PM_USERNAME"),
-          requireEnv("PM_PASSWORD")
-        )
+          requireEnv("PM_PASSWORD"),
+        ),
       );
       const pending = (await provider.getPendingConnections()).find(
-        (c) => c.username === username
+        (c) => c.username === username,
       );
       if (pending) {
         await provider.acceptConnection(pending.accountId, "probe accept");
@@ -373,12 +394,12 @@ try {
       const dialogHtml = await page.evaluate(() =>
         Array.from(
           document.querySelectorAll(
-            '[id*="dialog" i], [class*="modal" i], [class*="dialog" i]'
-          )
+            '[id*="dialog" i], [class*="modal" i], [class*="dialog" i]',
+          ),
         )
           .filter((e) => (e as HTMLElement).offsetParent !== null)
           .map((e) => e.outerHTML.slice(0, 3000))
-          .slice(0, 3)
+          .slice(0, 3),
       );
       console.log("dialogs:", JSON.stringify(dialogHtml, null, 1));
     }

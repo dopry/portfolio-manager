@@ -10,4 +10,4 @@
 export interface ICustomer {
   id: number; // The unique ID for the customer.
   organizationName: string; // The name of the customer's organization.
-} 
+}

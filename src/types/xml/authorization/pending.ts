@@ -16,12 +16,12 @@ export type IConnectionAudit = IAudit;
 export type IShareAudit = IAudit;
 
 export interface ICustomField {
-    '@_name': string;
-    '#text': string | number;
+  "@_name": string;
+  "#text": string | number;
 }
 
 export interface ICustomFieldList {
-    customField: ICustomField[] | ICustomField;
+  customField: ICustomField[] | ICustomField;
 }
 
 /**
@@ -29,52 +29,52 @@ export interface ICustomFieldList {
  * This structure appears in pending connection requests.
  */
 export interface IAccountInfo {
-    firstName: string;
-    lastName: string;
-    address: IAddress;
-    email: string;
-    organization: string;
-    jobTitle: string;
-    phone: string;
+  firstName: string;
+  lastName: string;
+  address: IAddress;
+  email: string;
+  organization: string;
+  jobTitle: string;
+  phone: string;
 }
 
 /**
  * Represents a pending account connection request.
  */
 export interface IPendingAccount {
-    accountId: number; // The id of the Portfolio Manager Account requesting to connect with you.
-    username: string; // The username of the Portfolio Manager Account requesting to connect with you.
-    customFieldList?: ICustomFieldList; // A list of custom field values provided by the user.
-    accountInfo: IAccountInfo; // Detailed contact information for the account.
-    connectionAudit?: IConnectionAudit; // Audit information for the connection request.
+  accountId: number; // The id of the Portfolio Manager Account requesting to connect with you.
+  username: string; // The username of the Portfolio Manager Account requesting to connect with you.
+  customFieldList?: ICustomFieldList; // A list of custom field values provided by the user.
+  accountInfo: IAccountInfo; // Detailed contact information for the account.
+  connectionAudit?: IConnectionAudit; // Audit information for the connection request.
 }
 
 /**
  * Represents a pending property share request.
  */
 export interface IPendingProperty {
-    propertyId: number; // The ID number of the property being shared.
-    customFieldList?: ICustomFieldList; // A list of custom field values provided by the user for this share.
-    accessLevel: ShareLevel; // The level of access for the property share request: Read or Read Write.
-    accountId: number; // The id of the account requesting the property share.
-    username: string; // The username of the Portfolio Manager Account requesting the property share.
-    propertyInfo: IProperty; // Detailed information about the property being shared.
-    shareAudit?: IShareAudit; // Audit information for the share request.
+  propertyId: number; // The ID number of the property being shared.
+  customFieldList?: ICustomFieldList; // A list of custom field values provided by the user for this share.
+  accessLevel: ShareLevel; // The level of access for the property share request: Read or Read Write.
+  accountId: number; // The id of the account requesting the property share.
+  username: string; // The username of the Portfolio Manager Account requesting the property share.
+  propertyInfo: IProperty; // Detailed information about the property being shared.
+  shareAudit?: IShareAudit; // Audit information for the share request.
 }
 
 /**
  * Represents a pending meter share request.
  */
 export interface IPendingMeter {
-    meterId: number; // The id of the meter being shared.
-    propertyId: number; // The id of the corresponding property.
-    accountId: number; // The id to the account requesting the meter share.
-    username: string; // The username of the Portfolio Manager Account requesting the meter share.
-    customFieldList?: ICustomFieldList; // A list of custom field values provided by the user for this share.
-    accessLevel: ShareLevel; // The level of access for the meter share request: Read or Read Write.
-    propertyInfo: IProperty; // Detailed information about the property this meter belongs to.
-    meterInfo: IMeter; // Detailed information about the meter being shared.
-    shareAudit?: IShareAudit; // Audit information for the share request.
+  meterId: number; // The id of the meter being shared.
+  propertyId: number; // The id of the corresponding property.
+  accountId: number; // The id to the account requesting the meter share.
+  username: string; // The username of the Portfolio Manager Account requesting the meter share.
+  customFieldList?: ICustomFieldList; // A list of custom field values provided by the user for this share.
+  accessLevel: ShareLevel; // The level of access for the meter share request: Read or Read Write.
+  propertyInfo: IProperty; // Detailed information about the property this meter belongs to.
+  meterInfo: IMeter; // Detailed information about the meter being shared.
+  shareAudit?: IShareAudit; // Audit information for the share request.
 }
 
 /**
@@ -82,8 +82,8 @@ export interface IPendingMeter {
  * @see https://portfoliomanager.energystar.gov/webservices/home/api/connection/pendingAccountList/get
  */
 export interface IPendingAccountList {
-    account: IPendingAccount[];
-    links?: { link: ILink[] };
+  account: IPendingAccount[];
+  links?: { link: ILink[] };
 }
 
 /**
@@ -91,8 +91,8 @@ export interface IPendingAccountList {
  * @see https://portfoliomanager.energystar.gov/webservices/home/api/connection/pendingPropertyList/get
  */
 export interface IPendingPropertyList {
-    property: IPendingProperty[];
-    links?: { link: ILink[] };
+  property: IPendingProperty[];
+  links?: { link: ILink[] };
 }
 
 /**
@@ -100,6 +100,6 @@ export interface IPendingPropertyList {
  * @see https://portfoliomanager.energystar.gov/webservices/home/api/connection/pendingMeterList/get
  */
 export interface IPendingMeterList {
-    meter: IPendingMeter[];
-    links?: { link: ILink[] };
+  meter: IPendingMeter[];
+  links?: { link: ILink[] };
 }

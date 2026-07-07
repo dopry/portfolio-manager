@@ -46,7 +46,7 @@ export class PortfolioManagerMeterConsumptionGetCommand extends PortfolioManager
     this.addPortfolioManagerOptions();
     this.requiredOption(
       "--meterId <meterId>",
-      "meter to fetch consumption for"
+      "meter to fetch consumption for",
     );
     this.option("--start [date]", "Start Date for consumption records");
     this.option("--end [date]", "End Date for consumption records");
@@ -61,10 +61,10 @@ export class PortfolioManagerMeterConsumptionGetCommand extends PortfolioManager
     const meterConsumption = await client.getMeterConsumption(
       cmdOpts.meterId,
       start,
-      end
+      end,
     );
     const mapped = meterConsumption.map((consumption) =>
-      this.pickFields(consumption, cmdOpts.fields)
+      this.pickFields(consumption, cmdOpts.fields),
     );
     const indent = cmdOpts.indent;
     console.log(JSON.stringify(mapped, null, indent));

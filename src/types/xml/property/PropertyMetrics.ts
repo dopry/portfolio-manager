@@ -3,10 +3,11 @@ import { PeriodType } from "../enum/index.js";
 export type DataType = "date" | "numeric" | "string";
 
 export type IPropertyAnnualMetricValueNull = { "@_xsi:nil": boolean };
-export type IPropertyAnnualMetricValue = IPropertyAnnualMetricValueNull | string;
+export type IPropertyAnnualMetricValue =
+  IPropertyAnnualMetricValueNull | string;
 
 export function isIPropertyMetricValueNull(
-  value: IPropertyAnnualMetricValue
+  value: IPropertyAnnualMetricValue,
 ): value is IPropertyAnnualMetricValueNull {
   return Object.prototype.hasOwnProperty.call(value ?? {}, "@_xsi:nil");
 }
@@ -35,7 +36,7 @@ export interface IPropertyMonthlyMetric extends IPropertyMetric {
 }
 
 export function isIPropertyMonthlyMetric(
-  metric: IPropertyMetric
+  metric: IPropertyMetric,
 ): metric is IPropertyMonthlyMetric {
   return (metric as IPropertyMonthlyMetric).monthlyMetric !== undefined;
 }
@@ -46,7 +47,7 @@ export interface IPropertyAnnualMetric extends IPropertyMetric {
 }
 
 export function isIPropertyAnnualMetric(
-  metric: IPropertyMetric
+  metric: IPropertyMetric,
 ): metric is IPropertyAnnualMetric {
   return (metric as IPropertyAnnualMetric).value !== undefined;
 }

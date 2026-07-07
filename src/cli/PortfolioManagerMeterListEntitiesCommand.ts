@@ -31,17 +31,17 @@ export class PortfolioManagerMeterListEntitiesCommand extends PortfolioManagerBa
     this.addFieldsOption(this.fields, ["id", "name"]);
     this.requiredOption(
       "--propertyId <propertyId>",
-      "property id to fetch meters for"
+      "property id to fetch meters for",
     );
   }
   protected async _action(): Promise<void> {
     const cmdOpts = this.opts();
     this.validateSelectedFields(cmdOpts.fields, this.fields);
     const meters = await this.getPortfolioManagerClient().getMeters(
-      cmdOpts.propertyId
+      cmdOpts.propertyId,
     );
     const mapped = meters.map((meter) =>
-      this.pickFields(meter, cmdOpts.fields)
+      this.pickFields(meter, cmdOpts.fields),
     );
     const indent = cmdOpts.indent;
     console.log(JSON.stringify(mapped, null, indent));

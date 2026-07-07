@@ -2,8 +2,14 @@ import { InvalidArgumentError } from "commander";
 import { describe, expect, beforeEach, afterEach, it, vi } from "vitest";
 import { PortfolioManager } from "../PortfolioManager.js";
 import { PortfolioManagerApiError } from "../PortfolioManagerApi.js";
-import { parseIntArg, PortfolioManagerBaseCommand } from "./PortfolioManagerBaseCommand.js";
-import { setupCliHarness, type CliHarness } from "../test/cli/cliTestHarness.js";
+import {
+  parseIntArg,
+  PortfolioManagerBaseCommand,
+} from "./PortfolioManagerBaseCommand.js";
+import {
+  setupCliHarness,
+  type CliHarness,
+} from "../test/cli/cliTestHarness.js";
 
 describe("parseIntArg", () => {
   it("parses valid integers", () => {
@@ -23,7 +29,9 @@ describe("PortfolioManagerBaseCommand.getPortfolioManagerClient", () => {
       }
     }
     const cmd = new TestCommand();
-    expect(() => cmd.getPortfolioManagerClient()).to.throw(InvalidArgumentError);
+    expect(() => cmd.getPortfolioManagerClient()).to.throw(
+      InvalidArgumentError,
+    );
   });
 });
 
@@ -58,7 +66,7 @@ describe("PortfolioManagerCommand (parse)", () => {
 
     expect(harness.fakeClient.getProperties).toHaveBeenCalledTimes(1);
     expect(console.log).toHaveBeenCalledWith(
-      JSON.stringify([{ id: 101, name: "HQ" }], null, 0)
+      JSON.stringify([{ id: 101, name: "HQ" }], null, 0),
     );
   });
 
@@ -79,7 +87,7 @@ describe("PortfolioManagerCommand (parse)", () => {
     ]);
 
     expect(console.log).toHaveBeenCalledWith(
-      JSON.stringify([{ id: 101, name: undefined }], null, 0)
+      JSON.stringify([{ id: 101, name: undefined }], null, 0),
     );
   });
 
@@ -99,7 +107,7 @@ describe("PortfolioManagerCommand (parse)", () => {
 
     expect(harness.fakeClient.getAssociatedMeters).toHaveBeenCalledWith("123");
     expect(console.log).toHaveBeenCalledWith(
-      JSON.stringify({ propertyId: "123", meterIds: [11, 12] }, null, 0)
+      JSON.stringify({ propertyId: "123", meterIds: [11, 12] }, null, 0),
     );
   });
 
@@ -123,11 +131,9 @@ describe("PortfolioManagerCommand (parse)", () => {
       "12",
     ]);
 
-    expect(harness.fakeClient.getMetersPropertiesAssociation).toHaveBeenCalledWith([
-      "10",
-      "11",
-      "12",
-    ]);
+    expect(
+      harness.fakeClient.getMetersPropertiesAssociation,
+    ).toHaveBeenCalledWith(["10", "11", "12"]);
     expect(console.log).toHaveBeenCalledWith(
       JSON.stringify(
         [
@@ -135,8 +141,8 @@ describe("PortfolioManagerCommand (parse)", () => {
           { propertyId: "11", meterIds: [101, 102] },
         ],
         null,
-        0
-      )
+        0,
+      ),
     );
   });
 
@@ -168,7 +174,7 @@ describe("PortfolioManagerCommand (parse)", () => {
 
     expect(harness.fakeClient.getMeterLinks).toHaveBeenCalledWith("99", true);
     expect(console.log).toHaveBeenCalledWith(
-      JSON.stringify([{ "@_id": "22", "@_hint": "Main Meter" }], null, 0)
+      JSON.stringify([{ "@_id": "22", "@_hint": "Main Meter" }], null, 0),
     );
   });
 
@@ -189,7 +195,7 @@ describe("PortfolioManagerCommand (parse)", () => {
         "--fields",
         "@_id",
         "notAField",
-      ])
+      ]),
     ).rejects.toThrow("Invalid field(s): notAField");
 
     expect(harness.fakeClient.getMeterLinks).not.toHaveBeenCalled();
@@ -225,10 +231,10 @@ describe("PortfolioManagerCommand (parse)", () => {
     expect(harness.fakeClient.getMeterConsumption).toHaveBeenCalledWith(
       "500",
       "2026-01-01",
-      "2026-01-31"
+      "2026-01-31",
     );
     expect(console.log).toHaveBeenCalledWith(
-      JSON.stringify([{ id: 1, usage: 12 }], null, 0)
+      JSON.stringify([{ id: 1, usage: 12 }], null, 0),
     );
   });
 
@@ -249,7 +255,7 @@ describe("PortfolioManagerCommand (parse)", () => {
         "--fields",
         "id",
         "badField",
-      ])
+      ]),
     ).rejects.toThrow("Invalid field(s): badField");
 
     expect(harness.fakeClient.getMeterConsumption).not.toHaveBeenCalled();
@@ -290,10 +296,10 @@ describe("PortfolioManagerCommand (parse)", () => {
       "2025",
       "12",
       ["score", "siteIntensity"],
-      false
+      false,
     );
     expect(console.log).toHaveBeenCalledWith(
-      JSON.stringify([{ name: "score", value: 75 }], null, 0)
+      JSON.stringify([{ name: "score", value: 75 }], null, 0),
     );
   });
 
@@ -303,7 +309,7 @@ describe("PortfolioManagerCommand (parse)", () => {
 
   it("sets exitCode and logs api error for monthly metrics API failures", async () => {
     harness.fakeClient.getPropertyMonthlyMetrics.mockRejectedValueOnce(
-      new PortfolioManagerApiError(400, "Bad Request", "invalid payload")
+      new PortfolioManagerApiError(400, "Bad Request", "invalid payload"),
     );
 
     await harness.parseCli([
@@ -324,13 +330,13 @@ describe("PortfolioManagerCommand (parse)", () => {
       "Bad Request",
       400,
       "Bad Request",
-      "invalid payload"
+      "invalid payload",
     );
   });
 
   it("sets exitCode and logs unknown error for monthly metrics failures", async () => {
     harness.fakeClient.getPropertyMonthlyMetrics.mockRejectedValueOnce(
-      new Error("boom")
+      new Error("boom"),
     );
 
     await harness.parseCli([
@@ -348,7 +354,7 @@ describe("PortfolioManagerCommand (parse)", () => {
     expect(process.exitCode).to.equal(1);
     expect(console.error).toHaveBeenCalledWith(
       "unknown error",
-      expect.any(Error)
+      expect.any(Error),
     );
   });
 
@@ -383,10 +389,10 @@ describe("PortfolioManagerCommand (parse)", () => {
       "2025",
       "12",
       undefined,
-      true
+      true,
     );
     expect(console.log).toHaveBeenCalledWith(
-      JSON.stringify([{ propertyId: "901", value: 81 }], null, 0)
+      JSON.stringify([{ propertyId: "901", value: 81 }], null, 0),
     );
   });
 
@@ -396,7 +402,7 @@ describe("PortfolioManagerCommand (parse)", () => {
 
   it("sets exitCode and logs api error for annual metrics API failures", async () => {
     harness.fakeClient.getPropertyMetrics.mockRejectedValueOnce(
-      new PortfolioManagerApiError(500, "Server Error", "pm outage")
+      new PortfolioManagerApiError(500, "Server Error", "pm outage"),
     );
 
     await harness.parseCli([
@@ -417,12 +423,14 @@ describe("PortfolioManagerCommand (parse)", () => {
       "Server Error",
       500,
       "Server Error",
-      "pm outage"
+      "pm outage",
     );
   });
 
   it("sets exitCode and logs unknown error for annual metrics failures", async () => {
-    harness.fakeClient.getPropertyMetrics.mockRejectedValueOnce(new Error("boom"));
+    harness.fakeClient.getPropertyMetrics.mockRejectedValueOnce(
+      new Error("boom"),
+    );
 
     await harness.parseCli([
       "property",
@@ -439,7 +447,7 @@ describe("PortfolioManagerCommand (parse)", () => {
     expect(process.exitCode).to.equal(1);
     expect(console.error).toHaveBeenCalledWith(
       "unknown error",
-      expect.any(Error)
+      expect.any(Error),
     );
   });
 
@@ -449,7 +457,7 @@ describe("PortfolioManagerCommand (parse)", () => {
     });
 
     await expect(
-      harness.parseCli(["property", "list", "links", "--fields", "@_id"])
+      harness.parseCli(["property", "list", "links", "--fields", "@_id"]),
     ).rejects.toThrow("Expected entity to be a record");
   });
 
@@ -475,8 +483,8 @@ describe("PortfolioManagerCommand (parse)", () => {
           },
         ],
         null,
-        0
-      )
+        0,
+      ),
     );
   });
 
@@ -486,7 +494,7 @@ describe("PortfolioManagerCommand (parse)", () => {
     await harness.parseCli(["connection", "list-pending"]);
 
     expect(console.error).toHaveBeenCalledWith(
-      "No pending connection requests found."
+      "No pending connection requests found.",
     );
   });
 
@@ -502,21 +510,16 @@ describe("PortfolioManagerCommand (parse)", () => {
 
     expect(harness.fakeClient.acceptConnection).toHaveBeenCalledWith(
       "512",
-      "approved"
+      "approved",
     );
   });
 
   it("parses and executes connection reject", async () => {
-    await harness.parseCli([
-      "connection",
-      "reject",
-      "--accountId",
-      "700",
-    ]);
+    await harness.parseCli(["connection", "reject", "--accountId", "700"]);
 
     expect(harness.fakeClient.rejectConnection).toHaveBeenCalledWith(
       "700",
-      undefined
+      undefined,
     );
   });
 
@@ -547,7 +550,9 @@ describe("PortfolioManagerCommand (parse)", () => {
 
     await harness.parseCli(["share", "list-pending"]);
 
-    expect(harness.fakeClient.getPendingPropertyShares).toHaveBeenCalledTimes(1);
+    expect(harness.fakeClient.getPendingPropertyShares).toHaveBeenCalledTimes(
+      1,
+    );
     expect(harness.fakeClient.getPendingMeterShares).toHaveBeenCalledTimes(1);
     expect(console.log).toHaveBeenCalledWith(
       JSON.stringify(
@@ -556,8 +561,8 @@ describe("PortfolioManagerCommand (parse)", () => {
           { type: "meter", id: 2001 },
         ],
         null,
-        0
-      )
+        0,
+      ),
     );
   });
 
@@ -567,7 +572,9 @@ describe("PortfolioManagerCommand (parse)", () => {
 
     await harness.parseCli(["share", "list-pending"]);
 
-    expect(console.error).toHaveBeenCalledWith("No pending share requests found.");
+    expect(console.error).toHaveBeenCalledWith(
+      "No pending share requests found.",
+    );
   });
 
   it("parses and executes share accept for property", async () => {
@@ -584,7 +591,7 @@ describe("PortfolioManagerCommand (parse)", () => {
 
     expect(harness.fakeClient.acceptPropertyShare).toHaveBeenCalledWith(
       "321",
-      "accepted"
+      "accepted",
     );
     expect(harness.fakeClient.acceptMeterShare).not.toHaveBeenCalled();
   });
@@ -603,7 +610,7 @@ describe("PortfolioManagerCommand (parse)", () => {
 
     expect(harness.fakeClient.acceptMeterShare).toHaveBeenCalledWith(
       "322",
-      "accepted-meter"
+      "accepted-meter",
     );
     expect(harness.fakeClient.acceptPropertyShare).not.toHaveBeenCalled();
   });
@@ -620,7 +627,7 @@ describe("PortfolioManagerCommand (parse)", () => {
 
     expect(harness.fakeClient.rejectMeterShare).toHaveBeenCalledWith(
       "654",
-      undefined
+      undefined,
     );
     expect(harness.fakeClient.rejectPropertyShare).not.toHaveBeenCalled();
   });
@@ -639,7 +646,7 @@ describe("PortfolioManagerCommand (parse)", () => {
 
     expect(harness.fakeClient.rejectPropertyShare).toHaveBeenCalledWith(
       "655",
-      "reject-property"
+      "reject-property",
     );
     expect(harness.fakeClient.rejectMeterShare).not.toHaveBeenCalled();
   });
@@ -658,7 +665,7 @@ describe("PortfolioManagerCommand (parse)", () => {
 
     expect(harness.fakeClient.unshareProperty).toHaveBeenCalledWith(
       "777",
-      "cleanup"
+      "cleanup",
     );
     expect(harness.fakeClient.unshareMeter).not.toHaveBeenCalled();
   });
@@ -677,7 +684,7 @@ describe("PortfolioManagerCommand (parse)", () => {
 
     expect(harness.fakeClient.unshareMeter).toHaveBeenCalledWith(
       "778",
-      "cleanup-meter"
+      "cleanup-meter",
     );
     expect(harness.fakeClient.unshareProperty).not.toHaveBeenCalled();
   });
@@ -693,7 +700,7 @@ describe("PortfolioManagerCommand (parse)", () => {
       markAsRead: false,
     });
     expect(console.log).toHaveBeenCalledWith(
-      JSON.stringify([{ id: 11, type: "DISCONNECT" }], null, 0)
+      JSON.stringify([{ id: 11, type: "DISCONNECT" }], null, 0),
     );
   });
 
@@ -708,7 +715,7 @@ describe("PortfolioManagerCommand (parse)", () => {
       markAsRead: true,
     });
     expect(console.log).toHaveBeenCalledWith(
-      JSON.stringify([{ id: 12, type: "UNSHARE" }], null, 0)
+      JSON.stringify([{ id: 12, type: "UNSHARE" }], null, 0),
     );
   });
 
@@ -740,7 +747,7 @@ describe("PortfolioManagerCommand (parse)", () => {
 
     expect(getPropertiesSpy).toHaveBeenCalledTimes(1);
     expect(console.log).toHaveBeenCalledWith(
-      JSON.stringify([{ id: 501, name: "Real Path" }], null, 0)
+      JSON.stringify([{ id: 501, name: "Real Path" }], null, 0),
     );
   });
 

@@ -8,22 +8,23 @@ if (!process.env.PM_USERNAME || !process.env.PM_PASSWORD) {
 
 const pm = new PortfolioManager(
   new PortfolioManagerApi(
-    process.env.PM_ENDPOINT || "https://portfoliomanager.energystar.gov/wstest/",
+    process.env.PM_ENDPOINT ||
+      "https://portfoliomanager.energystar.gov/wstest/",
     process.env.PM_USERNAME,
-    process.env.PM_PASSWORD
-  )
+    process.env.PM_PASSWORD,
+  ),
 );
 
 console.log(
   "pending property shares:",
-  JSON.stringify(await pm.getPendingPropertyShares())
+  JSON.stringify(await pm.getPendingPropertyShares()),
 );
 console.log(
   "pending meter shares:",
-  JSON.stringify(await pm.getPendingMeterShares())
+  JSON.stringify(await pm.getPendingMeterShares()),
 );
 console.log(
   "pending connections:",
-  JSON.stringify(await pm.getPendingConnections())
+  JSON.stringify(await pm.getPendingConnections()),
 );
 console.log("customers:", JSON.stringify(await pm.getCustomerList()));

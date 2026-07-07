@@ -78,7 +78,7 @@ export class PortfolioManager {
     if (account.id) return account.id;
     else
       throw new Error(
-        `No account id found:\n ${JSON.stringify(account, null, 2)}`
+        `No account id found:\n ${JSON.stringify(account, null, 2)}`,
       );
   }
 
@@ -94,12 +94,12 @@ export class PortfolioManager {
 
   async getMeterAdditionalIdentifier(
     meterId: number,
-    additionalIdentifierId: number
+    additionalIdentifierId: number,
   ): Promise<IAdditionalIdentifier> {
     try {
       const response = await this.api.meterIdentifierGet(
         meterId,
-        additionalIdentifierId
+        additionalIdentifierId,
       );
       return response.additionalIdentifier;
     } catch (error) {
@@ -118,12 +118,12 @@ export class PortfolioManager {
 
   async postMeterAdditionalIdentifier(
     meterId: number,
-    additionalIdentifier: Omit<IAdditionalIdentifier, "@_id">
+    additionalIdentifier: Omit<IAdditionalIdentifier, "@_id">,
   ): Promise<ILink[]> {
     try {
       const response = await this.api.meterIdentifierPost(
         meterId,
-        additionalIdentifier
+        additionalIdentifier,
       );
       if (isIPopulatedResponse(response.response)) {
         return response.response.links.link;
@@ -144,13 +144,13 @@ export class PortfolioManager {
   async putMeterAdditionalIdentifier(
     meterId: number,
     identifierId: number,
-    additionalIdentifier: IAdditionalIdentifier
+    additionalIdentifier: IAdditionalIdentifier,
   ): Promise<ILink[]> {
     try {
       const response = await this.api.meterIdentifierPut(
         meterId,
         identifierId,
-        additionalIdentifier
+        additionalIdentifier,
       );
       if (isIPopulatedResponse(response.response)) {
         return response.response.links.link;
@@ -169,7 +169,7 @@ export class PortfolioManager {
   }
 
   async getMeterAdditionalIdentifiers(
-    meterId: number
+    meterId: number,
   ): Promise<IAdditionalIdentifier[]> {
     try {
       const response = await this.api.meterIdentifierListGet(meterId);
@@ -189,18 +189,18 @@ export class PortfolioManager {
   async upsertMeterAdditionalIdentifier(
     meterId: number,
     name: string,
-    value: string
+    value: string,
   ): Promise<IAdditionalIdentifier[]> {
     const identifiers = await this.getMeterAdditionalIdentifiers(meterId);
     const identifier = identifiers.find(
-      (identifier) => identifier.description == name
+      (identifier) => identifier.description == name,
     );
     // upsert the identifier if it exists.
     if (identifier) {
       const id = parseInt(identifier["@_id"], 10);
       if (Number.isNaN(id)) {
         throw new Error(
-          `Invalid additional identifier id for meter ${meterId}: ${identifier["@_id"]}`
+          `Invalid additional identifier id for meter ${meterId}: ${identifier["@_id"]}`,
         );
       }
       // update the identifier
@@ -214,8 +214,8 @@ export class PortfolioManager {
       const availableIdentifierTypes = ["1", "2", "3"].filter(
         (id) =>
           !identifiers.find(
-            (identifier) => identifier.additionalIdentifierType["@_id"] == id
-          )
+            (identifier) => identifier.additionalIdentifierType["@_id"] == id,
+          ),
       );
       if (availableIdentifierTypes.length == 0) {
         throw new Error(`No available Custom ID slots for meter: ${meterId}`);
@@ -239,10 +239,10 @@ export class PortfolioManager {
   async getMeterConsumption(
     meterId: number,
     startDate?: string,
-    endDate?: string
+    endDate?: string,
   ): Promise<IClientConsumption[]> {
     const getConsumptionRecordFromMeterData = (
-      meterData: IMeterData
+      meterData: IMeterData,
     ): IMeterConsumption[] | IMeterDelivery[] => {
       // I'm assuming if meter.metered == true  then meterConsumption will be present, otherwise meterDelivery will be present
       // based on `Indicates if the meter is set up to be metered monthly or for bulk delivery`
@@ -255,7 +255,7 @@ export class PortfolioManager {
       }
       console.error(
         `Unable to determine meter consumption type returning an empty array`,
-        { meterId, startDate, endDate, meterData }
+        { meterId, startDate, endDate, meterData },
       );
       // return an empty array since it
       return [];
@@ -268,11 +268,11 @@ export class PortfolioManager {
         meterId,
         nextPage,
         startDate,
-        endDate
+        endDate,
       );
       if (!response.meterData)
         throw new Error(
-          `No meter consumption found:\n ${JSON.stringify(response, null, 2)}`
+          `No meter consumption found:\n ${JSON.stringify(response, null, 2)}`,
         );
       const page = getConsumptionRecordFromMeterData(response.meterData);
       meterData.push(...page);
@@ -292,7 +292,9 @@ export class PortfolioManager {
         const nextPageStr = nextLinkUrl.split("=").pop() || "";
         const parsedNextPage = parseInt(nextPageStr, 10);
         if (Number.isNaN(parsedNextPage)) {
-          throw new Error(`Invalid next page link for meter ${meterId}: ${nextLinkUrl}`);
+          throw new Error(
+            `Invalid next page link for meter ${meterId}: ${nextLinkUrl}`,
+          );
         }
         nextPage = parsedNextPage;
       }
@@ -302,13 +304,13 @@ export class PortfolioManager {
 
   async getMeterLinks(
     propertyId: number,
-    myAccessOnly?: boolean
+    myAccessOnly?: boolean,
   ): Promise<ILink[]> {
     const response = await this.api.meterMeterListGet(propertyId, myAccessOnly);
 
     if (response.response["@_status"] != "Ok") {
       throw new Error(
-        "Request Error, response: " + JSON.stringify(response, null, 2)
+        "Request Error, response: " + JSON.stringify(response, null, 2),
       );
     }
 
@@ -349,13 +351,13 @@ export class PortfolioManager {
           throw new Error(`Invalid meter id in link: ${JSON.stringify(link)}`);
         }
         return await this.getMeter(id);
-      })
+      }),
     );
     return meters;
   }
 
   async getAssociatedMeters(
-    propertyId: number
+    propertyId: number,
   ): Promise<IClientMeterPropertyAssociation> {
     const response = await this.api.meterPropertyAssociationGet(propertyId);
     if (!response.meterPropertyAssociationList)
@@ -363,8 +365,8 @@ export class PortfolioManager {
         `No associated meters found(${propertyId}):\n ${JSON.stringify(
           response,
           null,
-          2
-        )}`
+          2,
+        )}`,
       );
 
     const energyMeterAssociation =
@@ -410,14 +412,13 @@ export class PortfolioManager {
   }
 
   async getMetersPropertiesAssociation(
-    propertyIds: number[]
+    propertyIds: number[],
   ): Promise<IClientMeterPropertyAssociation[]> {
     const associationPromises = propertyIds.map(async (propertyId) =>
-      this.getAssociatedMeters(propertyId)
+      this.getAssociatedMeters(propertyId),
     );
-    const associationSettlements = await Promise.allSettled(
-      associationPromises
-    );
+    const associationSettlements =
+      await Promise.allSettled(associationPromises);
     const associations: IClientMeterPropertyAssociation[] = [];
     associationSettlements.forEach((settlement) => {
       if (settlement.status === "fulfilled") {
@@ -425,7 +426,7 @@ export class PortfolioManager {
       } else {
         console.error(
           "Error getting meter property association",
-          settlement.reason
+          settlement.reason,
         );
       }
     });
@@ -467,7 +468,7 @@ export class PortfolioManager {
       return property;
     } else
       throw new Error(
-        `No property found:\n ${JSON.stringify(response, null, 2)}`
+        `No property found:\n ${JSON.stringify(response, null, 2)}`,
       );
   }
 
@@ -479,7 +480,7 @@ export class PortfolioManager {
     // and not a link object
     if (!isIPopulatedResponse(response.response)) {
       throw new Error(
-        `No properties found:\n ${JSON.stringify(response, null, 2)}`
+        `No properties found:\n ${JSON.stringify(response, null, 2)}`,
       );
     }
     return response.response.links.link;
@@ -492,10 +493,12 @@ export class PortfolioManager {
       links.map(async (link) => {
         const id = parseLinkId(link);
         if (id === undefined) {
-          throw new Error(`Invalid property id in link: ${JSON.stringify(link)}`);
+          throw new Error(
+            `Invalid property id in link: ${JSON.stringify(link)}`,
+          );
         }
         return await this.getProperty(id);
-      })
+      }),
     );
     return properties;
   }
@@ -513,21 +516,21 @@ export class PortfolioManager {
       "siteEnergyUseFuelOil5And6Monthly",
       "siteElectricityUseOnsiteRenewablesMonthly",
     ],
-    exclude_null = true
+    exclude_null = true,
   ): Promise<IClientMetric[]> {
     const response = await this.api.propertyMetricsMonthlyGet(
       propertyId,
       year,
       month,
-      metrics
+      metrics,
     );
     if (!response.propertyMetrics) {
       throw new Error(
         `No property monthly metrics found:\n ${JSON.stringify(
           response,
           null,
-          2
-        )}`
+          2,
+        )}`,
       );
     }
     // to make this more usable with our field selection options, we will flatten the metrics, then select the fields.
@@ -539,7 +542,7 @@ export class PortfolioManager {
         return series.monthlyMetric?.reduce<IClientMetric[]>((acc, monthly) => {
           const value = Object.prototype.hasOwnProperty.call(
             monthly["value"],
-            "@_xsi:nil"
+            "@_xsi:nil",
           )
             ? null
             : monthly["value"];
@@ -547,14 +550,16 @@ export class PortfolioManager {
           const month = parseInt(monthly["@_month"], 10);
           const year = parseInt(monthly["@_year"], 10);
           if (Number.isNaN(month) || Number.isNaN(year)) {
-            throw new Error(`Invalid monthly metric date for property ${propertyId}`);
+            throw new Error(
+              `Invalid monthly metric date for property ${propertyId}`,
+            );
           }
           const metric = { propertyId, name, uom, month, year, value };
           acc.push(metric);
           return acc;
         }, acc);
       },
-      []
+      [],
     );
   }
 
@@ -563,7 +568,7 @@ export class PortfolioManager {
     year: number,
     month: number,
     metrics: string[] = [],
-    exclude_null = true
+    exclude_null = true,
   ): Promise<Record<string, IClientMetricMonthly>> {
     if (metrics.length == 0) {
       throw new Error("No metrics provided");
@@ -576,11 +581,11 @@ export class PortfolioManager {
       propertyId,
       year,
       month,
-      metrics
+      metrics,
     );
     if (!response.propertyMetrics) {
       throw new Error(
-        `No property metrics found:\n ${JSON.stringify(response, null, 2)}`
+        `No property metrics found:\n ${JSON.stringify(response, null, 2)}`,
       );
     }
     // to make this more usable with our field selection options, we will flatten the metrics, then select the fields.
@@ -595,7 +600,7 @@ export class PortfolioManager {
         (monthlyAcc, monthly) => {
           const monthlyValue = Object.prototype.hasOwnProperty.call(
             monthly["value"],
-            "@_xsi:nil"
+            "@_xsi:nil",
           )
             ? null
             : monthly["value"];
@@ -603,7 +608,9 @@ export class PortfolioManager {
           const month = parseInt(monthly["@_month"], 10);
           const year = parseInt(monthly["@_year"], 10);
           if (Number.isNaN(month) || Number.isNaN(year)) {
-            throw new Error(`Invalid monthly metric date for property ${propertyId}`);
+            throw new Error(
+              `Invalid monthly metric date for property ${propertyId}`,
+            );
           }
           const metric: IClientMetricMonthlyValue = {
             month,
@@ -613,7 +620,7 @@ export class PortfolioManager {
           monthlyAcc.push(metric);
           return monthlyAcc;
         },
-        []
+        [],
       );
 
       if (exclude_null && value.length == 0) return acc;
@@ -636,7 +643,7 @@ export class PortfolioManager {
     year: number,
     month: number,
     metrics: string[] = [],
-    exclude_null = true
+    exclude_null = true,
   ): Promise<Record<string, IClientMetric>> {
     if (metrics.length == 0) {
       throw new Error("No metrics provided");
@@ -649,11 +656,11 @@ export class PortfolioManager {
       propertyId,
       year,
       month,
-      metrics
+      metrics,
     );
     if (!response.propertyMetrics) {
       throw new Error(
-        `No property metrics found:\n ${JSON.stringify(response, null, 2)}`
+        `No property metrics found:\n ${JSON.stringify(response, null, 2)}`,
       );
     }
     // In this version we will key the metrics on the metric name, and return the metric or an array of metrics for monthly metrics.
@@ -678,18 +685,21 @@ export class PortfolioManager {
    * @returns A key-value map of custom fields, or undefined when there are none.
    */
   private mapCustomFields(
-    customFieldList?: ICustomFieldList
+    customFieldList?: ICustomFieldList,
   ): Record<string, string | number> | undefined {
     if (!customFieldList?.customField) return undefined;
     const customFields = Array.isArray(customFieldList.customField)
       ? customFieldList.customField
       : [customFieldList.customField];
-    return customFields.filter(Boolean).reduce((acc, field) => {
-      if (field && field["@_name"] && field["#text"] !== undefined) {
-        acc[field["@_name"]] = field["#text"];
-      }
-      return acc;
-    }, {} as Record<string, string | number>);
+    return customFields.filter(Boolean).reduce(
+      (acc, field) => {
+        if (field && field["@_name"] && field["#text"] !== undefined) {
+          acc[field["@_name"]] = field["#text"];
+        }
+        return acc;
+      },
+      {} as Record<string, string | number>,
+    );
   }
 
   /**
@@ -721,7 +731,7 @@ export class PortfolioManager {
 
       // Check for a 'next page' link to continue pagination
       const nextLink = response.pendingList.links?.link.find(
-        (l) => l["@_linkDescription"] === "next page"
+        (l) => l["@_linkDescription"] === "next page",
       );
       hasMore = !!nextLink;
       page++;
@@ -765,7 +775,7 @@ export class PortfolioManager {
    */
   async disconnect(
     accountId: number,
-    options: { keepShares?: boolean; note?: string } = {}
+    options: { keepShares?: boolean; note?: string } = {},
   ): Promise<void> {
     const body = { terminateSharingResponse: { note: options.note } };
     await this.api.disconnectAccountPost(accountId, body, options.keepShares);
@@ -799,7 +809,7 @@ export class PortfolioManager {
         });
       }
       const nextLink = response.pendingList.links?.link.find(
-        (l) => l["@_linkDescription"] === "next page"
+        (l) => l["@_linkDescription"] === "next page",
       );
       hasMore = !!nextLink;
       page++;
@@ -835,7 +845,7 @@ export class PortfolioManager {
         });
       }
       const nextLink = response.pendingList.links?.link.find(
-        (l) => l["@_linkDescription"] === "next page"
+        (l) => l["@_linkDescription"] === "next page",
       );
       hasMore = !!nextLink;
       page++;
@@ -919,7 +929,7 @@ export class PortfolioManager {
    * @returns A promise that resolves to an array of simplified notification objects.
    */
   async getNotifications(
-    options: { markAsRead?: boolean } = { markAsRead: true }
+    options: { markAsRead?: boolean } = { markAsRead: true },
   ): Promise<IClientNotification[]> {
     const response = await this.api.notificationListGet(options.markAsRead);
     const notifications = response.notificationList.notification || [];
@@ -946,7 +956,7 @@ export class PortfolioManager {
 
     if (response.response["@_status"] != "Ok") {
       throw new Error(
-        "Request Error, response: " + JSON.stringify(response, null, 2)
+        "Request Error, response: " + JSON.stringify(response, null, 2),
       );
     }
 

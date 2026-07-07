@@ -3,16 +3,11 @@ import {
   IMeter,
   IProperty,
   MeterUnitsOfMeasure,
-  TypeOfMeter
+  TypeOfMeter,
 } from "./types/index.js";
 
 export function stamp() {
-  return (
-    new Date()
-      .toISOString()
-      .replaceAll(":", "_")
-      .replaceAll(".", "_")
-  );
+  return new Date().toISOString().replaceAll(":", "_").replaceAll(".", "_");
 }
 
 export function mockIAddress(): IAddress {
@@ -47,7 +42,7 @@ export function mockMeter(
   unitOfMeasure: MeterUnitsOfMeasure = "kWh (thousand Watt-hours)",
   type: TypeOfMeter = "Electric",
   firstBillDate = new Date(2019, 0, 1),
-  inUse = true
+  inUse = true,
 ): IMeter {
   return {
     name,

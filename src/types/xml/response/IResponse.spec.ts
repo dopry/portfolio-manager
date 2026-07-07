@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { isIEmptyResponse, isIPopulatedResponse, isIResponse } from "./IResponse.js";
+import {
+  isIEmptyResponse,
+  isIPopulatedResponse,
+  isIResponse,
+} from "./IResponse.js";
 
 describe("IResponse type guards", () => {
   it("identifies empty response shape", () => {

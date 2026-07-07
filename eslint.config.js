@@ -34,5 +34,5 @@ export default tseslint.config(
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-non-null-assertion": "off",
     },
-  }
+  },
 );

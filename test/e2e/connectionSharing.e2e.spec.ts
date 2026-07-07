@@ -101,25 +101,28 @@ describe("Connection & Sharing (e2e)", () => {
     });
   }
 
-  step("peer sends a connection request; provider sees and accepts it", async () => {
-    await ui.sendConnectionRequest(config.provider.username);
+  step(
+    "peer sends a connection request; provider sees and accepts it",
+    async () => {
+      await ui.sendConnectionRequest(config.provider.username);
 
-    const pending = await waitFor(
-      async () => {
-        const connections = await provider.pm.getPendingConnections();
-        return connections.find((c) => c.username === config.peer.username);
-      },
-      { label: "pending connection from peer" }
-    );
-    expect(pending.accountId).toBe(peerAccountId);
+      const pending = await waitFor(
+        async () => {
+          const connections = await provider.pm.getPendingConnections();
+          return connections.find((c) => c.username === config.peer.username);
+        },
+        { label: "pending connection from peer" },
+      );
+      expect(pending.accountId).toBe(peerAccountId);
 
-    await provider.pm.acceptConnection(pending.accountId, "e2e accept");
+      await provider.pm.acceptConnection(pending.accountId, "e2e accept");
 
-    const stillPending = await provider.pm.getPendingConnections();
-    expect(
-      stillPending.find((c) => c.username === config.peer.username)
-    ).toBeUndefined();
-  });
+      const stillPending = await provider.pm.getPendingConnections();
+      expect(
+        stillPending.find((c) => c.username === config.peer.username),
+      ).toBeUndefined();
+    },
+  );
 
   step("peer shares the fixture property for data exchange", async () => {
     await ui.setupDataExchangeShare({
@@ -133,12 +136,15 @@ describe("Connection & Sharing (e2e)", () => {
         const shares = await provider.pm.getPendingPropertyShares();
         return shares.find((s) => s.sharerUsername === config.peer.username);
       },
-      { label: "pending property share from peer" }
+      { label: "pending property share from peer" },
     );
     expect(pendingProperty.propertyId).toBe(fixture.propertyId);
     expect(pendingProperty.propertyName).toBe(E2E_PROPERTY_NAME);
 
-    await provider.pm.acceptPropertyShare(pendingProperty.propertyId, "e2e accept");
+    await provider.pm.acceptPropertyShare(
+      pendingProperty.propertyId,
+      "e2e accept",
+    );
 
     // Accepted share grants real read access to the peer's property.
     const property = await provider.pm.getProperty(fixture.propertyId);
@@ -154,7 +160,7 @@ describe("Connection & Sharing (e2e)", () => {
           const shares = await provider.pm.getPendingMeterShares();
           return shares.find((s) => s.sharerUsername === config.peer.username);
         },
-        { label: "pending meter share from peer" }
+        { label: "pending meter share from peer" },
       );
       expect(pendingMeter.id).toBe(fixture.meterId);
       expect(pendingMeter.propertyId).toBe(fixture.propertyId);
@@ -163,7 +169,7 @@ describe("Connection & Sharing (e2e)", () => {
 
       const meter = await provider.pm.getMeter(fixture.meterId);
       expect(meter.id).toBe(fixture.meterId);
-    }
+    },
   );
 
   step("unshare removes access; a re-share can be rejected", async () => {
@@ -183,7 +189,7 @@ describe("Connection & Sharing (e2e)", () => {
         const shares = await provider.pm.getPendingPropertyShares();
         return shares.find((s) => s.sharerUsername === config.peer.username);
       },
-      { label: "second pending property share from peer" }
+      { label: "second pending property share from peer" },
     );
     await provider.pm.rejectPropertyShare(pending.propertyId, "e2e reject");
     for (const share of await provider.pm.getPendingMeterShares()) {
@@ -209,7 +215,7 @@ describe("Connection & Sharing (e2e)", () => {
 
     const pendingConnections = await provider.pm.getPendingConnections();
     expect(
-      pendingConnections.find((c) => c.username === config.peer.username)
+      pendingConnections.find((c) => c.username === config.peer.username),
     ).toBeUndefined();
   });
 });

@@ -2,7 +2,12 @@ import { PortfolioManagerBaseCommand } from "./PortfolioManagerBaseCommand.js";
 
 export class PortfolioManagerMeterIdentifiersCommand extends PortfolioManagerBaseCommand {
   _description = "Fetch additional identifiers for a meter.";
-  fields = ["@_id", "value", "description", "additionalIdentifierType.@_description"];
+  fields = [
+    "@_id",
+    "value",
+    "description",
+    "additionalIdentifierType.@_description",
+  ];
   get examples() {
     return [
       "# customizing the output",
@@ -16,7 +21,7 @@ export class PortfolioManagerMeterIdentifiersCommand extends PortfolioManagerBas
     super("identifiers");
     this.requiredOption(
       "--meterId <meterId>",
-      "meter id to fetch additional identifiers for"
+      "meter id to fetch additional identifiers for",
     )
       .option("--myAccessOnly", "only fetch meters that I have access to")
       .addPortfolioManagerOptions()
@@ -27,9 +32,12 @@ export class PortfolioManagerMeterIdentifiersCommand extends PortfolioManagerBas
     const cmdOpts = this.opts();
     this.validateSelectedFields(cmdOpts.fields, this.fields);
 
-    const additionalIdentifiers = await this.getPortfolioManagerClient().getMeterAdditionalIdentifiers(cmdOpts.meterId);
+    const additionalIdentifiers =
+      await this.getPortfolioManagerClient().getMeterAdditionalIdentifiers(
+        cmdOpts.meterId,
+      );
     const mapped = additionalIdentifiers.map((meter) =>
-      this.pickFields(meter, cmdOpts.fields)
+      this.pickFields(meter, cmdOpts.fields),
     );
 
     const indent = cmdOpts.indent;

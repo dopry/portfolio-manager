@@ -1,4 +1,3 @@
-
 export interface ILink {
   "@_hint"?: string; // The hint of the link.
   "@_httpMethod": "get" | "post" | "put" | "delete";

@@ -17,7 +17,7 @@ export class PortfolioManagerMeterAssociationListCommand extends PortfolioManage
     this.addPortfolioManagerOptions();
     this.requiredOption(
       "--propertyIds <propertyId...>",
-      "properties to fetch associated meters for"
+      "properties to fetch associated meters for",
     );
   }
 
@@ -25,7 +25,7 @@ export class PortfolioManagerMeterAssociationListCommand extends PortfolioManage
     const cmdOpts = this.opts();
     const meterAssociation =
       await this.getPortfolioManagerClient().getMetersPropertiesAssociation(
-        cmdOpts.propertyIds
+        cmdOpts.propertyIds,
       );
     const indent = cmdOpts.indent;
     console.log(JSON.stringify(meterAssociation, null, indent));

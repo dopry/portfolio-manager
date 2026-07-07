@@ -7,7 +7,6 @@ export interface IClientMetric {
   month: number;
 }
 
-
 export interface IClientMetricMonthlyValue {
   value: string | number | null;
   year: number;

@@ -56,21 +56,21 @@ export class PortfolioManagerApiError extends Error {
       response.status,
       response.statusText,
       responseText,
-      url
+      url,
     );
   }
   constructor(
     public status: number,
     public statusText: string,
     public responseText?: string,
-    public url?: string
+    public url?: string,
   ) {
     super(statusText);
   }
 }
 
 export function isPortfolioManagerApiError(
-  obj: unknown
+  obj: unknown,
 ): obj is PortfolioManagerApiError {
   return obj instanceof PortfolioManagerApiError;
 }
@@ -113,11 +113,11 @@ export class PortfolioManagerApi {
         jpath === "propertyMetrics.metric" ||
         jpath === "meterData.links.link" ||
         jpath ===
-        "meterPropertyAssociationList.waterMeterAssociation.meters.meterId" ||
+          "meterPropertyAssociationList.waterMeterAssociation.meters.meterId" ||
         jpath ===
-        "meterPropertyAssociationList.energyMeterAssociation.meters.meterId" ||
+          "meterPropertyAssociationList.energyMeterAssociation.meters.meterId" ||
         jpath ===
-        "meterPropertyAssociationList.wasteMeterAssociation.meters.meterId" ||
+          "meterPropertyAssociationList.wasteMeterAssociation.meters.meterId" ||
         jpath === "meterData.meterDelivery" ||
         jpath === "meterData.meterConsumption" ||
         jpath === "additionalIdentifiers.additionalIdentifier" ||
@@ -156,7 +156,7 @@ export class PortfolioManagerApi {
     private readonly endpoint: string,
     private readonly username: string,
     private readonly password: string,
-    options: PortfolioManagerApiOptions = {}
+    options: PortfolioManagerApiOptions = {},
   ) {
     this.maxRetries = options.maxRetries ?? 3;
     this.retryBaseDelayMs = options.retryBaseDelayMs ?? 1000;
@@ -242,7 +242,7 @@ export class PortfolioManagerApi {
         response.status,
         response.statusText,
         "Empty response body",
-        response.url
+        response.url,
       );
     }
 
@@ -257,7 +257,7 @@ export class PortfolioManagerApi {
         response.status,
         response.statusText,
         `XML parse failure: ${message}\nResponse snippet: ${snippet}`,
-        response.url
+        response.url,
       );
     }
   }
@@ -304,7 +304,7 @@ export class PortfolioManagerApi {
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/property/property/get
   async propertyPropertyGet(
-    propertyId: number
+    propertyId: number,
   ): Promise<IPropertyPropertyGetResponse> {
     return this.get<IPropertyPropertyGetResponse>(`property/${propertyId}`);
   }
@@ -317,15 +317,17 @@ export class PortfolioManagerApi {
    * the full entity. Any meters on the property become inaccessible (403).
    */
   async propertyPropertyDelete(
-    propertyId: number
+    propertyId: number,
   ): Promise<IPropertyPropertyDeleteResponse> {
-    return this.delete<IPropertyPropertyDeleteResponse>(`property/${propertyId}`);
+    return this.delete<IPropertyPropertyDeleteResponse>(
+      `property/${propertyId}`,
+    );
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/property/property/post
   async propertyPropertyPost(
     property: Omit<IProperty, "id">,
-    accountId: number
+    accountId: number,
   ): Promise<IPropertyPropertyPostResponse> {
     return this.post<
       { property: Omit<IProperty, "id"> },
@@ -335,46 +337,46 @@ export class PortfolioManagerApi {
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/property/propertyList/get
   async propertyPropertyListGet(
-    accountId: number
+    accountId: number,
   ): Promise<IPropertyPropertyListGetResponse> {
     return this.get<IPropertyPropertyListGetResponse>(
-      `account/${accountId}/property/list`
+      `account/${accountId}/property/list`,
     );
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/meter/consumptionData/post
   async meterConsumptionDataPost(
     meterId: number,
-    meterConsumption: IMeterDataPostRequest
+    meterConsumption: IMeterDataPostRequest,
   ): Promise<IMeterData> {
     return this.post<IMeterDataPostRequest, IMeterData>(
       `meter/${meterId}/consumptionData`,
-      meterConsumption
+      meterConsumption,
     );
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/meter/consumptionData/put
   async meterConsumptionDataPut(
     consumptionDataId: number,
-    meterConsumption: IMeterConsumption
+    meterConsumption: IMeterConsumption,
   ) {
     return this.put<IMeterConsumption, IMeterConsumptionDataPutResponse>(
       `consumptionData/${consumptionDataId}`,
-      meterConsumption
+      meterConsumption,
     );
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/meter/identifier/get
   async meterIdentifierGet(meterId: number, identifierId: number) {
     return this.get<IMeterIdentifierGetResponse>(
-      `meter/${meterId}/identifier/${identifierId}`
+      `meter/${meterId}/identifier/${identifierId}`,
     );
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/meter/identifier/post
   async meterIdentifierPost(
     meterId: number,
-    identifier: Omit<IAdditionalIdentifier, "@_id">
+    identifier: Omit<IAdditionalIdentifier, "@_id">,
   ) {
     return this.post<
       { additionalIdentifier: Omit<IAdditionalIdentifier, "@_id"> },
@@ -386,7 +388,7 @@ export class PortfolioManagerApi {
   async meterIdentifierPut(
     meterId: number,
     identifierId: number,
-    identifier: IAdditionalIdentifier
+    identifier: IAdditionalIdentifier,
   ) {
     return this.put<
       { additionalIdentifier: IAdditionalIdentifier },
@@ -398,57 +400,57 @@ export class PortfolioManagerApi {
 
   // https://portfoliomanager.energystar.gov/webservices/home/test/api/meter/identifierList/get
   async meterIdentifierListGet(
-    meterId: number
+    meterId: number,
   ): Promise<IMeterIdentifierListGetResponse> {
     return this.get<IMeterIdentifierListGetResponse>(
-      `meter/${meterId}/identifier/list`
+      `meter/${meterId}/identifier/list`,
     );
   }
 
   async meterIdentifierTypesListGet(): Promise<IMeterIdentifierTypesListGetResponse> {
     return this.get<IMeterIdentifierTypesListGetResponse>(
-      `meter/identifier/list`
+      `meter/identifier/list`,
     );
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/meter/meter/post
   async meterMeterPost(
     propertyId: number,
-    meter: IMeter
+    meter: IMeter,
   ): Promise<IMeterMeterPostResponse> {
     return this.post<{ meter: IMeter }, IMeterMeterPostResponse>(
       `property/${propertyId}/meter/`,
-      { meter }
+      { meter },
     );
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/meter/propertyAssociation/get
   async meterPropertyAssociationGet(
-    propertyId: number
+    propertyId: number,
   ): Promise<IMeterPropertyAssociationGetResponse> {
     return this.get<IMeterPropertyAssociationGetResponse>(
-      `/association/property/${propertyId}/meter`
+      `/association/property/${propertyId}/meter`,
     );
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/meter/propertyAssociation/post
   async meterPropertyAssociationSinglePost(
     propertyId: number,
-    meterId: number
+    meterId: number,
   ): Promise<IMeterPropertyAssociationPostResponse> {
     return this.post<undefined, IMeterPropertyAssociationPostResponse>(
       `/association/property/${propertyId}/meter/${meterId}`,
-      undefined
+      undefined,
     );
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/test/api/meter/meterList/get
   async meterMeterListGet(
     propertyId: number,
-    myAccessOnly = false
+    myAccessOnly = false,
   ): Promise<IMeterMeterListGetResponse> {
     return this.get<IMeterMeterListGetResponse>(
-      `property/${propertyId}/meter/list?myAccessOnly=${myAccessOnly}`
+      `property/${propertyId}/meter/list?myAccessOnly=${myAccessOnly}`,
     );
   }
 
@@ -464,7 +466,7 @@ export class PortfolioManagerApi {
     meterId: number,
     page?: number,
     startDate?: string,
-    endDate?: string
+    endDate?: string,
   ): Promise<IMeterConsumptionDataGetResponse> {
     const args: string[] = [];
     if (page) {
@@ -483,11 +485,11 @@ export class PortfolioManagerApi {
   // https://portfoliomanager.energystar.gov/webservices/home/test/api/property/sample-testing/post
   async propertyCreateSamplePropertiesPOST(
     countryCode: "US" | "CA" = "US",
-    createCount: number = 10
+    createCount: number = 10,
   ): Promise<ICreateSamplePropertiesPostResponse> {
     return this.post<undefined, ICreateSamplePropertiesPostResponse>(
       `property/createSampleProperties?countryCode=${countryCode}&createCount=${createCount}`,
-      undefined
+      undefined,
     );
   }
 
@@ -498,7 +500,7 @@ export class PortfolioManagerApi {
    */
   async propertyDesignMetricsGet(
     propertyId: number,
-    measurementSystem: MeasurementSystem = "EPA"
+    measurementSystem: MeasurementSystem = "EPA",
   ): Promise<IPropertyDesignMetricsGetResponse> {
     const url = `/property/${propertyId}/design/metrics?measurementSystem=${measurementSystem}`;
 
@@ -515,7 +517,7 @@ export class PortfolioManagerApi {
     year: number,
     month: number,
     metrics: string[],
-    measurementSystem: MeasurementSystem = "EPA"
+    measurementSystem: MeasurementSystem = "EPA",
   ): Promise<IPropertyMetricsGetResponse> {
     const args = [
       `year=${year}`,
@@ -541,7 +543,7 @@ export class PortfolioManagerApi {
     year: number,
     month: number,
     metrics: string[],
-    measurementSystem: MeasurementSystem = "EPA"
+    measurementSystem: MeasurementSystem = "EPA",
   ): Promise<IPropertyMetricsMonthlyGetResponse> {
     const args = [
       `year=${year}`,
@@ -577,7 +579,7 @@ export class PortfolioManagerApi {
   // Pending response wrappers depend on externally seeded requests in TEST.
   // https://portfoliomanager.energystar.gov/webservices/home/api/connection/pendingAccountList/get
   async connectAccountPendingListGet(
-    page?: number
+    page?: number,
   ): Promise<IGetPendingConnectionsResponse> {
     const url = page
       ? `/connect/account/pending/list?page=${page}`
@@ -588,11 +590,11 @@ export class PortfolioManagerApi {
   // https://portfoliomanager.energystar.gov/webservices/home/api/connection/connect/post
   async connectAccountPost(
     accountId: number,
-    body: ISharingResponsePayload
+    body: ISharingResponsePayload,
   ): Promise<ISharingActionResponse> {
     return this.post<ISharingResponsePayload, ISharingActionResponse>(
       `/connect/account/${accountId}`,
-      body
+      body,
     );
   }
 
@@ -600,18 +602,18 @@ export class PortfolioManagerApi {
   async disconnectAccountPost(
     accountId: number,
     body: ITerminateSharingResponsePayload,
-    keepShares: boolean = false
+    keepShares: boolean = false,
   ): Promise<ISharingActionResponse> {
     const url = `/disconnect/account/${accountId}?keepShares=${keepShares}`;
     return this.post<ITerminateSharingResponsePayload, ISharingActionResponse>(
       url,
-      body
+      body,
     );
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/connection/pendingPropertyList/get
   async sharePropertyPendingListGet(
-    page?: number
+    page?: number,
   ): Promise<IGetPendingPropertySharesResponse> {
     const url = page
       ? `/share/property/pending/list?page=${page}`
@@ -622,17 +624,17 @@ export class PortfolioManagerApi {
   // https://portfoliomanager.energystar.gov/webservices/home/api/connection/shareProperty/post
   async sharePropertyPost(
     propertyId: number,
-    body: ISharingResponsePayload
+    body: ISharingResponsePayload,
   ): Promise<ISharingActionResponse> {
     return this.post<ISharingResponsePayload, ISharingActionResponse>(
       `/share/property/${propertyId}`,
-      body
+      body,
     );
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/connection/pendingMeterList/get
   async shareMeterPendingListGet(
-    page?: number
+    page?: number,
   ): Promise<IGetPendingMeterSharesResponse> {
     const url = page
       ? `/share/meter/pending/list?page=${page}`
@@ -643,42 +645,42 @@ export class PortfolioManagerApi {
   // https://portfoliomanager.energystar.gov/webservices/home/api/connection/shareMeter/post
   async shareMeterPost(
     meterId: number,
-    body: ISharingResponsePayload
+    body: ISharingResponsePayload,
   ): Promise<ISharingActionResponse> {
     return this.post<ISharingResponsePayload, ISharingActionResponse>(
       `/share/meter/${meterId}`,
-      body
+      body,
     );
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/connection/unshareProperty/post
   async unsharePropertyPost(
     propertyId: number,
-    body: ITerminateSharingResponsePayload
+    body: ITerminateSharingResponsePayload,
   ): Promise<ISharingActionResponse> {
     return this.post<ITerminateSharingResponsePayload, ISharingActionResponse>(
       `/unshare/property/${propertyId}`,
-      body
+      body,
     );
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/connection/unshareMeter/post
   async unshareMeterPost(
     meterId: number,
-    body: ITerminateSharingResponsePayload
+    body: ITerminateSharingResponsePayload,
   ): Promise<ISharingActionResponse> {
     return this.post<ITerminateSharingResponsePayload, ISharingActionResponse>(
       `/unshare/meter/${meterId}`,
-      body
+      body,
     );
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/connection/notificationList/get
   async notificationListGet(
-    clear: boolean = true
+    clear: boolean = true,
   ): Promise<IGetNotificationListResponse> {
     return this.get<IGetNotificationListResponse>(
-      `/notification/list?clear=${clear}`
+      `/notification/list?clear=${clear}`,
     );
   }
   /* c8 ignore stop */
@@ -689,6 +691,6 @@ export class PortfolioManagerApi {
    * see: https://portfoliomanager.energystar.gov/webservices/home/api/customer/list
    */
   async customerListGet(): Promise<IGetCustomerListResponse> {
-    return this.get<IGetCustomerListResponse>('customer/list');
+    return this.get<IGetCustomerListResponse>("customer/list");
   }
 }

@@ -186,8 +186,9 @@ export interface IWasteMeter {
   name: string; // 1-100 characters. The name of the waste meter.
   type: WasteMeterType; // The type of meter (i.e. electric, natural gas, PDU, Indoor, etc.).
   unitOfMeasure: WasteMeterUnitOfMeasure; // The units that measure the energy for the meter (Kbtu, KWh, Mbtu, MWh, ccf, gallons, etc.).
-  dataEntryMethod: // The format of meter data entries.
-  | "regular" // Indicates that you know the weight or volume of the waste/material.
+  dataEntryMethod:
+    // The format of meter data entries.
+    | "regular" // Indicates that you know the weight or volume of the waste/material.
     | "regular container" // Indicates that you know the size of the bin/dumpster.
     | "intermittent"; // Indicates that the waste/material is collected intermittently or one-time only.
   containerSize?: number; // The size of the container.

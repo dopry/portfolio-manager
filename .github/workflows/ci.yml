@@ -35,6 +35,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run lint
+      - run: npm run format:check
       - run: npm run typecheck
       - run: npm run build
       - run: node ./dist/index.js --help # Run the CLI to ensure it works, we had some test releases where this was broken during the esm migration

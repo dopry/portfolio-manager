@@ -18,10 +18,7 @@ import {
 const realFetch = globalThis.fetch;
 const fetchMock = vi.fn(realFetch);
 vi.stubGlobal("fetch", fetchMock);
-import {
-  mockIProperty,
-  mockMeter
-} from "./Mocks.js";
+import { mockIProperty, mockMeter } from "./Mocks.js";
 import { PortfolioManager } from "./PortfolioManager.js";
 import {
   isPortfolioManagerApiError,
@@ -36,7 +33,7 @@ import {
   isIPopulatedResponse,
   isIPropertyAnnualMetric,
   ITerminateSharingResponsePayload,
-  ISharingResponsePayload
+  ISharingResponsePayload,
 } from "./types/xml/index.js";
 import {
   ensureStandardProperties,
@@ -63,7 +60,11 @@ function withRunId(base: string): string {
 
 const api = new PortfolioManagerApi(BASE_URL, USERNAME || "", PASSWORD || "");
 const pm = new PortfolioManager(api);
-const api2 = new PortfolioManagerApi(BASE_URL, USERNAME2 || "", PASSWORD2 || "");
+const api2 = new PortfolioManagerApi(
+  BASE_URL,
+  USERNAME2 || "",
+  PASSWORD2 || "",
+);
 const pm2 = new PortfolioManager(api2);
 let standardPropertyIds: number[] = [];
 let metricsFixture: IStandardMetricsFixture;
@@ -115,8 +116,7 @@ if (HAS_PM_CREDENTIALS && HAS_PM_SECONDARY_CREDENTIALS) {
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unknown preflight failure";
-    pendingConnectionSharingSkipReason =
-      `Pending preflight failed: ${message}. Connection & Sharing integration tests are skipped.`;
+    pendingConnectionSharingSkipReason = `Pending preflight failed: ${message}. Connection & Sharing integration tests are skipped.`;
   }
 }
 
@@ -125,9 +125,12 @@ async function ensureTestFixtures(): Promise<void> {
   standardPropertyIds = await ensureStandardProperties(
     api,
     account.id || 0,
-    STANDARD_PROPERTY_NAMES
+    STANDARD_PROPERTY_NAMES,
   );
-  metricsFixture = await ensureStandardMetricsFixture(api, standardPropertyIds[0]);
+  metricsFixture = await ensureStandardMetricsFixture(
+    api,
+    standardPropertyIds[0],
+  );
 }
 
 const describeIntegration = HAS_PM_CREDENTIALS ? describe : describe.skip;
@@ -151,7 +154,7 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
   afterAll(async () => {
     // Meters created on fixture properties must be explicitly deleted.
     const uniqueFixtureMeters = Array.from(
-      new Set(createdFixturePropertyMeterIds)
+      new Set(createdFixturePropertyMeterIds),
     ).reverse();
     for (const meterId of uniqueFixtureMeters) {
       try {
@@ -176,14 +179,14 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
     expect(api).to.be.an.instanceof(PortfolioManagerApi);
   });
 
-  // since the PM Test UI became available and we aren't starting from an empty test 
+  // since the PM Test UI became available and we aren't starting from an empty test
   // account we can no longer setup this test case without potentially conflicting with
   // other test runners that may be running at the same time. skip for now until we come
   // up with a strategy to handle this.
   it.skip("accountAccountGet + propertyPropertyListGet handles empty account", async () => {
     const { account } = await api.accountAccountGet();
     const listPropertyResponse = await api.propertyPropertyListGet(
-      account.id || 0
+      account.id || 0,
     );
     expect(listPropertyResponse.response["@_status"]).to.equal("Ok");
     expect(listPropertyResponse.response.links).to.be.an("string");
@@ -198,7 +201,7 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
     const { account } = await api.accountAccountGet();
     const postPropertyResponse = await api.propertyPropertyPost(
       property,
-      account.id || 0
+      account.id || 0,
     );
     // console.log({ postPropertyResponse });
     if (!isIPopulatedResponse(postPropertyResponse.response)) {
@@ -217,53 +220,53 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
     expect(link).to.be.an("array");
 
     expect(link[0]["@_linkDescription"]).to.equal(
-      "This is the GET url for this Property."
+      "This is the GET url for this Property.",
     );
     expect(link[0]["@_link"]).to.match(/^\/property\/\d+$/);
     expect(link[0]["@_httpMethod"]).to.equal("GET");
 
     const getPropertyResponse = await api.propertyPropertyGet(
-      postPropertyResponse.response.id
+      postPropertyResponse.response.id,
     );
     // console.log({ getPropertyResponse });
     expect(getPropertyResponse.property).to.be.an("object");
     expect(getPropertyResponse.property.accessLevel).to.equal("Read Write");
     expect(getPropertyResponse.property.address).to.be.an("object");
     expect(getPropertyResponse.property.address["@_address1"]).to.equal(
-      "123 Main St"
+      "123 Main St",
     );
     expect(getPropertyResponse.property.address["@_city"]).to.equal("Test");
     expect(getPropertyResponse.property.address["@_postalCode"]).to.equal(
-      "1234567"
+      "1234567",
     );
     expect(getPropertyResponse.property.address["@_country"]).to.equal("US");
     expect(getPropertyResponse.property.address["@_state"]).to.equal("NY");
     expect(getPropertyResponse.property.audit?.createdBy).to.equal(USERNAME);
     expect(getPropertyResponse.property.audit?.createdByAccountId).to.equal(
-      account.id
+      account.id,
     );
     expect(getPropertyResponse.property.audit?.createdDate).to.match(
-      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}-0\d:00$/
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}-0\d:00$/,
     );
     expect(getPropertyResponse.property.audit?.lastUpdatedBy).to.equal(
-      USERNAME
+      USERNAME,
     );
     expect(getPropertyResponse.property.audit?.lastUpdatedByAccountId).to.equal(
-      account.id
+      account.id,
     );
     expect(getPropertyResponse.property.audit?.lastUpdatedDate).to.match(
-      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}-0\d:00$/
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}-0\d:00$/,
     );
     expect(getPropertyResponse.property.constructionStatus).to.equal("Test");
     expect(getPropertyResponse.property.grossFloorArea).to.be.an("object");
     expect(getPropertyResponse.property.grossFloorArea["@_default"]).to.equal(
-      "N/A"
+      "N/A",
     );
     expect(getPropertyResponse.property.grossFloorArea["@_temporary"]).to.equal(
-      "false"
+      "false",
     );
     expect(getPropertyResponse.property.grossFloorArea["@_units"]).to.equal(
-      "Square Feet"
+      "Square Feet",
     );
     expect(getPropertyResponse.property.grossFloorArea.value).to.equal(8000);
     expect(getPropertyResponse.property.isFederalProperty).to.equal(false);
@@ -271,12 +274,12 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
     expect(getPropertyResponse.property.numberOfBuildings).to.equal(1);
     expect(getPropertyResponse.property.occupancyPercentage).to.equal(80);
     expect(getPropertyResponse.property.primaryFunction).to.equal(
-      "Data Center"
+      "Data Center",
     );
     expect(getPropertyResponse.property.yearBuilt).to.equal(2022);
 
     const getPropertyListResponse = await api.propertyPropertyListGet(
-      account.id || 0
+      account.id || 0,
     );
     // console.log({ getPropertyListResponse });
     expect(getPropertyListResponse["?xml"]).to.deep.equal({
@@ -295,21 +298,21 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
     }
 
     const propFromList = listResponse.links.link.find(
-      (link) => link["@_id"] == postPropertyResponse.response.id?.toString()
+      (link) => link["@_id"] == postPropertyResponse.response.id?.toString(),
     );
     if (!propFromList) {
       throw new Error("Created property not found in list response");
     }
     expect(
       propFromList,
-      "created property not found in list response"
+      "created property not found in list response",
     ).to.be.an("object");
     expect(propFromList["@_hint"]).to.equal(property.name);
     expect(propFromList["@_httpMethod"]).to.equal("GET");
 
     expect(propFromList["@_link"]).to.match(/^\/property\/\d+$/);
     expect(propFromList["@_linkDescription"]).to.equal(
-      "This is the GET url for this Property."
+      "This is the GET url for this Property.",
     );
   }, 60000);
 
@@ -328,20 +331,19 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
     expect(postMeterResponse.response.links.link).to.be.an("array");
     // expect(postMeterResponse.response).to.equal({});
 
-    const getPropertyMeterListResponse = await api.meterMeterListGet(
-      propertyId
-    );
+    const getPropertyMeterListResponse =
+      await api.meterMeterListGet(propertyId);
     const meterLink = getPropertyMeterListResponse.response.links
       .link as ILink[];
 
     const meterFromList = meterLink.find(
-      (link) => link["@_id"] == postMeterResponse.response.id?.toString()
+      (link) => link["@_id"] == postMeterResponse.response.id?.toString(),
     );
     if (!meterFromList) {
       throw new Error("Created meter not found in list response");
     }
     expect(meterFromList["@_id"]).to.equal(
-      postMeterResponse.response.id.toString()
+      postMeterResponse.response.id.toString(),
     );
   }, 60000);
 
@@ -353,7 +355,7 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
     const { account } = await api.accountAccountGet();
     const postPropertyResponse = await api.propertyPropertyPost(
       property,
-      account.id || 0
+      account.id || 0,
     );
     if (!isIPopulatedResponse(postPropertyResponse.response)) {
       throw new Error("Expected isIPopoulatedResponse");
@@ -366,7 +368,7 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
 
     const postMeterResponse = await api.meterMeterPost(
       propertyId,
-      mockMeter(withRunId("Delete Wrapper Meter"))
+      mockMeter(withRunId("Delete Wrapper Meter")),
     );
     if (!isIPopulatedResponse(postMeterResponse.response)) {
       throw new Error("Expected isIPopoulatedResponse");
@@ -388,11 +390,15 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
     untrackId(createdPropertyIds, propertyId);
     // PM API delete removes property from account list but GET by ID still returns 200.
     const listAfterDelete = await api.propertyPropertyListGet(account.id || 0);
-    const stillLinked = isIPopulatedResponse(listAfterDelete.response)
-      && listAfterDelete.response.links.link.some(
-        (link) => link["@_id"] === propertyId.toString()
+    const stillLinked =
+      isIPopulatedResponse(listAfterDelete.response) &&
+      listAfterDelete.response.links.link.some(
+        (link) => link["@_id"] === propertyId.toString(),
       );
-    expect(stillLinked, "deleted property should not appear in account property list").to.equal(false);
+    expect(
+      stillLinked,
+      "deleted property should not appear in account property list",
+    ).to.equal(false);
   }, 90000);
 
   it("meterPropertyAssociationSinglePost + getAssociatedMeters", async () => {
@@ -406,10 +412,8 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
     }
     createdFixturePropertyMeterIds.push(meterId);
 
-    const associationPostResponse = await api.meterPropertyAssociationSinglePost(
-      propertyId,
-      meterId
-    );
+    const associationPostResponse =
+      await api.meterPropertyAssociationSinglePost(propertyId, meterId);
     expect(associationPostResponse.response["@_status"]).to.equal("Ok");
 
     const association = await pm.getAssociatedMeters(propertyId);
@@ -448,7 +452,8 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
 
     const getConsumptionResponse = await api.meterConsumptionDataGet(meterId);
     expect(getConsumptionResponse.meterData.meterConsumption).to.be.an("array");
-    const consumptions = getConsumptionResponse.meterData.meterConsumption || [];
+    const consumptions =
+      getConsumptionResponse.meterData.meterConsumption || [];
     const fetchedMatch = consumptions.find((entry) => entry.usage === 123.45);
     expect(fetchedMatch).to.be.an("object");
   }, 60000);
@@ -519,7 +524,7 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
     };
     const postMeterIdentifierResponse = await api.meterIdentifierPost(
       meterId,
-      additionalIdentifier
+      additionalIdentifier,
     );
     expect(postMeterIdentifierResponse.response["@_status"]).to.equal("Ok");
     if (!isIPopulatedResponse(postMeterIdentifierResponse.response)) {
@@ -537,25 +542,25 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
         .additionalIdentifier;
     // console.log({ meterIdentifierLink })
     expect(meterIdentifierLink[0]["@_id"]).to.equal(
-      postMeterIdentifierResponse.response.id.toString()
+      postMeterIdentifierResponse.response.id.toString(),
     );
 
     const meterIdentifierGetResponse = await api.meterIdentifierGet(
       propertyId,
-      postMeterIdentifierResponse.response.id
+      postMeterIdentifierResponse.response.id,
     );
     const gotIdentifier = meterIdentifierGetResponse.additionalIdentifier;
     expect(gotIdentifier).to.be.an("object");
     expect(gotIdentifier.additionalIdentifierType).to.be.an("object");
     expect(gotIdentifier.additionalIdentifierType["@_id"]).to.equal("1");
     expect(
-      gotIdentifier.additionalIdentifierType["@_standardApproved"]
+      gotIdentifier.additionalIdentifierType["@_standardApproved"],
     ).to.equal("false");
     expect(gotIdentifier.additionalIdentifierType["@_name"]).to.equal(
-      "Custom ID 1"
+      "Custom ID 1",
     );
     expect(gotIdentifier.additionalIdentifierType["@_description"]).to.equal(
-      "Custom ID 1"
+      "Custom ID 1",
     );
     expect(gotIdentifier.description).to.equal("RossEnergy");
 
@@ -564,11 +569,7 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
     if (!putId) {
       throw new Error("Expected putId");
     }
-    await api.meterIdentifierPut(
-      meterId,
-      putId,
-      gotIdentifier
-    );
+    await api.meterIdentifierPut(meterId, putId, gotIdentifier);
 
     const get2Response = await api.meterIdentifierGet(meterId, putId);
     const got2Identifier = get2Response.additionalIdentifier;
@@ -596,13 +597,12 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
   it("propertyDesignMetricsGet", async () => {
     const propertyId = standardPropertyIds[0];
 
-    const designMetricsResponse = await api.propertyDesignMetricsGet(
-      propertyId
-    );
+    const designMetricsResponse =
+      await api.propertyDesignMetricsGet(propertyId);
 
     expect(designMetricsResponse.propertyMetrics).to.be.an("object");
     expect(designMetricsResponse.propertyMetrics["@_propertyId"]).to.equal(
-      propertyId.toString()
+      propertyId.toString(),
     );
     expect(designMetricsResponse.propertyMetrics.metric).to.be.an("array");
     const metric = designMetricsResponse.propertyMetrics.metric[0];
@@ -621,17 +621,17 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
       propertyId,
       2024,
       1,
-      requestedMetrics
+      requestedMetrics,
     );
 
     expect(metricsResponse.propertyMetrics).to.be.an("object");
     expect(metricsResponse.propertyMetrics["@_propertyId"]).to.equal(
-      propertyId.toString()
+      propertyId.toString(),
     );
     expect(metricsResponse.propertyMetrics.metric).to.be.an("array");
 
     const returnedRequested = metricsResponse.propertyMetrics.metric.filter(
-      (metric) => requestedMetrics.includes(metric["@_name"])
+      (metric) => requestedMetrics.includes(metric["@_name"]),
     );
     expect(returnedRequested.length).to.be.greaterThan(0);
 
@@ -650,17 +650,17 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
       propertyId,
       2024,
       1,
-      requestedMetrics
+      requestedMetrics,
     );
 
     expect(monthlyMetricsResponse.propertyMetrics).to.be.an("object");
     expect(monthlyMetricsResponse.propertyMetrics["@_propertyId"]).to.equal(
-      propertyId.toString()
+      propertyId.toString(),
     );
     expect(monthlyMetricsResponse.propertyMetrics.metric).to.be.an("array");
 
     const requestedSeries = monthlyMetricsResponse.propertyMetrics.metric.find(
-      (metric) => requestedMetrics.includes(metric["@_name"])
+      (metric) => requestedMetrics.includes(metric["@_name"]),
     );
     expect(requestedSeries).to.be.an("object");
     if (!requestedSeries) {
@@ -675,8 +675,6 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
     expect(period["@_month"]).to.match(/^\d{1,2}$/);
     expect(period["@_year"]).to.match(/^\d{4}$/);
   }, 60000);
-
-
 
   const describeConnectionSharing =
     HAS_PM_SECONDARY_CREDENTIALS && hasPendingConnectionSharingFixtures
@@ -716,7 +714,10 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
 
       if (acceptedConnectionId) {
         try {
-          await api2.disconnectAccountPost(acceptedConnectionId, terminatePayload);
+          await api2.disconnectAccountPost(
+            acceptedConnectionId,
+            terminatePayload,
+          );
         } catch {
           // Best effort cleanup for shared test environment.
         }
@@ -747,7 +748,7 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
       const pending = await findPendingFromPrimaryOrUndefined();
       if (!pending) {
         throw new Error(
-          "Pending requests were expected by preflight but were not found at runtime. Re-seed pending requests and retry."
+          "Pending requests were expected by preflight but were not found at runtime. Re-seed pending requests and retry.",
         );
       }
       const acceptPayload: ISharingResponsePayload = {
@@ -759,19 +760,19 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
 
       const accountResponse = await api2.connectAccountPost(
         pending.accountId,
-        acceptPayload
+        acceptPayload,
       );
       expect(accountResponse.response["@_status"]).to.equal("Ok");
 
       const propertyResponse = await api2.sharePropertyPost(
         pending.propertyId,
-        acceptPayload
+        acceptPayload,
       );
       expect(propertyResponse.response["@_status"]).to.equal("Ok");
 
       const meterResponse = await api2.shareMeterPost(
         pending.meterId,
-        acceptPayload
+        acceptPayload,
       );
       expect(meterResponse.response["@_status"]).to.equal("Ok");
 
@@ -785,18 +786,18 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
 
       expect(
         pendingAccountsAfter.pendingList.account.some(
-          (item) => item.accountId === pending.accountId
-        )
+          (item) => item.accountId === pending.accountId,
+        ),
       ).to.equal(false);
       expect(
         pendingPropertiesAfter.pendingList.property.some(
-          (item) => item.propertyId === pending.propertyId
-        )
+          (item) => item.propertyId === pending.propertyId,
+        ),
       ).to.equal(false);
       expect(
         pendingMetersAfter.pendingList.meter.some(
-          (item) => item.meterId === pending.meterId
-        )
+          (item) => item.meterId === pending.meterId,
+        ),
       ).to.equal(false);
 
       const notifs = await api2.notificationListGet(false);
@@ -804,14 +805,13 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
       expect(notifs.notificationList.notification).to.be.an("array");
     }, 120000);
   });
-
 });
 
 describe("PortfolioManagerApi (unit coverage paths)", () => {
   const unitApi = new PortfolioManagerApi(
     "https://example.test/",
     "test-user",
-    "test-pass"
+    "test-pass",
   );
 
   beforeEach(() => {
@@ -855,11 +855,11 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       new Response("<response status='Error' />", {
         status: 500,
         statusText: "Internal Server Error",
-      })
+      }),
     );
 
     await expect(unitApi.fetch("property/1")).rejects.toBeInstanceOf(
-      PortfolioManagerApiError
+      PortfolioManagerApiError,
     );
   });
 
@@ -868,7 +868,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       new Response("   \n  ", {
         status: 200,
         statusText: "OK",
-      })
+      }),
     );
 
     await expect(unitApi.fetch("property/2")).rejects.toMatchObject({
@@ -883,7 +883,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       new Response("<response><broken></response>", {
         status: 200,
         statusText: "OK",
-      })
+      }),
     );
     vi.spyOn(XMLParser.prototype, "parse").mockImplementation(() => {
       throw new Error("forced parser error");
@@ -892,7 +892,9 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     await expect(unitApi.fetch("property/3")).rejects.toMatchObject({
       status: 200,
       statusText: "OK",
-      responseText: expect.stringContaining("XML parse failure: forced parser error"),
+      responseText: expect.stringContaining(
+        "XML parse failure: forced parser error",
+      ),
     });
   });
 
@@ -901,7 +903,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       new Response("<response />", {
         status: 200,
         statusText: "OK",
-      })
+      }),
     );
     vi.spyOn(XMLParser.prototype, "parse").mockImplementation(() => {
       throw "boom";
@@ -919,24 +921,24 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       "https://example.test/",
       "test-user",
       "test-pass",
-      { maxRetries: 2, retryBaseDelayMs: 1 }
+      { maxRetries: 2, retryBaseDelayMs: 1 },
     );
     fetchMock
       .mockResolvedValueOnce(
         new Response("<response status='Error' />", {
           status: 429,
           statusText: "Too Many Requests",
-        })
+        }),
       )
       .mockResolvedValueOnce(
         new Response("<response><status>Ok</status></response>", {
           status: 200,
           statusText: "OK",
-        })
+        }),
       );
 
     const result = await retryApi.fetch<{ response: { status: string } }>(
-      "property/5"
+      "property/5",
     );
 
     expect(result.response.status).to.equal("Ok");
@@ -948,7 +950,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       "https://example.test/",
       "test-user",
       "test-pass",
-      { maxRetries: 2, retryBaseDelayMs: 1 }
+      { maxRetries: 2, retryBaseDelayMs: 1 },
     );
     fetchMock
       .mockResolvedValueOnce(
@@ -956,19 +958,19 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
           status: 429,
           statusText: "Too Many Requests",
           headers: { "Retry-After": "1" },
-        })
+        }),
       )
       .mockResolvedValueOnce(
         new Response("<response><status>Ok</status></response>", {
           status: 200,
           statusText: "OK",
-        })
+        }),
       );
 
     vi.useFakeTimers();
     try {
       const pending = retryApi.fetch<{ response: { status: string } }>(
-        "property/6"
+        "property/6",
       );
       // The header delay (1s) supersedes the 1ms backoff: just before it
       // elapses the retry must not have fired yet.
@@ -988,7 +990,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       "https://example.test/",
       "test-user",
       "test-pass",
-      { maxRetries: 2, retryBaseDelayMs: 1 }
+      { maxRetries: 2, retryBaseDelayMs: 1 },
     );
     fetchMock
       .mockResolvedValueOnce(
@@ -996,17 +998,17 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
           status: 429,
           statusText: "Too Many Requests",
           headers: { "Retry-After": "0" },
-        })
+        }),
       )
       .mockResolvedValueOnce(
         new Response("<response><status>Ok</status></response>", {
           status: 200,
           statusText: "OK",
-        })
+        }),
       );
 
     const result = await retryApi.fetch<{ response: { status: string } }>(
-      "property/9"
+      "property/9",
     );
 
     expect(result.response.status).to.equal("Ok");
@@ -1018,7 +1020,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       "https://example.test/",
       "test-user",
       "test-pass",
-      { maxRetries: 2, retryBaseDelayMs: 1 }
+      { maxRetries: 2, retryBaseDelayMs: 1 },
     );
     fetchMock
       .mockResolvedValueOnce(
@@ -1026,24 +1028,24 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
           status: 429,
           statusText: "Too Many Requests",
           headers: { "Retry-After": "Wed, 21 Oct 2026 07:28:00 GMT" },
-        })
+        }),
       )
       .mockResolvedValueOnce(
         new Response("<response status='Error' />", {
           status: 429,
           statusText: "Too Many Requests",
           headers: { "Retry-After": "-1" },
-        })
+        }),
       )
       .mockResolvedValueOnce(
         new Response("<response><status>Ok</status></response>", {
           status: 200,
           statusText: "OK",
-        })
+        }),
       );
 
     const result = await retryApi.fetch<{ response: { status: string } }>(
-      "property/10"
+      "property/10",
     );
 
     expect(result.response.status).to.equal("Ok");
@@ -1055,14 +1057,14 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       "https://example.test/",
       "test-user",
       "test-pass",
-      { maxRetries: 2, retryBaseDelayMs: 1 }
+      { maxRetries: 2, retryBaseDelayMs: 1 },
     );
     fetchMock.mockImplementation(
       async () =>
         new Response("<response status='Error' />", {
           status: 429,
           statusText: "Too Many Requests",
-        })
+        }),
     );
 
     await expect(retryApi.fetch("property/7")).rejects.toMatchObject({
@@ -1078,20 +1080,20 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       "https://example.test/",
       "test-user",
       "test-pass",
-      { maxRetries: 2, retryBaseDelayMs: 1 }
+      { maxRetries: 2, retryBaseDelayMs: 1 },
     );
     fetchMock.mockResolvedValue(
       new Response("<response status='Error' />", {
         status: 429,
         statusText: "Too Many Requests",
-      })
+      }),
     );
 
     await expect(
       retryApi.fetch("property/8", {
         method: "POST",
         body: Readable.toWeb(Readable.from(["<property />"])) as ReadableStream,
-      })
+      }),
     ).rejects.toMatchObject({
       status: 429,
       statusText: "Too Many Requests",
@@ -1100,8 +1102,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     // undici requires duplex for stream bodies; PortfolioManagerApi.fetch
     // populates it before invoking the (stubbed) global fetch.
     const streamInit = fetchMock.mock.calls[0][1] as
-      | Record<string, unknown>
-      | undefined;
+      Record<string, unknown> | undefined;
     expect(streamInit?.duplex).to.equal("half");
   });
 
@@ -1115,15 +1116,13 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
 
     await unitApi.fetch("account", { method: "POST" });
     const postAccountInit = fetchMock.mock.calls[0][1] as
-      | Record<string, unknown>
-      | undefined;
+      Record<string, unknown> | undefined;
     const postAccountHeaders = postAccountInit?.headers as Headers;
     expect(postAccountHeaders.get("authorization")).to.equal(null);
 
     await unitApi.fetch("account", { method: "GET" });
     const getAccountInit = fetchMock.mock.calls[1][1] as
-      | Record<string, unknown>
-      | undefined;
+      Record<string, unknown> | undefined;
     const getAccountHeaders = getAccountInit?.headers as Headers;
     expect(getAccountHeaders.get("authorization")).to.be.a("string");
 
@@ -1132,8 +1131,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       headers: { "X-Test": "yes" },
     });
     const getPropertyInit = fetchMock.mock.calls[2][1] as
-      | Record<string, unknown>
-      | undefined;
+      Record<string, unknown> | undefined;
     const getPropertyHeaders = getPropertyInit?.headers as Headers;
     expect(getPropertyHeaders.get("authorization")).to.be.a("string");
     expect(getPropertyHeaders.get("x-test")).to.equal("yes");
@@ -1158,8 +1156,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       }),
     });
     const headersInit = fetchMock.mock.calls[0][1] as
-      | Record<string, unknown>
-      | undefined;
+      Record<string, unknown> | undefined;
     const sentHeaders = headersInit?.headers as Headers;
     expect(sentHeaders.get("x-from-headers")).to.equal("yes");
     expect(sentHeaders.get("content-type")).to.equal("text/xml");
@@ -1168,8 +1165,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       headers: [["X-From-Tuples", "also yes"]],
     });
     const tupleInit = fetchMock.mock.calls[1][1] as
-      | Record<string, unknown>
-      | undefined;
+      Record<string, unknown> | undefined;
     const tupleHeaders = tupleInit?.headers as Headers;
     expect(tupleHeaders.get("x-from-tuples")).to.equal("also yes");
     expect(tupleHeaders.get("content-type")).to.equal("application/xml");
@@ -1191,23 +1187,30 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       },
     } as never);
     await unitApi.get("meter/1");
-    await unitApi.get("meter/2", { method: "GET", headers: { "X-Trace": "1" } });
+    await unitApi.get("meter/2", {
+      method: "GET",
+      headers: { "X-Trace": "1" },
+    });
 
     expect(fetchSpy).toHaveBeenNthCalledWith(
       1,
       "meter/1",
       expect.objectContaining({
         method: "POST",
-        body: expect.stringMatching(/<firstBillDate>\d{4}-\d{2}-\d{2}<\/firstBillDate>/),
-      })
+        body: expect.stringMatching(
+          /<firstBillDate>\d{4}-\d{2}-\d{2}<\/firstBillDate>/,
+        ),
+      }),
     );
     expect(fetchSpy).toHaveBeenNthCalledWith(
       2,
       "meter/1",
       expect.objectContaining({
         method: "PUT",
-        body: expect.stringContaining("<firstBillDate><invalid>true</invalid></firstBillDate>"),
-      })
+        body: expect.stringContaining(
+          "<firstBillDate><invalid>true</invalid></firstBillDate>",
+        ),
+      }),
     );
     expect(fetchSpy).toHaveBeenNthCalledWith(3, "meter/1", {});
     expect(fetchSpy).toHaveBeenNthCalledWith(
@@ -1216,7 +1219,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       expect.objectContaining({
         method: "GET",
         headers: { "X-Trace": "1" },
-      })
+      }),
     );
   });
 
@@ -1227,9 +1230,17 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     }
 
     const fromString = processor("firstBillDate", "2024-01-01") as string;
-    const fromDate = processor("firstBillDate", new Date("2024-01-01")) as string;
-    const fromNumber = processor("firstBillDate", Date.UTC(2024, 0, 1)) as string;
-    const passthrough = processor("firstBillDate", { invalid: true } as never) as unknown;
+    const fromDate = processor(
+      "firstBillDate",
+      new Date("2024-01-01"),
+    ) as string;
+    const fromNumber = processor(
+      "firstBillDate",
+      Date.UTC(2024, 0, 1),
+    ) as string;
+    const passthrough = processor("firstBillDate", {
+      invalid: true,
+    } as never) as unknown;
     const defaultTag = processor("name", "Meter Name") as string;
 
     expect(fromString).to.match(/^\d{4}-\d{2}-\d{2}$/);
@@ -1248,7 +1259,10 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       endDate: "2024-01-31",
     } as never);
 
-    expect(putSpy).toHaveBeenCalledWith("consumptionData/42", expect.anything());
+    expect(putSpy).toHaveBeenCalledWith(
+      "consumptionData/42",
+      expect.anything(),
+    );
   });
 
   it("meterConsumptionDataGet builds query string for optional params", async () => {
@@ -1256,18 +1270,26 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
 
     await unitApi.meterConsumptionDataGet(10);
     await unitApi.meterConsumptionDataGet(10, 2);
-    await unitApi.meterConsumptionDataGet(10, undefined, "2024-01-01", "2024-12-31");
+    await unitApi.meterConsumptionDataGet(
+      10,
+      undefined,
+      "2024-01-01",
+      "2024-12-31",
+    );
     await unitApi.meterConsumptionDataGet(10, 1, "2024-01-01", "2024-12-31");
 
     expect(getSpy).toHaveBeenNthCalledWith(1, "/meter/10/consumptionData?");
-    expect(getSpy).toHaveBeenNthCalledWith(2, "/meter/10/consumptionData?page=2");
+    expect(getSpy).toHaveBeenNthCalledWith(
+      2,
+      "/meter/10/consumptionData?page=2",
+    );
     expect(getSpy).toHaveBeenNthCalledWith(
       3,
-      "/meter/10/consumptionData?startDate=2024-01-01&endDate=2024-12-31"
+      "/meter/10/consumptionData?startDate=2024-01-01&endDate=2024-12-31",
     );
     expect(getSpy).toHaveBeenNthCalledWith(
       4,
-      "/meter/10/consumptionData?page=1&startDate=2024-01-01&endDate=2024-12-31"
+      "/meter/10/consumptionData?page=1&startDate=2024-01-01&endDate=2024-12-31",
     );
   });
 
@@ -1280,12 +1302,12 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     expect(postSpy).toHaveBeenNthCalledWith(
       1,
       "property/createSampleProperties?countryCode=US&createCount=10",
-      undefined
+      undefined,
     );
     expect(postSpy).toHaveBeenNthCalledWith(
       2,
       "property/createSampleProperties?countryCode=CA&createCount=5",
-      undefined
+      undefined,
     );
   });
 
@@ -1326,13 +1348,17 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     expect(getSpy).toHaveBeenCalledWith("meter/5/identifier/list");
     expect(getSpy).toHaveBeenCalledWith("meter/identifier/list");
     expect(getSpy).toHaveBeenCalledWith("/association/property/8/meter");
-    expect(getSpy).toHaveBeenCalledWith("property/10/meter/list?myAccessOnly=false");
-    expect(getSpy).toHaveBeenCalledWith("property/10/meter/list?myAccessOnly=true");
     expect(getSpy).toHaveBeenCalledWith(
-      "/property/11/design/metrics?measurementSystem=EPA"
+      "property/10/meter/list?myAccessOnly=false",
     );
     expect(getSpy).toHaveBeenCalledWith(
-      "/property/11/design/metrics?measurementSystem=METRIC"
+      "property/10/meter/list?myAccessOnly=true",
+    );
+    expect(getSpy).toHaveBeenCalledWith(
+      "/property/11/design/metrics?measurementSystem=EPA",
+    );
+    expect(getSpy).toHaveBeenCalledWith(
+      "/property/11/design/metrics?measurementSystem=METRIC",
     );
     expect(getSpy).toHaveBeenCalledWith("customer/list");
 
@@ -1350,7 +1376,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     });
     expect(postSpy).toHaveBeenCalledWith(
       "/association/property/8/meter/9",
-      undefined
+      undefined,
     );
 
     expect(putSpy).toHaveBeenCalledWith("meter/5/identifier/6", {
@@ -1358,5 +1384,3 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     });
   });
 });
-
-

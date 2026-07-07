@@ -30,22 +30,23 @@ export interface ITerminateSharingResponsePayload {
 }
 
 // xml: notification type code
-export type NotificationTypeCode = "UNSHARE" | "SHAREUPDATE" | "DISCONNECT" | "TRANSFERPROPERTY";
+export type NotificationTypeCode =
+  "UNSHARE" | "SHAREUPDATE" | "DISCONNECT" | "TRANSFERPROPERTY";
 
 /**
  * Represents a single notification event from the ESPM system.
  */
 export interface INotification {
-    notificationTypeCode: NotificationTypeCode; // The notification type code of the notification.
-    notificationId: number; // The id number of the notification.
-    description: string; // The description of the notification.
-    accountId?: number; // The id number of the account to the corresponding notification.
-    username: string; // The username of the Portfolio Manager Account to the corresponding notification.
-    propertyId?: number; // The id number of the property to the corresponding notification.
-    meterId?: number; // The id number of the meter to the corresponding notification.
-    notificationCreatedDate?: string; // The date the notification was created.
-    notificationCreatedBy?: string; // The account name of the user who created the corresponding notification.
-    notificationCreatedByAccountId?: number; // The account id of the user who created the corresponding notification.
+  notificationTypeCode: NotificationTypeCode; // The notification type code of the notification.
+  notificationId: number; // The id number of the notification.
+  description: string; // The description of the notification.
+  accountId?: number; // The id number of the account to the corresponding notification.
+  username: string; // The username of the Portfolio Manager Account to the corresponding notification.
+  propertyId?: number; // The id number of the property to the corresponding notification.
+  meterId?: number; // The id number of the meter to the corresponding notification.
+  notificationCreatedDate?: string; // The date the notification was created.
+  notificationCreatedBy?: string; // The account name of the user who created the corresponding notification.
+  notificationCreatedByAccountId?: number; // The account id of the user who created the corresponding notification.
 }
 
 /**
@@ -53,5 +54,5 @@ export interface INotification {
  * @see https://portfoliomanager.energystar.gov/webservices/home/api/connection/notificationList/get
  */
 export interface INotificationList {
-    notification: INotification[];
+  notification: INotification[];
 }

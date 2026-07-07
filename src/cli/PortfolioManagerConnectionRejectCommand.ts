@@ -7,7 +7,7 @@ export class PortfolioManagerConnectionRejectCommand extends PortfolioManagerBas
     this.addPortfolioManagerOptions();
     this.requiredOption(
       "--accountId <id>",
-      "The account ID of the pending connection to reject"
+      "The account ID of the pending connection to reject",
     );
     this.option("--note <text>", "An optional note to send with the rejection");
   }
@@ -16,11 +16,11 @@ export class PortfolioManagerConnectionRejectCommand extends PortfolioManagerBas
     const pm = this.getPortfolioManagerClient();
     const opts = this.opts();
     console.error(
-      `Rejecting connection request from account ID: ${opts.accountId}...`
+      `Rejecting connection request from account ID: ${opts.accountId}...`,
     );
     await pm.rejectConnection(opts.accountId, opts.note);
     console.log(
-      `Successfully rejected connection from account ID: ${opts.accountId}.`
+      `Successfully rejected connection from account ID: ${opts.accountId}.`,
     );
   }
 }

@@ -4,7 +4,7 @@ export class PortfolioManagerNotificationsCommand extends PortfolioManagerBaseCo
   constructor() {
     super("notifications");
     this.description(
-      "Fetch system notifications (e.g., unshares, disconnects)"
+      "Fetch system notifications (e.g., unshares, disconnects)",
     );
     this.addCommand(new PortfolioManagerNotificationsListCommand());
   }
@@ -17,7 +17,7 @@ class PortfolioManagerNotificationsListCommand extends PortfolioManagerBaseComma
     this.addPortfolioManagerOptions();
     this.option(
       "--no-clear",
-      "Do not mark notifications as read after fetching. They will appear in subsequent calls."
+      "Do not mark notifications as read after fetching. They will appear in subsequent calls.",
     );
   }
 
