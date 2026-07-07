@@ -38,6 +38,8 @@ describe("ARRAY_JPATHS", () => {
     // objects and crash the metrics reducers.
     expect(ARRAY_JPATHS.has("propertyMetrics.metric.monthlyMetric")).toBe(true);
     expect(ARRAY_JPATHS.has("customFieldList.customField")).toBe(true);
+    expect(ARRAY_JPATHS.has("response.errors.error")).toBe(true);
+    expect(ARRAY_JPATHS.has("response.warnings.warning")).toBe(true);
   });
 
   it("omits documented exclusions until their facade rework lands", () => {

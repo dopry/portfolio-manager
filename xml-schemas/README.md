@@ -18,6 +18,6 @@ to production, delete the retired directory and regenerate. A unified diff
 summarizing the changes is kept as `{prev version}-{current version}.diff`;
 strip the version lines so the diff only shows significant changes.
 
-## Implemeneting Schema Types
+## Implementing Schema Types
 
-The types from the schemas are manually created in [/src/types/xml](/src/types/xml). I haven't found a good nodejs xml library for converting these into any sort of usable typed interface. I've tried a few, but have consistently ran into issues dealing with imports and type references. XML support in the Node.JS community is not mature and isn't a priority for the wider community. JSON is the serialization of choixe in the NodeJS community.
+The types from the schemas are manually created in [/src/types/xml](/src/types/xml). Generic XSD-to-TypeScript converters consistently ran into issues dealing with imports and type references, so the repo now generates parser configuration from the schemas itself with a purpose-built script (`npm run generate:xml`; see [plans/xsd-driven-type-generation.md](/plans/xsd-driven-type-generation.md)) — the ESPM schemas declare no namespaces, which is what made the generic tools stumble and a purpose-built walker straightforward. Hand-written types remain in place until the generated-types phases land.
