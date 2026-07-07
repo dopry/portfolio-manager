@@ -3,7 +3,7 @@ function pad(num: number): string {
 }
 
 export function toXmlDateTimeString(date: Date): string {
-  var tzo = -date.getTimezoneOffset(),
+  const tzo = -date.getTimezoneOffset(),
     dif = tzo >= 0 ? "+" : "-";
 
   return (

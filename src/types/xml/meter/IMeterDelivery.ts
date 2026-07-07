@@ -18,8 +18,8 @@ export function isIMeterDelivery(obj: unknown): obj is IMeterDelivery {
     obj !== undefined &&
     obj !== null &&
     typeof obj === "object" &&
-    obj.hasOwnProperty("id") &&
-    obj.hasOwnProperty("deliveryDate") &&
-    obj.hasOwnProperty("quantity")
+    Object.prototype.hasOwnProperty.call(obj, "id") &&
+    Object.prototype.hasOwnProperty.call(obj, "deliveryDate") &&
+    Object.prototype.hasOwnProperty.call(obj, "quantity")
   );
 }

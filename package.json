@@ -3,7 +3,7 @@
   "version": "0.0.0-semantic-release",
   "description": "Unofficial CLI Tool and SDK for Energy Star Portfolio Manager",
   "engines": {
-    "node": ">=20"
+    "node": ">=20.19.0"
   },
   "files": [
     "dist/"
@@ -24,6 +24,9 @@
   "sideEffects": false,
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -43,12 +46,17 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^25.3.5",
     "@vitest/coverage-v8": "^4.0.18",
+    "eslint": "^10.6.0",
+    "eslint-config-prettier": "^10.1.8",
     "playwright": "^1.61.1",
+    "prettier": "^3.9.4",
     "semantic-release": "^25.0.3",
     "tsx": "^4.20.3",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.63.0",
     "vitest": "^4.0.18"
   },
   "dependencies": {

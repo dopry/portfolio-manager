@@ -35,10 +35,10 @@ export function isIMeterConsumption(obj: unknown): obj is IMeterConsumption {
     obj !== undefined &&
     obj !== null &&
     typeof obj === "object" &&
-    obj.hasOwnProperty("id") &&
-    obj.hasOwnProperty("startDate") &&
-    obj.hasOwnProperty("endDate") &&
-    obj.hasOwnProperty("usage")
+    Object.prototype.hasOwnProperty.call(obj, "id") &&
+    Object.prototype.hasOwnProperty.call(obj, "startDate") &&
+    Object.prototype.hasOwnProperty.call(obj, "endDate") &&
+    Object.prototype.hasOwnProperty.call(obj, "usage")
   );
 }
 

@@ -9,10 +9,8 @@ export interface IEnergyMeterAssociationAndConfig {
   propertyRepresentation: IPropertyRepresentation;
 }
 
-export interface IWaterMeterAssociationAndConfig
-  extends IEnergyMeterAssociationAndConfig {}
-export interface IWasteMeterAssociationAndConfig
-  extends IEnergyMeterAssociationAndConfig {}
+export type IWaterMeterAssociationAndConfig = IEnergyMeterAssociationAndConfig;
+export type IWasteMeterAssociationAndConfig = IEnergyMeterAssociationAndConfig;
 
 export type IMeterList = { meterId: number[] };
 

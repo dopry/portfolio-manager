@@ -8,7 +8,7 @@ export type IPropertyAnnualMetricValue = IPropertyAnnualMetricValueNull | string
 export function isIPropertyMetricValueNull(
   value: IPropertyAnnualMetricValue
 ): value is IPropertyAnnualMetricValueNull {
-  return value?.hasOwnProperty("@_xsi:nil");
+  return Object.prototype.hasOwnProperty.call(value ?? {}, "@_xsi:nil");
 }
 
 export interface IPropertyMonthlyMetricValue {
