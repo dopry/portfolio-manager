@@ -210,7 +210,13 @@ export class PortfolioManagerApi {
     if (init.body instanceof ReadableStream && streamInit.duplex == null) {
       streamInit.duplex = "half";
     }
-    const url = this.endpoint + path;
+    // Path convention: endpoint paths are relative (no leading slash), but
+    // fetch() is public API, so strip a legacy leading slash defensively;
+    // tolerate endpoints configured with or without a trailing slash.
+    const relativePath = path.startsWith("/") ? path.slice(1) : path;
+    const url = this.endpoint.endsWith("/")
+      ? this.endpoint + relativePath
+      : `${this.endpoint}/${relativePath}`;
     let response = await fetch(url, init);
 
     // Retrying is safe even for POST/PUT: a rate-limited request is rejected
@@ -262,22 +268,26 @@ export class PortfolioManagerApi {
     }
   }
 
-  async post<REQ, RESP>(path: string, data: REQ): Promise<RESP> {
+  /** Options (e.g. an AbortSignal) are forwarded; method and body win. */
+  async post<REQ, RESP>(
+    path: string,
+    data: REQ,
+    options: RequestInit = {},
+  ): Promise<RESP> {
     const builder = new XMLBuilder(this.xmlBuilderOptions);
-    const xmlData: string = builder.build(data);
-    const method = "POST";
-    const body: string = xmlData;
-    const init: RequestInit = { method, body };
-    return await this.fetch<RESP>(path, init);
+    const body: string = builder.build(data);
+    return await this.fetch<RESP>(path, { ...options, method: "POST", body });
   }
 
-  async put<REQ, RESP>(path: string, data: REQ): Promise<RESP> {
+  /** Options (e.g. an AbortSignal) are forwarded; method and body win. */
+  async put<REQ, RESP>(
+    path: string,
+    data: REQ,
+    options: RequestInit = {},
+  ): Promise<RESP> {
     const builder = new XMLBuilder(this.xmlBuilderOptions);
-    const xmlData: string = builder.build(data);
-    const method = "PUT";
-    const body: string = xmlData;
-    const init: RequestInit = { method, body };
-    return await this.fetch<RESP>(path, init);
+    const body: string = builder.build(data);
+    return await this.fetch<RESP>(path, { ...options, method: "PUT", body });
   }
 
   async get<RESP>(path: string, options: RequestInit = {}): Promise<RESP> {
@@ -429,7 +439,7 @@ export class PortfolioManagerApi {
     propertyId: number,
   ): Promise<IMeterPropertyAssociationGetResponse> {
     return this.get<IMeterPropertyAssociationGetResponse>(
-      `/association/property/${propertyId}/meter`,
+      `association/property/${propertyId}/meter`,
     );
   }
 
@@ -439,7 +449,7 @@ export class PortfolioManagerApi {
     meterId: number,
   ): Promise<IMeterPropertyAssociationPostResponse> {
     return this.post<undefined, IMeterPropertyAssociationPostResponse>(
-      `/association/property/${propertyId}/meter/${meterId}`,
+      `association/property/${propertyId}/meter/${meterId}`,
       undefined,
     );
   }
@@ -478,7 +488,8 @@ export class PortfolioManagerApi {
     if (endDate) {
       args.push(`endDate=${endDate}`);
     }
-    const url = `/meter/${meterId}/consumptionData?${args.join("&")}`;
+    const query = args.length > 0 ? `?${args.join("&")}` : "";
+    const url = `meter/${meterId}/consumptionData${query}`;
     return this.get<IMeterConsumptionDataGetResponse>(url);
   }
 
@@ -502,7 +513,7 @@ export class PortfolioManagerApi {
     propertyId: number,
     measurementSystem: MeasurementSystem = "EPA",
   ): Promise<IPropertyDesignMetricsGetResponse> {
-    const url = `/property/${propertyId}/design/metrics?measurementSystem=${measurementSystem}`;
+    const url = `property/${propertyId}/design/metrics?measurementSystem=${measurementSystem}`;
 
     return this.get<IPropertyDesignMetricsGetResponse>(url);
   }
@@ -529,7 +540,7 @@ export class PortfolioManagerApi {
         "PM-Metrics": metrics.join(","),
       },
     };
-    const url = `/property/${propertyId}/metrics?${args.join("&")}`;
+    const url = `property/${propertyId}/metrics?${args.join("&")}`;
     return this.get<IPropertyMetricsGetResponse>(url, options);
   }
 
@@ -555,7 +566,7 @@ export class PortfolioManagerApi {
         "PM-Metrics": metrics.join(","),
       },
     };
-    const url = `/property/${propertyId}/metrics/monthly?${args.join("&")}`;
+    const url = `property/${propertyId}/metrics/monthly?${args.join("&")}`;
     return this.get<IPropertyMetricsMonthlyGetResponse>(url, options);
   }
 
@@ -582,8 +593,8 @@ export class PortfolioManagerApi {
     page?: number,
   ): Promise<IGetPendingConnectionsResponse> {
     const url = page
-      ? `/connect/account/pending/list?page=${page}`
-      : "/connect/account/pending/list";
+      ? `connect/account/pending/list?page=${page}`
+      : "connect/account/pending/list";
     return this.get<IGetPendingConnectionsResponse>(url);
   }
 
@@ -593,7 +604,7 @@ export class PortfolioManagerApi {
     body: ISharingResponsePayload,
   ): Promise<ISharingActionResponse> {
     return this.post<ISharingResponsePayload, ISharingActionResponse>(
-      `/connect/account/${accountId}`,
+      `connect/account/${accountId}`,
       body,
     );
   }
@@ -604,7 +615,7 @@ export class PortfolioManagerApi {
     body: ITerminateSharingResponsePayload,
     keepShares: boolean = false,
   ): Promise<ISharingActionResponse> {
-    const url = `/disconnect/account/${accountId}?keepShares=${keepShares}`;
+    const url = `disconnect/account/${accountId}?keepShares=${keepShares}`;
     return this.post<ITerminateSharingResponsePayload, ISharingActionResponse>(
       url,
       body,
@@ -616,8 +627,8 @@ export class PortfolioManagerApi {
     page?: number,
   ): Promise<IGetPendingPropertySharesResponse> {
     const url = page
-      ? `/share/property/pending/list?page=${page}`
-      : "/share/property/pending/list";
+      ? `share/property/pending/list?page=${page}`
+      : "share/property/pending/list";
     return this.get<IGetPendingPropertySharesResponse>(url);
   }
 
@@ -627,7 +638,7 @@ export class PortfolioManagerApi {
     body: ISharingResponsePayload,
   ): Promise<ISharingActionResponse> {
     return this.post<ISharingResponsePayload, ISharingActionResponse>(
-      `/share/property/${propertyId}`,
+      `share/property/${propertyId}`,
       body,
     );
   }
@@ -637,8 +648,8 @@ export class PortfolioManagerApi {
     page?: number,
   ): Promise<IGetPendingMeterSharesResponse> {
     const url = page
-      ? `/share/meter/pending/list?page=${page}`
-      : "/share/meter/pending/list";
+      ? `share/meter/pending/list?page=${page}`
+      : "share/meter/pending/list";
     return this.get<IGetPendingMeterSharesResponse>(url);
   }
 
@@ -648,7 +659,7 @@ export class PortfolioManagerApi {
     body: ISharingResponsePayload,
   ): Promise<ISharingActionResponse> {
     return this.post<ISharingResponsePayload, ISharingActionResponse>(
-      `/share/meter/${meterId}`,
+      `share/meter/${meterId}`,
       body,
     );
   }
@@ -659,7 +670,7 @@ export class PortfolioManagerApi {
     body: ITerminateSharingResponsePayload,
   ): Promise<ISharingActionResponse> {
     return this.post<ITerminateSharingResponsePayload, ISharingActionResponse>(
-      `/unshare/property/${propertyId}`,
+      `unshare/property/${propertyId}`,
       body,
     );
   }
@@ -670,7 +681,7 @@ export class PortfolioManagerApi {
     body: ITerminateSharingResponsePayload,
   ): Promise<ISharingActionResponse> {
     return this.post<ITerminateSharingResponsePayload, ISharingActionResponse>(
-      `/unshare/meter/${meterId}`,
+      `unshare/meter/${meterId}`,
       body,
     );
   }
@@ -680,7 +691,7 @@ export class PortfolioManagerApi {
     clear: boolean = true,
   ): Promise<IGetNotificationListResponse> {
     return this.get<IGetNotificationListResponse>(
-      `/notification/list?clear=${clear}`,
+      `notification/list?clear=${clear}`,
     );
   }
   /* c8 ignore stop */
