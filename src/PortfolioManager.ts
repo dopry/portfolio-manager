@@ -728,40 +728,57 @@ export class PortfolioManager {
   }
 
   /**
+   * Drains a paginated pending-list endpoint: fetches page 1, maps each
+   * page's items, and keeps fetching while the response advertises a
+   * "next page" link. Shared by the pending connection/property/meter
+   * listings, which differ only in the endpoint and the item mapping.
+   */
+  private async collectPendingPages<
+    RESP extends { pendingList: { links?: { link: ILink[] } } },
+    ITEM,
+    OUT,
+  >(
+    fetchPage: (page: number) => Promise<RESP>,
+    getItems: (response: RESP) => ITEM[] | undefined,
+    mapItem: (item: ITEM) => OUT,
+  ): Promise<OUT[]> {
+    const results: OUT[] = [];
+    let page = 1;
+    let hasMore = true;
+    while (hasMore) {
+      const response = await fetchPage(page);
+      for (const item of getItems(response) || []) {
+        results.push(mapItem(item));
+      }
+      const nextLink = response.pendingList.links?.link.find(
+        (link) => link["@_linkDescription"] === "next page",
+      );
+      hasMore = !!nextLink;
+      page++;
+    }
+    return results;
+  }
+
+  /**
    * Fetches all pending connection requests from other Portfolio Manager users.
    * This method handles pagination automatically.
    * @returns A promise that resolves to an array of simplified pending connection request objects.
    */
   async getPendingConnections(): Promise<IClientPendingConnectionRequest[]> {
-    const connections: IClientPendingConnectionRequest[] = [];
-    let page = 1;
-    let hasMore = true;
-
-    while (hasMore) {
-      const response = await this.api.connectAccountPendingListGet(page);
-      const pendingAccounts = response.pendingList.account || [];
-
-      for (const account of pendingAccounts) {
-        connections.push({
-          accountId: account.accountId,
-          username: account.username,
-          firstName: account.accountInfo.firstName,
-          lastName: account.accountInfo.lastName,
-          email: account.accountInfo.email,
-          organization: account.accountInfo.organization,
-          requestedDate: account.connectionAudit?.createdDate || "",
-          customFields: this.mapCustomFields(account.customFieldList),
-        });
-      }
-
-      // Check for a 'next page' link to continue pagination
-      const nextLink = response.pendingList.links?.link.find(
-        (l) => l["@_linkDescription"] === "next page",
-      );
-      hasMore = !!nextLink;
-      page++;
-    }
-    return connections;
+    return this.collectPendingPages(
+      (page) => this.api.connectAccountPendingListGet(page),
+      (response) => response.pendingList.account,
+      (account) => ({
+        accountId: account.accountId,
+        username: account.username,
+        firstName: account.accountInfo.firstName,
+        lastName: account.accountInfo.lastName,
+        email: account.accountInfo.email,
+        organization: account.accountInfo.organization,
+        requestedDate: account.connectionAudit?.createdDate || "",
+        customFields: this.mapCustomFields(account.customFieldList),
+      }),
+    );
   }
 
   /**
@@ -812,34 +829,21 @@ export class PortfolioManager {
    * @returns A promise that resolves to an array of simplified pending property share request objects.
    */
   async getPendingPropertyShares(): Promise<IClientPendingShareRequest[]> {
-    const shares: IClientPendingShareRequest[] = [];
-    let page = 1;
-    let hasMore = true;
-
-    while (hasMore) {
-      const response = await this.api.sharePropertyPendingListGet(page);
-      const pendingProperties = response.pendingList.property || [];
-
-      for (const prop of pendingProperties) {
-        shares.push({
-          type: "property",
-          id: prop.propertyId,
-          propertyId: prop.propertyId,
-          propertyName: prop.propertyInfo.name,
-          sharerUsername: prop.username,
-          sharerAccountId: prop.accountId,
-          accessLevel: prop.accessLevel as ShareLevel,
-          requestedDate: prop.shareAudit?.createdDate || "",
-          customFields: this.mapCustomFields(prop.customFieldList),
-        });
-      }
-      const nextLink = response.pendingList.links?.link.find(
-        (l) => l["@_linkDescription"] === "next page",
-      );
-      hasMore = !!nextLink;
-      page++;
-    }
-    return shares;
+    return this.collectPendingPages(
+      (page) => this.api.sharePropertyPendingListGet(page),
+      (response) => response.pendingList.property,
+      (prop) => ({
+        type: "property" as const,
+        id: prop.propertyId,
+        propertyId: prop.propertyId,
+        propertyName: prop.propertyInfo.name,
+        sharerUsername: prop.username,
+        sharerAccountId: prop.accountId,
+        accessLevel: prop.accessLevel as ShareLevel,
+        requestedDate: prop.shareAudit?.createdDate || "",
+        customFields: this.mapCustomFields(prop.customFieldList),
+      }),
+    );
   }
 
   /**
@@ -848,34 +852,21 @@ export class PortfolioManager {
    * @returns A promise that resolves to an array of simplified pending meter share request objects.
    */
   async getPendingMeterShares(): Promise<IClientPendingShareRequest[]> {
-    const shares: IClientPendingShareRequest[] = [];
-    let page = 1;
-    let hasMore = true;
-
-    while (hasMore) {
-      const response = await this.api.shareMeterPendingListGet(page);
-      const pendingMeters = response.pendingList.meter || [];
-
-      for (const meter of pendingMeters) {
-        shares.push({
-          type: "meter",
-          id: meter.meterId,
-          propertyId: meter.propertyId,
-          propertyName: meter.propertyInfo.name,
-          sharerUsername: meter.username,
-          sharerAccountId: meter.accountId,
-          accessLevel: meter.accessLevel as ShareLevel,
-          requestedDate: meter.shareAudit?.createdDate || "",
-          customFields: this.mapCustomFields(meter.customFieldList),
-        });
-      }
-      const nextLink = response.pendingList.links?.link.find(
-        (l) => l["@_linkDescription"] === "next page",
-      );
-      hasMore = !!nextLink;
-      page++;
-    }
-    return shares;
+    return this.collectPendingPages(
+      (page) => this.api.shareMeterPendingListGet(page),
+      (response) => response.pendingList.meter,
+      (meter) => ({
+        type: "meter" as const,
+        id: meter.meterId,
+        propertyId: meter.propertyId,
+        propertyName: meter.propertyInfo.name,
+        sharerUsername: meter.username,
+        sharerAccountId: meter.accountId,
+        accessLevel: meter.accessLevel as ShareLevel,
+        requestedDate: meter.shareAudit?.createdDate || "",
+        customFields: this.mapCustomFields(meter.customFieldList),
+      }),
+    );
   }
 
   /**
