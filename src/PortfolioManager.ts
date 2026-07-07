@@ -260,18 +260,8 @@ export class PortfolioManager {
       return [];
     };
 
-    const response = await this.api.meterConsumptionDataGet(
-      meterId,
-      undefined,
-      startDate,
-      endDate
-    );
-    if (!response.meterData)
-      throw new Error(
-        `No meter consumption found:\n ${JSON.stringify(response, null, 2)}`
-      );
     const meterData: (IMeterDelivery | IMeterConsumption)[] = [];
-    let nextPage: number | typeof NaN | undefined = undefined;
+    let nextPage: number | undefined = undefined;
     do {
       const response = await this.api.meterConsumptionDataGet(
         meterId,
@@ -279,6 +269,10 @@ export class PortfolioManager {
         startDate,
         endDate
       );
+      if (!response.meterData)
+        throw new Error(
+          `No meter consumption found:\n ${JSON.stringify(response, null, 2)}`
+        );
       const page = getConsumptionRecordFromMeterData(response.meterData);
       meterData.push(...page);
 
@@ -292,7 +286,7 @@ export class PortfolioManager {
 
       const nextLinkUrl = nextLink ? nextLink["@_link"] : undefined;
       if (!nextLinkUrl) {
-        nextPage = NaN;
+        nextPage = undefined;
       } else {
         const nextPageStr = nextLinkUrl.split("=").pop() || "";
         const parsedNextPage = parseInt(nextPageStr, 10);
@@ -301,9 +295,8 @@ export class PortfolioManager {
         }
         nextPage = parsedNextPage;
       }
-    } while (!isNaN(nextPage));
+    } while (nextPage !== undefined);
     return meterData;
-    // there are more pages of results for this query
   }
 
   async getMeterLinks(
