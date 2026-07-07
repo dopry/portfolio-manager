@@ -60,6 +60,18 @@ describe("mapWithConcurrency", () => {
     ).rejects.toThrow("boom");
   });
 
+  it("does not start new items after a rejection", async () => {
+    let calls = 0;
+    await expect(
+      mapWithConcurrency([1, 2, 3, 4], 1, async () => {
+        calls++;
+        throw new Error("first item fails");
+      }),
+    ).rejects.toThrow("first item fails");
+    // With a single worker, the failure must stop the pool before items 2-4.
+    expect(calls).to.equal(1);
+  });
+
   it("passes the item index to the mapper and handles limit > items", async () => {
     const seen: number[] = [];
     const result = await mapWithConcurrency(["x", "y"], 10, async (_, i) => {
