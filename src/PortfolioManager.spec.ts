@@ -525,6 +525,16 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
     await expect(pm.getMeters(1)).rejects.toThrow("Invalid meter id in link");
   });
 
+  it("rejects invalid concurrency options at construction", () => {
+    const api = createMinimalMockApi();
+    expect(() => new PortfolioManager(api, { concurrency: 0 })).toThrow(
+      "Invalid concurrency option: 0",
+    );
+    expect(() => new PortfolioManager(api, { concurrency: 2.5 })).toThrow(
+      "Invalid concurrency option: 2.5",
+    );
+  });
+
   it("getProperties caps fan-out at the configured concurrency", async () => {
     const api = createMinimalMockApi();
     const pm = new PortfolioManager(api, { concurrency: 2 });

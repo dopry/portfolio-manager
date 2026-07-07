@@ -67,7 +67,13 @@ export class PortfolioManager {
     protected api: PortfolioManagerApi,
     options: PortfolioManagerOptions = {},
   ) {
-    this.concurrency = options.concurrency ?? 5;
+    const concurrency = options.concurrency ?? 5;
+    // Fail fast on misconfiguration instead of erroring later inside the
+    // first fan-out call.
+    if (!Number.isInteger(concurrency) || concurrency < 1) {
+      throw new Error(`Invalid concurrency option: ${concurrency}`);
+    }
+    this.concurrency = concurrency;
   }
 
   protected async _getAccount(): Promise<IAccount> {
@@ -432,7 +438,7 @@ export class PortfolioManager {
   async getMetersPropertiesAssociation(
     propertyIds: number[],
   ): Promise<IClientMeterPropertyAssociation[]> {
-    const settled = await mapWithConcurrency(
+    const maybeAssociations = await mapWithConcurrency(
       propertyIds,
       this.concurrency,
       async (propertyId) => {
@@ -444,7 +450,7 @@ export class PortfolioManager {
         }
       },
     );
-    return settled.filter(
+    return maybeAssociations.filter(
       (association): association is IClientMeterPropertyAssociation =>
         association !== undefined,
     );
