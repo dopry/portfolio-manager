@@ -10,8 +10,8 @@ describe("src index entrypoint", () => {
     vi.resetModules();
   });
 
-  it("runs PortfolioManagerCommand.parse when module path matches argv[1]", async () => {
-    const parseSpy = vi.fn();
+  it("runs PortfolioManagerCommand.parseAsync when module path matches argv[1]", async () => {
+    const parseAsyncSpy = vi.fn().mockResolvedValue(undefined);
 
     vi.resetModules();
     vi.doMock("node:url", () => ({
@@ -19,7 +19,7 @@ describe("src index entrypoint", () => {
     }));
     vi.doMock("./cli/PortfolioManagerCommand.js", () => ({
       PortfolioManagerCommand: class {
-        parse = parseSpy;
+        parseAsync = parseAsyncSpy;
       },
     }));
 
@@ -33,11 +33,11 @@ describe("src index entrypoint", () => {
 
     await import("./index.js");
 
-    expect(parseSpy).toHaveBeenCalledWith(process.argv);
+    expect(parseAsyncSpy).toHaveBeenCalledWith(process.argv);
   });
 
-  it("does not run parse when module path does not match argv[1]", async () => {
-    const parseSpy = vi.fn();
+  it("does not run parseAsync when module path does not match argv[1]", async () => {
+    const parseAsyncSpy = vi.fn().mockResolvedValue(undefined);
 
     vi.resetModules();
     vi.doMock("node:url", () => ({
@@ -45,7 +45,7 @@ describe("src index entrypoint", () => {
     }));
     vi.doMock("./cli/PortfolioManagerCommand.js", () => ({
       PortfolioManagerCommand: class {
-        parse = parseSpy;
+        parseAsync = parseAsyncSpy;
       },
     }));
 
@@ -53,7 +53,63 @@ describe("src index entrypoint", () => {
 
     await import("./index.js");
 
-    expect(parseSpy).not.toHaveBeenCalled();
+    expect(parseAsyncSpy).not.toHaveBeenCalled();
+  });
+
+  it("prints the message and sets exitCode 1 when a command action rejects", async () => {
+    const originalExitCode = process.exitCode;
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    vi.resetModules();
+    vi.doMock("node:url", () => ({
+      fileURLToPath: vi.fn(() => "D:/src/dopry/portfolio-manager/src/index.ts"),
+    }));
+    vi.doMock("./cli/PortfolioManagerCommand.js", () => ({
+      PortfolioManagerCommand: class {
+        parseAsync = vi.fn().mockRejectedValue(new Error("action failed"));
+      },
+    }));
+
+    process.argv = ["node", "D:/src/dopry/portfolio-manager/src/index.ts"];
+
+    try {
+      await import("./index.js");
+      await vi.waitFor(() => {
+        expect(errorSpy).toHaveBeenCalledWith("action failed");
+      });
+      expect(process.exitCode).to.equal(1);
+    } finally {
+      process.exitCode = originalExitCode;
+      errorSpy.mockRestore();
+    }
+  });
+
+  it("stringifies non-Error rejections before printing them", async () => {
+    const originalExitCode = process.exitCode;
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    vi.resetModules();
+    vi.doMock("node:url", () => ({
+      fileURLToPath: vi.fn(() => "D:/src/dopry/portfolio-manager/src/index.ts"),
+    }));
+    vi.doMock("./cli/PortfolioManagerCommand.js", () => ({
+      PortfolioManagerCommand: class {
+        parseAsync = vi.fn().mockRejectedValue("plain string failure");
+      },
+    }));
+
+    process.argv = ["node", "D:/src/dopry/portfolio-manager/src/index.ts"];
+
+    try {
+      await import("./index.js");
+      await vi.waitFor(() => {
+        expect(errorSpy).toHaveBeenCalledWith("plain string failure");
+      });
+      expect(process.exitCode).to.equal(1);
+    } finally {
+      process.exitCode = originalExitCode;
+      errorSpy.mockRestore();
+    }
   });
 
   it("returns false for non-file import URLs", async () => {

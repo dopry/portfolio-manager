@@ -10,7 +10,14 @@ import { PortfolioManagerCommand } from "./cli/PortfolioManagerCommand.js";
 
 async function main() {
   const cli = new PortfolioManagerCommand();
-  cli.parse(process.argv);
+  try {
+    // parseAsync (unlike parse) awaits async command actions, so a rejected
+    // action surfaces here instead of dying as an unhandled rejection.
+    await cli.parseAsync(process.argv);
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  }
 }
 
 export function shouldRunMain(
