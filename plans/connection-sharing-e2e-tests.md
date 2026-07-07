@@ -96,8 +96,8 @@ added value at this scale. Revisit if the UI-automation surface grows.
 
 ### 1. Dependencies & scaffolding
 
-- Add `playwright` to `devDependencies`; add `npx playwright install
-chromium` to CI and CONTRIBUTING setup notes.
+- Add `playwright` to `devDependencies`; add `npx playwright install chromium`
+  to CI and CONTRIBUTING setup notes.
 - New directory `test/e2e/` (as built):
   - `test/e2e/EspmWebUi.ts` — page-object style helper around a Playwright
     `Page`: `login()`, `sendConnectionRequest(providerUsername)`,
@@ -115,9 +115,10 @@ chromium` to CI and CONTRIBUTING setup notes.
 ### 2. Fixture & state management
 
 - Fixture setup (SDK, peer creds against `wstest`): one property with one
-  electric meter, fixed names (`E2E Share Fixture Property` / `E2E Share
-Fixture Meter`) reused idempotently across runs via the `ensure*` helpers;
-  correlation happens through timestamped notes on accept/reject calls.
+  electric meter, fixed names (`E2E Share Fixture Property` /
+  `E2E Share Fixture Meter`) reused idempotently across runs via the
+  `ensure*` helpers; correlation happens through timestamped notes on
+  accept/reject calls.
 - Clean state before each run, from the provider side (API only):
   `ensureCleanProviderState()` rejects pending connections/shares from the
   peer, and `disconnectIfConnected()` drops an established connection with
