@@ -46,6 +46,9 @@ function parseCsv(text: string): string[][] {
       field += char;
     }
   }
+  if (inQuotes) {
+    throw new Error("Unterminated quoted field in CSV input");
+  }
   if (field !== "" || row.length > 0) {
     row.push(field);
     rows.push(row);
@@ -108,15 +111,15 @@ for (const [index, row] of rows.slice(1).entries()) {
     slug,
     method,
   ] = row;
-  if (!slug) continue;
-  // Strict column count: a stray unquoted comma would add columns and
-  // silently shift every field after it.
+  // Strict column count before any skipping: a truncated row or a stray
+  // unquoted comma must throw, not be silently dropped or shifted.
   if (row.length !== expectedHeader.length) {
     throw new Error(
-      `Malformed inventory row ${index + 2} (${slug}): expected ` +
-        `${expectedHeader.length} columns, got ${row.length}`,
+      `Malformed inventory row ${index + 2} (${slug || "<no slug>"}): ` +
+        `expected ${expectedHeader.length} columns, got ${row.length}`,
     );
   }
+  if (!slug) continue;
   if (!method) {
     throw new Error(
       `Inventory row ${index + 2} (${slug}) has an empty Web Service Call Method`,
