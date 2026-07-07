@@ -28,7 +28,7 @@ jobs:
       PM_USERNAME2: ${{ secrets.PM_USERNAME2 }}
       PM_PASSWORD2: ${{ secrets.PM_PASSWORD2 }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
@@ -59,7 +59,7 @@ jobs:
       PM_USERNAME2: ${{ secrets.PM_USERNAME2 }}
       PM_PASSWORD2: ${{ secrets.PM_PASSWORD2 }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0 # semantic-release analyzes the full commit history
           persist-credentials: false # semantic-release authenticates with GITHUB_TOKEN instead
