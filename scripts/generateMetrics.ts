@@ -109,10 +109,17 @@ for (const [index, row] of rows.slice(1).entries()) {
     method,
   ] = row;
   if (!slug) continue;
-  if (row.length < expectedHeader.length || !method) {
+  // Strict column count: a stray unquoted comma would add columns and
+  // silently shift every field after it.
+  if (row.length !== expectedHeader.length) {
     throw new Error(
       `Malformed inventory row ${index + 2} (${slug}): expected ` +
         `${expectedHeader.length} columns, got ${row.length}`,
+    );
+  }
+  if (!method) {
+    throw new Error(
+      `Inventory row ${index + 2} (${slug}) has an empty Web Service Call Method`,
     );
   }
   if (seen.has(slug)) {
