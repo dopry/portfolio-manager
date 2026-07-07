@@ -2,6 +2,7 @@ import {
   PortfolioManagerApi,
   isPortfolioManagerApiError,
 } from "./PortfolioManagerApi.js";
+import { mapWithConcurrency } from "./functions/mapWithConcurrency.js";
 import { parseLinkId } from "./functions/parseLinkId.js";
 import {
   IAccount,
@@ -49,10 +50,31 @@ import {
  *
  * - TODO: map to simplified types.
  */
+export interface PortfolioManagerOptions {
+  /**
+   * Maximum concurrent API requests for fan-out operations such as
+   * getProperties() and getMeters(). The ESPM API rate-limits aggressively,
+   * so unbounded fan-out over large accounts trips 429s. Defaults to 5.
+   */
+  concurrency?: number;
+}
+
 export class PortfolioManager {
   protected _accountPromise: Promise<IAccount> | undefined;
+  protected readonly concurrency: number;
 
-  constructor(protected api: PortfolioManagerApi) {}
+  constructor(
+    protected api: PortfolioManagerApi,
+    options: PortfolioManagerOptions = {},
+  ) {
+    const concurrency = options.concurrency ?? 5;
+    // Fail fast on misconfiguration instead of erroring later inside the
+    // first fan-out call.
+    if (!Number.isInteger(concurrency) || concurrency < 1) {
+      throw new Error(`Invalid concurrency option: ${concurrency}`);
+    }
+    this.concurrency = concurrency;
+  }
 
   protected async _getAccount(): Promise<IAccount> {
     const response = await this.api.accountAccountGet();
@@ -344,14 +366,16 @@ export class PortfolioManager {
 
   async getMeters(propertyId: number): Promise<IMeter[]> {
     const links = await this.getMeterLinks(propertyId);
-    const meters = await Promise.all(
-      links.map(async (link) => {
+    const meters = await mapWithConcurrency(
+      links,
+      this.concurrency,
+      async (link) => {
         const id = parseLinkId(link);
         if (id === undefined) {
           throw new Error(`Invalid meter id in link: ${JSON.stringify(link)}`);
         }
         return await this.getMeter(id);
-      }),
+      },
     );
     return meters;
   }
@@ -414,23 +438,22 @@ export class PortfolioManager {
   async getMetersPropertiesAssociation(
     propertyIds: number[],
   ): Promise<IClientMeterPropertyAssociation[]> {
-    const associationPromises = propertyIds.map(async (propertyId) =>
-      this.getAssociatedMeters(propertyId),
+    const maybeAssociations = await mapWithConcurrency(
+      propertyIds,
+      this.concurrency,
+      async (propertyId) => {
+        try {
+          return await this.getAssociatedMeters(propertyId);
+        } catch (reason) {
+          console.error("Error getting meter property association", reason);
+          return undefined;
+        }
+      },
     );
-    const associationSettlements =
-      await Promise.allSettled(associationPromises);
-    const associations: IClientMeterPropertyAssociation[] = [];
-    associationSettlements.forEach((settlement) => {
-      if (settlement.status === "fulfilled") {
-        associations.push(settlement.value);
-      } else {
-        console.error(
-          "Error getting meter property association",
-          settlement.reason,
-        );
-      }
-    });
-    return associations;
+    return maybeAssociations.filter(
+      (association): association is IClientMeterPropertyAssociation =>
+        association !== undefined,
+    );
   }
 
   async createProperty(property: Omit<IProperty, "id">): Promise<IProperty> {
@@ -489,8 +512,10 @@ export class PortfolioManager {
   async getProperties(accountId?: number): Promise<IClientProperty[]> {
     if (!accountId) accountId = await this.getAccountId();
     const links = await this.getPropertyLinks(accountId);
-    const properties = await Promise.all(
-      links.map(async (link) => {
+    const properties = await mapWithConcurrency(
+      links,
+      this.concurrency,
+      async (link) => {
         const id = parseLinkId(link);
         if (id === undefined) {
           throw new Error(
@@ -498,7 +523,7 @@ export class PortfolioManager {
           );
         }
         return await this.getProperty(id);
-      }),
+      },
     );
     return properties;
   }
