@@ -1171,6 +1171,50 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     expect(tupleHeaders.get("content-type")).to.equal("application/xml");
   });
 
+  it("joins endpoint and path with or without a trailing slash", async () => {
+    fetchMock.mockImplementation(async () => {
+      return new Response("<response><status>Ok</status></response>", {
+        status: 200,
+        statusText: "OK",
+      });
+    });
+
+    await unitApi.fetch("property/1");
+    expect(fetchMock.mock.calls[0][0]).to.equal(
+      "https://example.test/property/1",
+    );
+
+    const noSlashApi = new PortfolioManagerApi(
+      "https://example.test",
+      "test-user",
+      "test-pass",
+    );
+    await noSlashApi.fetch("property/1");
+    expect(fetchMock.mock.calls[1][0]).to.equal(
+      "https://example.test/property/1",
+    );
+  });
+
+  it("post and put forward an AbortSignal to fetch", async () => {
+    fetchMock.mockImplementation(async () => {
+      return new Response("<response><status>Ok</status></response>", {
+        status: 200,
+        statusText: "OK",
+      });
+    });
+    const controller = new AbortController();
+
+    await unitApi.post("meter/1", { meter: {} }, { signal: controller.signal });
+    const postInit = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(postInit.signal).to.equal(controller.signal);
+    expect(postInit.method).to.equal("POST");
+
+    await unitApi.put("meter/1", { meter: {} }, { signal: controller.signal });
+    const putInit = fetchMock.mock.calls[1][1] as RequestInit;
+    expect(putInit.signal).to.equal(controller.signal);
+    expect(putInit.method).to.equal("PUT");
+  });
+
   it("post, put, and get delegate to fetch with expected init", async () => {
     const fetchSpy = vi.spyOn(unitApi, "fetch").mockResolvedValue({} as never);
 
@@ -1278,18 +1322,18 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     );
     await unitApi.meterConsumptionDataGet(10, 1, "2024-01-01", "2024-12-31");
 
-    expect(getSpy).toHaveBeenNthCalledWith(1, "/meter/10/consumptionData?");
+    expect(getSpy).toHaveBeenNthCalledWith(1, "meter/10/consumptionData");
     expect(getSpy).toHaveBeenNthCalledWith(
       2,
-      "/meter/10/consumptionData?page=2",
+      "meter/10/consumptionData?page=2",
     );
     expect(getSpy).toHaveBeenNthCalledWith(
       3,
-      "/meter/10/consumptionData?startDate=2024-01-01&endDate=2024-12-31",
+      "meter/10/consumptionData?startDate=2024-01-01&endDate=2024-12-31",
     );
     expect(getSpy).toHaveBeenNthCalledWith(
       4,
-      "/meter/10/consumptionData?page=1&startDate=2024-01-01&endDate=2024-12-31",
+      "meter/10/consumptionData?page=1&startDate=2024-01-01&endDate=2024-12-31",
     );
   });
 
@@ -1347,7 +1391,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     expect(getSpy).toHaveBeenCalledWith("meter/5/identifier/6");
     expect(getSpy).toHaveBeenCalledWith("meter/5/identifier/list");
     expect(getSpy).toHaveBeenCalledWith("meter/identifier/list");
-    expect(getSpy).toHaveBeenCalledWith("/association/property/8/meter");
+    expect(getSpy).toHaveBeenCalledWith("association/property/8/meter");
     expect(getSpy).toHaveBeenCalledWith(
       "property/10/meter/list?myAccessOnly=false",
     );
@@ -1355,10 +1399,10 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       "property/10/meter/list?myAccessOnly=true",
     );
     expect(getSpy).toHaveBeenCalledWith(
-      "/property/11/design/metrics?measurementSystem=EPA",
+      "property/11/design/metrics?measurementSystem=EPA",
     );
     expect(getSpy).toHaveBeenCalledWith(
-      "/property/11/design/metrics?measurementSystem=METRIC",
+      "property/11/design/metrics?measurementSystem=METRIC",
     );
     expect(getSpy).toHaveBeenCalledWith("customer/list");
 
@@ -1375,7 +1419,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       meter: { name: "M" },
     });
     expect(postSpy).toHaveBeenCalledWith(
-      "/association/property/8/meter/9",
+      "association/property/8/meter/9",
       undefined,
     );
 
