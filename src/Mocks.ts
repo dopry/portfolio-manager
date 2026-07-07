@@ -10,7 +10,6 @@ export function stamp() {
   return (
     new Date()
       .toISOString()
-      // @ts-ignore
       .replaceAll(":", "_")
       .replaceAll(".", "_")
   );

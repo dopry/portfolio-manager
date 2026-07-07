@@ -42,7 +42,6 @@ import {
   MeasurementSystem,
 } from "./types/index.js";
 import {
-  IAccount,
   IMeter,
   IMeterConsumption,
   IMeterData,
@@ -110,7 +109,7 @@ export interface PortfolioManagerApiOptions {
 export class PortfolioManagerApi {
   xmlParserOptions: Partial<X2jOptions> = {
     ignoreAttributes: false,
-    isArray: (name, jpath, isLeafNode, isAttribute): boolean => {
+    isArray: (_name, jpath): boolean => {
       // ensure response.links.link is always an array even when there
       // is only one link which results in  object by default
       return (

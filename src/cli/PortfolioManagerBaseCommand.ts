@@ -129,13 +129,9 @@ export class PortfolioManagerBaseCommand extends Command {
   }
 
   protected _getCommandAndParents(): Command[] {
-    const result: Command[] = [];
-    for (
-      let command: Command | null = this;
-      command;
-      command = command.parent
-    ) {
-      result.push(command);
+    const result: Command[] = [this];
+    for (let parent = this.parent; parent; parent = parent.parent) {
+      result.push(parent);
     }
     return result;
   }

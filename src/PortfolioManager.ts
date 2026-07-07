@@ -34,7 +34,6 @@ import {
   INotification,
   ShareLevel,
   AcceptRejectAction,
-  IGetCustomerListResponse,
 } from "./types/index.js";
 
 /**
@@ -109,7 +108,9 @@ export class PortfolioManager {
       }
       if (error.status == 404) {
         // meter not found, throw a more meaningful error.
-        throw new Error(`Meter or additionalIdentifier not found: ${meterId}`);
+        throw new Error(`Meter or additionalIdentifier not found: ${meterId}`, {
+          cause: error,
+        });
       }
       throw error;
     }
@@ -134,7 +135,7 @@ export class PortfolioManager {
       }
       if (error.status == 404) {
         // meter not found, throw a more meaningful error.
-        throw new Error(`Meter not found: ${meterId}`);
+        throw new Error(`Meter not found: ${meterId}`, { cause: error });
       }
       throw error;
     }
@@ -161,7 +162,7 @@ export class PortfolioManager {
       }
       if (error.status == 404) {
         // meter not found, throw a more meaningful error.
-        throw new Error(`Meter not found: ${meterId}`);
+        throw new Error(`Meter not found: ${meterId}`, { cause: error });
       }
       throw error;
     }
@@ -179,7 +180,7 @@ export class PortfolioManager {
       }
       if (error.status == 404) {
         // meter not found, throw a more meaningful error.
-        throw new Error(`Meter not found: ${meterId}`);
+        throw new Error(`Meter not found: ${meterId}`, { cause: error });
       }
       throw error;
     }
@@ -419,12 +420,14 @@ export class PortfolioManager {
     );
     const associations: IClientMeterPropertyAssociation[] = [];
     associationSettlements.forEach((settlement) => {
-      settlement.status === "fulfilled"
-        ? associations.push(settlement.value)
-        : console.error(
-            "Error getting meter property association",
-            settlement.reason
-          );
+      if (settlement.status === "fulfilled") {
+        associations.push(settlement.value);
+      } else {
+        console.error(
+          "Error getting meter property association",
+          settlement.reason
+        );
+      }
     });
     return associations;
   }
@@ -534,7 +537,10 @@ export class PortfolioManager {
         const uom = series["@_uom"];
         if (!isIPropertyMonthlyMetric(series)) return acc;
         return series.monthlyMetric?.reduce<IClientMetric[]>((acc, monthly) => {
-          const value = monthly["value"].hasOwnProperty("@_xsi:nil")
+          const value = Object.prototype.hasOwnProperty.call(
+            monthly["value"],
+            "@_xsi:nil"
+          )
             ? null
             : monthly["value"];
           if (exclude_null && !value) return acc;
@@ -587,7 +593,10 @@ export class PortfolioManager {
 
       const value = series.monthlyMetric?.reduce<IClientMetricMonthlyValue[]>(
         (monthtlyAcc, monthly) => {
-          const monthtlyValue = monthly["value"].hasOwnProperty("@_xsi:nil")
+          const monthtlyValue = Object.prototype.hasOwnProperty.call(
+            monthly["value"],
+            "@_xsi:nil"
+          )
             ? null
             : monthly["value"];
           if (exclude_null && !monthtlyValue) return monthtlyAcc;
@@ -945,7 +954,7 @@ export class PortfolioManager {
       return [];
     }
     if (isIPopulatedResponse(response.response)) {
-      return response.response.links.link.map((link: any) => ({
+      return response.response.links.link.map((link: ILink) => ({
         id: parseInt(link["@_id"] || "0"),
         organizationName: link["@_hint"] || "",
       }));

@@ -29,7 +29,6 @@ import {
   PortfolioManagerApi,
   PortfolioManagerApiError,
 } from "./PortfolioManagerApi.js";
-import { METRICS } from "./types/index.js";
 import {
   ILink,
   IMeter,
@@ -566,7 +565,7 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
     if (!putId) {
       throw new Error("Expected putId");
     }
-    const putMeterIdentifierResponse = await api.meterIdentifierPut(
+    await api.meterIdentifierPut(
       meterId,
       putId,
       gotIdentifier
