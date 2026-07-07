@@ -38,6 +38,7 @@
     "typecheck:e2e": "tsc --noEmit -p tsconfig.e2e.json",
     "wipe:test-environment": "tsx ./scripts/wipeTestEnvironment.ts",
     "generate:xml": "tsx ./scripts/generateXmlTypes.ts",
+    "generate:metrics": "tsx ./scripts/generateMetrics.ts",
     "semantic-release": "semantic-release",
     "src-bin": "tsx ./src/cli.ts",
     "build-bin": "node ./dist/cli.js"
