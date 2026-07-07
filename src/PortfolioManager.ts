@@ -592,14 +592,14 @@ export class PortfolioManager {
       const uom = series["@_uom"] || "";
 
       const value = series.monthlyMetric?.reduce<IClientMetricMonthlyValue[]>(
-        (monthtlyAcc, monthly) => {
-          const monthtlyValue = Object.prototype.hasOwnProperty.call(
+        (monthlyAcc, monthly) => {
+          const monthlyValue = Object.prototype.hasOwnProperty.call(
             monthly["value"],
             "@_xsi:nil"
           )
             ? null
             : monthly["value"];
-          if (exclude_null && !monthtlyValue) return monthtlyAcc;
+          if (exclude_null && !monthlyValue) return monthlyAcc;
           const month = parseInt(monthly["@_month"], 10);
           const year = parseInt(monthly["@_year"], 10);
           if (Number.isNaN(month) || Number.isNaN(year)) {
@@ -608,10 +608,10 @@ export class PortfolioManager {
           const metric: IClientMetricMonthlyValue = {
             month,
             year,
-            value: monthtlyValue,
+            value: monthlyValue,
           };
-          monthtlyAcc.push(metric);
-          return monthtlyAcc;
+          monthlyAcc.push(metric);
+          return monthlyAcc;
         },
         []
       );
