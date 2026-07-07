@@ -61,10 +61,7 @@
   },
   "dependencies": {
     "commander": "^14.0.3",
-    "deepmerge-ts": "^7.1.5",
-    "fast-xml-parser": "^5.4.2",
-    "node-fetch": "^3.3.2",
-    "type-guards": "^0.15.0"
+    "fast-xml-parser": "^5.4.2"
   },
   "release": {
     "branches": [

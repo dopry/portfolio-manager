@@ -1,5 +1,4 @@
 import { XMLParser } from "fast-xml-parser";
-import fetch, { Response } from "node-fetch";
 import { Readable } from "node:stream";
 import {
   afterAll,
@@ -12,13 +11,11 @@ import {
   vi,
 } from "vitest";
 
-vi.mock("node-fetch", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("node-fetch")>();
-  return {
-    ...actual,
-    default: vi.fn(actual.default),
-  };
-});
+// Wrap the global fetch so unit tests can stub responses while integration
+// tests pass through to the real network. mockReset() restores the original
+// passthrough implementation between tests.
+const fetchMock = vi.fn(globalThis.fetch);
+vi.stubGlobal("fetch", fetchMock);
 import {
   mockIProperty,
   mockMeter
@@ -816,7 +813,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
   );
 
   beforeEach(() => {
-    vi.mocked(fetch).mockReset();
+    fetchMock.mockReset();
   });
 
   afterEach(() => {
@@ -852,7 +849,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
   });
 
   it("fetch throws PortfolioManagerApiError on 5xx responses", async () => {
-    vi.mocked(fetch).mockResolvedValue(
+    fetchMock.mockResolvedValue(
       new Response("<response status='Error' />", {
         status: 500,
         statusText: "Internal Server Error",
@@ -865,7 +862,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
   });
 
   it("fetch throws on empty response bodies", async () => {
-    vi.mocked(fetch).mockResolvedValue(
+    fetchMock.mockResolvedValue(
       new Response("   \n  ", {
         status: 200,
         statusText: "OK",
@@ -880,7 +877,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
   });
 
   it("fetch wraps XML parser errors", async () => {
-    vi.mocked(fetch).mockResolvedValue(
+    fetchMock.mockResolvedValue(
       new Response("<response><broken></response>", {
         status: 200,
         statusText: "OK",
@@ -898,7 +895,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
   });
 
   it("fetch handles non-Error parser throws", async () => {
-    vi.mocked(fetch).mockResolvedValue(
+    fetchMock.mockResolvedValue(
       new Response("<response />", {
         status: 200,
         statusText: "OK",
@@ -922,8 +919,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       "test-pass",
       { maxRetries: 2, retryBaseDelayMs: 1 }
     );
-    const fetchMock = vi
-      .mocked(fetch)
+    fetchMock
       .mockResolvedValueOnce(
         new Response("<response status='Error' />", {
           status: 429,
@@ -952,8 +948,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       "test-pass",
       { maxRetries: 2, retryBaseDelayMs: 1 }
     );
-    const fetchMock = vi
-      .mocked(fetch)
+    fetchMock
       .mockResolvedValueOnce(
         new Response("<response status='Error' />", {
           status: 429,
@@ -993,8 +988,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       "test-pass",
       { maxRetries: 2, retryBaseDelayMs: 1 }
     );
-    const fetchMock = vi
-      .mocked(fetch)
+    fetchMock
       .mockResolvedValueOnce(
         new Response("<response status='Error' />", {
           status: 429,
@@ -1024,8 +1018,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       "test-pass",
       { maxRetries: 2, retryBaseDelayMs: 1 }
     );
-    const fetchMock = vi
-      .mocked(fetch)
+    fetchMock
       .mockResolvedValueOnce(
         new Response("<response status='Error' />", {
           status: 429,
@@ -1062,7 +1055,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       "test-pass",
       { maxRetries: 2, retryBaseDelayMs: 1 }
     );
-    const fetchMock = vi.mocked(fetch).mockImplementation(
+    fetchMock.mockImplementation(
       async () =>
         new Response("<response status='Error' />", {
           status: 429,
@@ -1085,7 +1078,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       "test-pass",
       { maxRetries: 2, retryBaseDelayMs: 1 }
     );
-    const fetchMock = vi.mocked(fetch).mockResolvedValue(
+    fetchMock.mockResolvedValue(
       new Response("<response status='Error' />", {
         status: 429,
         statusText: "Too Many Requests",
@@ -1095,7 +1088,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     await expect(
       retryApi.fetch("property/8", {
         method: "POST",
-        body: Readable.from(["<property />"]),
+        body: Readable.toWeb(Readable.from(["<property />"])) as ReadableStream,
       })
     ).rejects.toMatchObject({
       status: 429,
@@ -1105,7 +1098,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
   });
 
   it("fetch omits auth header for POST account and includes it otherwise", async () => {
-    const fetchMock = vi.mocked(fetch).mockImplementation(async () => {
+    fetchMock.mockImplementation(async () => {
       return new Response("<response><status>Ok</status></response>", {
         status: 200,
         statusText: "OK",
