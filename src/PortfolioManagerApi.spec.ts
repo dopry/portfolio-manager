@@ -1,5 +1,4 @@
 import { XMLParser } from "fast-xml-parser";
-import fetch, { Response } from "node-fetch";
 import { Readable } from "node:stream";
 import {
   afterAll,
@@ -12,13 +11,13 @@ import {
   vi,
 } from "vitest";
 
-vi.mock("node-fetch", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("node-fetch")>();
-  return {
-    ...actual,
-    default: vi.fn(actual.default),
-  };
-});
+// Wrap the real fetch (captured before stubbing) so unit tests can stub
+// responses while integration tests pass through to the network. Vitest's
+// mockReset() — unlike Jest's — restores the original implementation given
+// to vi.fn(), i.e. this passthrough, between unit tests.
+const realFetch = globalThis.fetch;
+const fetchMock = vi.fn(realFetch);
+vi.stubGlobal("fetch", fetchMock);
 import {
   mockIProperty,
   mockMeter
@@ -816,7 +815,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
   );
 
   beforeEach(() => {
-    vi.mocked(fetch).mockReset();
+    fetchMock.mockReset();
   });
 
   afterEach(() => {
@@ -852,7 +851,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
   });
 
   it("fetch throws PortfolioManagerApiError on 5xx responses", async () => {
-    vi.mocked(fetch).mockResolvedValue(
+    fetchMock.mockResolvedValue(
       new Response("<response status='Error' />", {
         status: 500,
         statusText: "Internal Server Error",
@@ -865,7 +864,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
   });
 
   it("fetch throws on empty response bodies", async () => {
-    vi.mocked(fetch).mockResolvedValue(
+    fetchMock.mockResolvedValue(
       new Response("   \n  ", {
         status: 200,
         statusText: "OK",
@@ -880,7 +879,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
   });
 
   it("fetch wraps XML parser errors", async () => {
-    vi.mocked(fetch).mockResolvedValue(
+    fetchMock.mockResolvedValue(
       new Response("<response><broken></response>", {
         status: 200,
         statusText: "OK",
@@ -898,7 +897,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
   });
 
   it("fetch handles non-Error parser throws", async () => {
-    vi.mocked(fetch).mockResolvedValue(
+    fetchMock.mockResolvedValue(
       new Response("<response />", {
         status: 200,
         statusText: "OK",
@@ -922,8 +921,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       "test-pass",
       { maxRetries: 2, retryBaseDelayMs: 1 }
     );
-    const fetchMock = vi
-      .mocked(fetch)
+    fetchMock
       .mockResolvedValueOnce(
         new Response("<response status='Error' />", {
           status: 429,
@@ -952,8 +950,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       "test-pass",
       { maxRetries: 2, retryBaseDelayMs: 1 }
     );
-    const fetchMock = vi
-      .mocked(fetch)
+    fetchMock
       .mockResolvedValueOnce(
         new Response("<response status='Error' />", {
           status: 429,
@@ -993,8 +990,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       "test-pass",
       { maxRetries: 2, retryBaseDelayMs: 1 }
     );
-    const fetchMock = vi
-      .mocked(fetch)
+    fetchMock
       .mockResolvedValueOnce(
         new Response("<response status='Error' />", {
           status: 429,
@@ -1024,8 +1020,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       "test-pass",
       { maxRetries: 2, retryBaseDelayMs: 1 }
     );
-    const fetchMock = vi
-      .mocked(fetch)
+    fetchMock
       .mockResolvedValueOnce(
         new Response("<response status='Error' />", {
           status: 429,
@@ -1062,7 +1057,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       "test-pass",
       { maxRetries: 2, retryBaseDelayMs: 1 }
     );
-    const fetchMock = vi.mocked(fetch).mockImplementation(
+    fetchMock.mockImplementation(
       async () =>
         new Response("<response status='Error' />", {
           status: 429,
@@ -1085,7 +1080,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       "test-pass",
       { maxRetries: 2, retryBaseDelayMs: 1 }
     );
-    const fetchMock = vi.mocked(fetch).mockResolvedValue(
+    fetchMock.mockResolvedValue(
       new Response("<response status='Error' />", {
         status: 429,
         statusText: "Too Many Requests",
@@ -1095,17 +1090,23 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     await expect(
       retryApi.fetch("property/8", {
         method: "POST",
-        body: Readable.from(["<property />"]),
+        body: Readable.toWeb(Readable.from(["<property />"])) as ReadableStream,
       })
     ).rejects.toMatchObject({
       status: 429,
       statusText: "Too Many Requests",
     });
     expect(fetchMock).toHaveBeenCalledTimes(1);
+    // undici requires duplex for stream bodies; PortfolioManagerApi.fetch
+    // populates it before invoking the (stubbed) global fetch.
+    const streamInit = fetchMock.mock.calls[0][1] as
+      | Record<string, unknown>
+      | undefined;
+    expect(streamInit?.duplex).to.equal("half");
   });
 
   it("fetch omits auth header for POST account and includes it otherwise", async () => {
-    const fetchMock = vi.mocked(fetch).mockImplementation(async () => {
+    fetchMock.mockImplementation(async () => {
       return new Response("<response><status>Ok</status></response>", {
         status: 200,
         statusText: "OK",
@@ -1116,19 +1117,15 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     const postAccountInit = fetchMock.mock.calls[0][1] as
       | Record<string, unknown>
       | undefined;
-    const postAccountHeaders = postAccountInit?.headers as
-      | Record<string, string>
-      | undefined;
-    expect(postAccountHeaders?.Authorization).to.equal(undefined);
+    const postAccountHeaders = postAccountInit?.headers as Headers;
+    expect(postAccountHeaders.get("authorization")).to.equal(null);
 
     await unitApi.fetch("account", { method: "GET" });
     const getAccountInit = fetchMock.mock.calls[1][1] as
       | Record<string, unknown>
       | undefined;
-    const getAccountHeaders = getAccountInit?.headers as
-      | Record<string, string>
-      | undefined;
-    expect(getAccountHeaders?.Authorization).to.be.a("string");
+    const getAccountHeaders = getAccountInit?.headers as Headers;
+    expect(getAccountHeaders.get("authorization")).to.be.a("string");
 
     await unitApi.fetch("property/1", {
       method: "GET",
@@ -1137,12 +1134,45 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     const getPropertyInit = fetchMock.mock.calls[2][1] as
       | Record<string, unknown>
       | undefined;
-    const getPropertyHeaders = getPropertyInit?.headers as
-      | Record<string, string>
+    const getPropertyHeaders = getPropertyInit?.headers as Headers;
+    expect(getPropertyHeaders.get("authorization")).to.be.a("string");
+    expect(getPropertyHeaders.get("x-test")).to.equal("yes");
+    expect(getPropertyHeaders.get("content-type")).to.equal("application/xml");
+  });
+
+  it("fetch preserves caller headers passed as Headers instances or tuple arrays", async () => {
+    fetchMock.mockImplementation(async () => {
+      return new Response("<response><status>Ok</status></response>", {
+        status: 200,
+        statusText: "OK",
+      });
+    });
+
+    await unitApi.fetch("property/1", {
+      headers: new Headers({
+        "X-From-Headers": "yes",
+        // Headers instances normalize keys to lowercase; the merge must
+        // still override the default Content-Type instead of duplicating
+        // it under a second casing.
+        "Content-Type": "text/xml",
+      }),
+    });
+    const headersInit = fetchMock.mock.calls[0][1] as
+      | Record<string, unknown>
       | undefined;
-    expect(getPropertyHeaders?.Authorization).to.be.a("string");
-    expect(getPropertyHeaders?.["X-Test"]).to.equal("yes");
-    expect(getPropertyHeaders?.["Content-Type"]).to.equal("application/xml");
+    const sentHeaders = headersInit?.headers as Headers;
+    expect(sentHeaders.get("x-from-headers")).to.equal("yes");
+    expect(sentHeaders.get("content-type")).to.equal("text/xml");
+
+    await unitApi.fetch("property/1", {
+      headers: [["X-From-Tuples", "also yes"]],
+    });
+    const tupleInit = fetchMock.mock.calls[1][1] as
+      | Record<string, unknown>
+      | undefined;
+    const tupleHeaders = tupleInit?.headers as Headers;
+    expect(tupleHeaders.get("x-from-tuples")).to.equal("also yes");
+    expect(tupleHeaders.get("content-type")).to.equal("application/xml");
   });
 
   it("post, put, and get delegate to fetch with expected init", async () => {

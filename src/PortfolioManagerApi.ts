@@ -1,14 +1,10 @@
-import { deepmerge } from "deepmerge-ts";
 import {
   X2jOptions,
   XMLBuilder,
   XMLParser,
   XmlBuilderOptions,
 } from "fast-xml-parser";
-import fetch, { BodyInit, RequestInit, Response } from "node-fetch";
-import { isNumber, isString } from "type-guards";
 import { isDate } from "util/types";
-import { btoa } from "./functions/index.js";
 import {
   IAccountAccountGetResponse,
   IAdditionalIdentifier,
@@ -138,7 +134,11 @@ export class PortfolioManagerApi {
     tagValueProcessor: (name, value) => {
       switch (name) {
         case "firstBillDate":
-          if (isString(value) || isDate(value) || isNumber(value)) {
+          if (
+            typeof value === "string" ||
+            typeof value === "number" ||
+            isDate(value)
+          ) {
             const date = new Date(value);
             return toXmlDateString(date);
           }
@@ -186,10 +186,27 @@ export class PortfolioManagerApi {
     // POST /account is the only path that doesn't require auth.
     if (path != "account" || options.method != "POST") {
       headers["Authorization"] =
-        "Basic " + btoa(`${this.username}:${this.password}`);
+        "Basic " +
+        Buffer.from(`${this.username}:${this.password}`).toString("base64");
     }
-    const defaults = { method: "GET", headers } as RequestInit;
-    const init: RequestInit = deepmerge({}, defaults, options);
+    // Merge through Headers so every HeadersInit form (Headers instance,
+    // tuple array, plain record) is accepted and keys merge
+    // case-insensitively — a spread would duplicate e.g. Content-Type and
+    // content-type, and would mangle non-record forms entirely.
+    const mergedHeaders = new Headers(headers);
+    new Headers(options.headers).forEach((value, key) => {
+      mergedHeaders.set(key, value);
+    });
+    const init: RequestInit = {
+      method: "GET",
+      ...options,
+      headers: mergedHeaders,
+    };
+    // undici requires duplex: "half" for streaming request bodies and throws
+    // a TypeError otherwise (node-fetch had no such requirement).
+    if (init.body instanceof ReadableStream && init.duplex == null) {
+      init.duplex = "half";
+    }
     const url = this.endpoint + path;
     let response = await fetch(url, init);
 
@@ -203,7 +220,7 @@ export class PortfolioManagerApi {
       attempt++
     ) {
       const delay = this.retryDelayMs(response, attempt);
-      // Drain the throttled response before discarding it so node-fetch can
+      // Drain the throttled response before discarding it so undici can
       // release the underlying socket.
       await response.text();
       await new Promise((resolve) => setTimeout(resolve, delay));
@@ -246,7 +263,7 @@ export class PortfolioManagerApi {
     const builder = new XMLBuilder(this.xmlBuilderOptions);
     const xmlData: string = builder.build(data);
     const method = "POST";
-    const body: BodyInit = xmlData;
+    const body: string = xmlData;
     const init: RequestInit = { method, body };
     return await this.fetch<RESP>(path, init);
   }
@@ -255,7 +272,7 @@ export class PortfolioManagerApi {
     const builder = new XMLBuilder(this.xmlBuilderOptions);
     const xmlData: string = builder.build(data);
     const method = "PUT";
-    const body: BodyInit = xmlData;
+    const body: string = xmlData;
     const init: RequestInit = { method, body };
     return await this.fetch<RESP>(path, init);
   }
