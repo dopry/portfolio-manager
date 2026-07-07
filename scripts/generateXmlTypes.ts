@@ -506,6 +506,10 @@ if (schemaDirs.length === 0) {
   throw new Error(`No ${SCHEMA_DIR_PREFIX}* directories under ${SCHEMA_ROOT}`);
 }
 
+// Before any writeFileSync: emitTypesForVersion also writes into this
+// directory, so it must exist ahead of the version loop.
+mkdirSync("src/types/xml/generated", { recursive: true });
+
 const byVersion = new Map<string, Set<string>>();
 for (const dirName of schemaDirs) {
   const version = dirName.slice(SCHEMA_DIR_PREFIX.length);
@@ -540,7 +544,6 @@ ${versionEntries}
 export const XSD_ARRAY_JPATHS: ReadonlySet<string> = ${renderSet(union)};
 `;
 
-mkdirSync("src/types/xml/generated", { recursive: true });
 writeFileSync(OUTPUT_FILE, output);
 execSync(`npx prettier --write ${OUTPUT_FILE}`, { stdio: "inherit" });
 console.log(
