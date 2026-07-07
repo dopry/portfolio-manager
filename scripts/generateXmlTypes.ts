@@ -39,6 +39,7 @@ const XSD_LIST_TAGS = new Set([
   "complexType",
   "simpleType",
   "group",
+  "attribute",
   "attributeGroup",
   "sequence",
   "all",
@@ -70,6 +71,7 @@ function findXsdFiles(dir: string): string[] {
 // Flat symbol tables: the schemas declare no namespaces, so names are global
 // within a version. Rebuilt per schema directory.
 let complexTypes = new Map<string, XsdNode>();
+let simpleTypes = new Map<string, XsdNode>();
 let groups = new Map<string, XsdNode>();
 let topLevelElements = new Map<string, XsdNode>();
 let arrayJPaths = new Set<string>();
@@ -77,6 +79,9 @@ let arrayJPaths = new Set<string>();
 function indexSchema(schema: XsdNode): void {
   for (const node of schema.complexType ?? []) {
     if (node["@_name"]) complexTypes.set(node["@_name"], node);
+  }
+  for (const node of schema.simpleType ?? []) {
+    if (node["@_name"]) simpleTypes.set(node["@_name"], node);
   }
   for (const node of schema.group ?? []) {
     if (node["@_name"]) groups.set(node["@_name"], node);
@@ -183,6 +188,7 @@ function walkElement(
 
 function generateForSchemaDir(dir: string): Set<string> {
   complexTypes = new Map();
+  simpleTypes = new Map();
   groups = new Map();
   topLevelElements = new Map();
   arrayJPaths = new Set();
@@ -202,6 +208,274 @@ function generateForSchemaDir(dir: string): Set<string> {
   return arrayJPaths;
 }
 
+// ---------------------------------------------------------------------------
+// Phase 2: TypeScript interface emission (one file per schema version).
+// Conventions mirror the runtime fast-xml-parser configuration: attributes
+// are "@_"-prefixed and always strings (parseAttributeValue is off), tag
+// values parse numerics to number, booleans stay per xs:boolean, and
+// maxOccurs > 1 elements are arrays (matching the generated jpath list).
+// ---------------------------------------------------------------------------
+
+const XSD_NUMERIC = new Set([
+  "long",
+  "int",
+  "integer",
+  "decimal",
+  "double",
+  "float",
+  "short",
+  "byte",
+  "unsignedLong",
+  "unsignedInt",
+  "unsignedShort",
+  "nonNegativeInteger",
+  "positiveInteger",
+]);
+
+function mapPrimitive(xsdType: string): string {
+  const local = xsdType.replace(/^xs:/, "");
+  if (XSD_NUMERIC.has(local)) return "number";
+  if (local === "boolean") return "boolean";
+  return "string";
+}
+
+function pascal(name: string): string {
+  const clean = name.replace(/[^A-Za-z0-9_$]/g, "");
+  return clean.charAt(0).toUpperCase() + clean.slice(1);
+}
+
+function docComment(node: XsdNode, indent: string): string {
+  const doc = node?.annotation?.documentation;
+  const text = (typeof doc === "string" ? doc : doc?.["#text"])
+    ?.toString()
+    .replace(/\s+/g, " ")
+    .trim();
+  return text ? `${indent}/** ${text.replace(/\*\//g, "*\\/")} */\n` : "";
+}
+
+/** Resolves a simple type (named, inline, or xs:*) to a TS type string. */
+function resolveSimpleType(ref: XsdNode | string, stack: string[]): string {
+  if (typeof ref === "string") {
+    if (ref.startsWith("xs:")) return mapPrimitive(ref);
+    const named = simpleTypes.get(ref);
+    if (!named || stack.includes(ref)) return "string";
+    return resolveSimpleType(named, [...stack, ref]);
+  }
+  const restriction = ref.restriction;
+  if (restriction) {
+    const base = restriction["@_base"] as string | undefined;
+    const baseTs = base ? resolveSimpleType(base, stack) : "string";
+    const enums = (restriction.enumeration ?? [])
+      .map((e: XsdNode) => e["@_value"])
+      .filter((v: unknown) => v !== undefined);
+    if (enums.length > 0 && baseTs === "string") {
+      return enums.map((v: string) => JSON.stringify(String(v))).join(" | ");
+    }
+    return baseTs;
+  }
+  if (ref.union) {
+    const members = ((ref.union["@_memberTypes"] as string) ?? "")
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((m) => resolveSimpleType(m, stack));
+    const inline = (ref.union.simpleType ?? []).map((t: XsdNode) =>
+      resolveSimpleType(t, stack),
+    );
+    const all = [...new Set([...members, ...inline])];
+    return all.length > 0 ? all.join(" | ") : "string";
+  }
+  return "string"; // xs:list and anything exotic degrade to string
+}
+
+interface EmittedProp {
+  name: string;
+  tsType: string;
+  optional: boolean;
+  many: boolean;
+  doc: string;
+}
+
+/** Resolves an element's value type; may recurse into inline complex types. */
+function elementTsType(element: XsdNode, stack: string[]): string {
+  const typeName = element["@_type"] as string | undefined;
+  if (typeName) {
+    if (complexTypes.has(typeName)) return pascal(typeName);
+    if (simpleTypes.has(typeName) || typeName.startsWith("xs:")) {
+      return resolveSimpleType(typeName, []);
+    }
+    return "string";
+  }
+  const inlineComplex = (element.complexType ?? [])[0];
+  if (inlineComplex) {
+    if (stack.length >= MAX_DEPTH) throw new Error("Inline type too deep");
+    const body = complexTypeBody(inlineComplex, [...stack, "#inline"]);
+    const props = body.props
+      .map(
+        (prop) =>
+          `${JSON.stringify(prop.name) === `"${prop.name}"` && /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(prop.name) ? prop.name : JSON.stringify(prop.name)}${prop.optional ? "?" : ""}: ${prop.tsType}${prop.many ? "[]" : ""}`,
+      )
+      .join("; ");
+    return props.length > 0 ? `{ ${props} }` : "Record<string, unknown>";
+  }
+  const inlineSimple = (element.simpleType ?? [])[0];
+  if (inlineSimple) return resolveSimpleType(inlineSimple, []);
+  return "string";
+}
+
+/** Collects attribute and child-element props of a complexType body. */
+function complexTypeBody(
+  type: XsdNode,
+  stack: string[],
+): { extendsBase?: string; props: EmittedProp[] } {
+  const props: EmittedProp[] = [];
+  let extendsBase: string | undefined;
+
+  const addAttributes = (owner: XsdNode) => {
+    for (const attribute of owner?.attribute ?? []) {
+      const name = attribute["@_name"];
+      if (!name) continue;
+      props.push({
+        name: `@_${name}`,
+        // The runtime parser keeps attribute values as strings.
+        tsType: "string",
+        optional: attribute["@_use"] !== "required",
+        many: false,
+        doc: docComment(attribute, "  "),
+      });
+    }
+  };
+
+  const addCompositors = (owner: XsdNode, optional: boolean) => {
+    if (!owner) return;
+    for (const kind of ["sequence", "all", "choice"]) {
+      for (const compositor of owner[kind] ?? []) {
+        const compositorOptional =
+          optional || kind === "choice" || compositor["@_minOccurs"] === "0";
+        const compositorMany = isMany(compositor);
+        for (const element of compositor.element ?? []) {
+          const target = element["@_ref"]
+            ? topLevelElements.get(element["@_ref"])
+            : element;
+          const name = element["@_ref"] ?? target?.["@_name"];
+          if (!target || !name) continue;
+          props.push({
+            name,
+            tsType: elementTsType(target, stack),
+            optional: compositorOptional || element["@_minOccurs"] === "0",
+            many: compositorMany || isMany(element),
+            doc: docComment(element, "  ") || docComment(target, "  "),
+          });
+        }
+        for (const groupRef of compositor.group ?? []) {
+          const group = groupRef["@_ref"]
+            ? groups.get(groupRef["@_ref"])
+            : undefined;
+          if (group) addCompositors(group, compositorOptional);
+        }
+        addCompositors(compositor, compositorOptional);
+      }
+    }
+  };
+
+  addAttributes(type);
+  addCompositors(type, false);
+
+  for (const contentKind of ["complexContent", "simpleContent"]) {
+    const extension = type[contentKind]?.extension;
+    if (!extension) continue;
+    const base = extension["@_base"] as string | undefined;
+    if (base && complexTypes.has(base)) {
+      extendsBase = pascal(base);
+    } else if (base && contentKind === "simpleContent") {
+      props.push({
+        name: "#text",
+        tsType: resolveSimpleType(base, []),
+        optional: true,
+        many: false,
+        doc: "",
+      });
+    }
+    addAttributes(extension);
+    addCompositors(extension, false);
+  }
+
+  return { extendsBase, props };
+}
+
+function renderProps(props: EmittedProp[]): string {
+  return props
+    .map((prop) => {
+      const key = /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(prop.name)
+        ? prop.name
+        : JSON.stringify(prop.name);
+      return `${prop.doc}  ${key}${prop.optional ? "?" : ""}: ${prop.tsType}${prop.many ? "[]" : ""};`;
+    })
+    .join("\n");
+}
+
+function emitTypesForVersion(version: string): void {
+  const parts: string[] = [
+    "// GENERATED FILE — do not edit by hand.",
+    "// Regenerate with `npm run generate:xml` after updating xml-schemas/.",
+    `// TypeScript mirror of ESPM schema version ${version}, following the`,
+    '// runtime fast-xml-parser conventions (attributes as "@_"-prefixed',
+    "// strings, repeatable elements as arrays).",
+    "",
+  ];
+
+  for (const [name, node] of [...simpleTypes.entries()].sort()) {
+    const tsName = pascal(name);
+    if (complexTypes.has(name)) continue; // complex wins the name
+    parts.push(docComment(node, "").trimEnd());
+    parts.push(`export type ${tsName} = ${resolveSimpleType(node, [name])};`);
+    parts.push("");
+  }
+
+  for (const [name, node] of [...complexTypes.entries()].sort()) {
+    const tsName = pascal(name);
+    const { extendsBase, props } = complexTypeBody(node, [name]);
+    parts.push(docComment(node, "").trimEnd());
+    if (props.length === 0 && extendsBase) {
+      parts.push(`export type ${tsName} = ${extendsBase};`);
+    } else if (props.length === 0) {
+      parts.push(`export type ${tsName} = Record<string, unknown>;`);
+    } else {
+      const heritage = extendsBase ? ` extends ${extendsBase}` : "";
+      parts.push(`export interface ${tsName}${heritage} {`);
+      parts.push(renderProps(props));
+      parts.push("}");
+    }
+    parts.push("");
+  }
+
+  // Document roots declared with inline types get their own interfaces so
+  // consumers can reference the full parsed document shape.
+  for (const [name, node] of [...topLevelElements.entries()].sort()) {
+    if ((node.complexType ?? []).length === 0) continue;
+    const tsName = `${pascal(name)}Element`;
+    const { extendsBase, props } = complexTypeBody(node.complexType[0], [
+      `${name}#element`,
+    ]);
+    parts.push(docComment(node, "").trimEnd());
+    if (props.length === 0) {
+      parts.push(`export type ${tsName} = Record<string, unknown>;`);
+    } else {
+      const heritage = extendsBase ? ` extends ${extendsBase}` : "";
+      parts.push(`export interface ${tsName}${heritage} {`);
+      parts.push(renderProps(props));
+      parts.push("}");
+    }
+    parts.push("");
+  }
+
+  const outFile = `src/types/xml/generated/v${version}.ts`;
+  writeFileSync(outFile, parts.filter((p) => p !== undefined).join("\n"));
+  execSync(`npx prettier --write ${outFile}`, { stdio: "inherit" });
+  console.log(
+    `  ${simpleTypes.size} simple + ${complexTypes.size} complex types -> ${outFile}`,
+  );
+}
+
 const schemaDirs = readdirSync(SCHEMA_ROOT, { withFileTypes: true })
   .filter((e) => e.isDirectory() && e.name.startsWith(SCHEMA_DIR_PREFIX))
   .map((e) => e.name)
@@ -214,6 +488,7 @@ const byVersion = new Map<string, Set<string>>();
 for (const dirName of schemaDirs) {
   const version = dirName.slice(SCHEMA_DIR_PREFIX.length);
   byVersion.set(version, generateForSchemaDir(join(SCHEMA_ROOT, dirName)));
+  emitTypesForVersion(version);
 }
 const union = new Set<string>([...byVersion.values()].flatMap((s) => [...s]));
 
