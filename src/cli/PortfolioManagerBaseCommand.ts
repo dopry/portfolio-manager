@@ -12,9 +12,7 @@ export function parseIntArg(value: string): number {
   return parsedValue;
 }
 
-
 export class PortfolioManagerBaseCommand extends Command {
-
   protected fields: string[] = [];
   protected defaultFields = this.fields;
 
@@ -24,12 +22,7 @@ export class PortfolioManagerBaseCommand extends Command {
 
   constructor(name: string) {
     super(name);
-    this.option(
-      "--indent <spaces>",
-      "Indented output",
-      parseIntArg,
-      0
-    );
+    this.option("--indent <spaces>", "Indented output", parseIntArg, 0);
     // pass examples in a callback so they will not be evaluated
     // until the parent has been added to the command so this.getFullCommand
     // is usable in example text.
@@ -47,7 +40,7 @@ export class PortfolioManagerBaseCommand extends Command {
     this.option(
       "--fields [fields...]",
       `Fields to include. available fields: ${this.fields.join(", ")}`,
-      this.defaultFields
+      this.defaultFields,
     );
     return this;
   }
@@ -56,23 +49,23 @@ export class PortfolioManagerBaseCommand extends Command {
     this.addOption(
       new Option(
         "--pm-endpoint <endpoint>",
-        "Portfolio Manager Endpoint, prod: https://portfoliomanager.energystar.gov/ws/, test: https://portfoliomanager.energystar.gov/wstest/"
+        "Portfolio Manager Endpoint, prod: https://portfoliomanager.energystar.gov/ws/, test: https://portfoliomanager.energystar.gov/wstest/",
       )
         .default("https://portfoliomanager.energystar.gov/ws/")
-        .env("PM_ENDPOINT")
+        .env("PM_ENDPOINT"),
     );
     this.addOption(
       new Option("--pm-username <username>", "Portfolio Manager username")
         .env("PM_USERNAME")
-        .makeOptionMandatory()
+        .makeOptionMandatory(),
     );
     this.addOption(
       new Option(
         "--pm-password <password>",
-        "Portfolio Manager password, strongly recommend using the env var over the cli option so password isn't exposed to `ps`"
+        "Portfolio Manager password, strongly recommend using the env var over the cli option so password isn't exposed to `ps`",
       )
         .env("PM_PASSWORD")
-        .makeOptionMandatory()
+        .makeOptionMandatory(),
     );
     return this;
   }
@@ -80,43 +73,52 @@ export class PortfolioManagerBaseCommand extends Command {
   getPortfolioManagerClient(): PortfolioManager {
     const opts = this.opts();
     const { pmEndpoint, pmUsername, pmPassword } = opts;
-    if (typeof pmEndpoint !== "string" || typeof pmUsername !== "string" || typeof pmPassword !== "string") {
+    if (
+      typeof pmEndpoint !== "string" ||
+      typeof pmUsername !== "string" ||
+      typeof pmPassword !== "string"
+    ) {
       throw new InvalidArgumentError(
-        "Portfolio Manager options are not configured. Call addPortfolioManagerOptions() in the command constructor."
+        "Portfolio Manager options are not configured. Call addPortfolioManagerOptions() in the command constructor.",
       );
     }
     const apiClient = new PortfolioManagerApi(
       pmEndpoint,
       pmUsername,
-      pmPassword
+      pmPassword,
     );
     const client = new PortfolioManager(apiClient);
     return client;
   }
 
-  protected pickFields(entity: unknown, fields: string[]): Record<string, unknown> {
+  protected pickFields(
+    entity: unknown,
+    fields: string[],
+  ): Record<string, unknown> {
     if (!isRecord(entity)) {
       throw new Error("Expected entity to be a record");
     }
     const result: Record<string, unknown> = {};
     for (const field of fields) {
-     if (field in entity) {
+      if (field in entity) {
         result[field] = entity[field];
-      }
-      else {
+      } else {
         result[field] = undefined;
       }
     }
     return result;
   }
 
-  protected validateSelectedFields(selectedFields: string[], allowedFields: string[]): void {
+  protected validateSelectedFields(
+    selectedFields: string[],
+    allowedFields: string[],
+  ): void {
     const invalidFields = selectedFields.filter(
-      (field) => !allowedFields.includes(field)
+      (field) => !allowedFields.includes(field),
     );
     if (invalidFields.length > 0) {
       throw new InvalidArgumentError(
-        `Invalid field(s): ${invalidFields.join(", ")}. Available fields: ${allowedFields.join(", ")}`
+        `Invalid field(s): ${invalidFields.join(", ")}. Available fields: ${allowedFields.join(", ")}`,
       );
     }
   }

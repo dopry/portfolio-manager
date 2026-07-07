@@ -125,7 +125,7 @@ describe("src index entrypoint", () => {
     const result = shouldRunMain(
       "https://example.invalid/index.js",
       "D:/src/dopry/portfolio-manager/src/index.ts",
-      () => "D:/src/dopry/portfolio-manager/src/index.ts"
+      () => "D:/src/dopry/portfolio-manager/src/index.ts",
     );
 
     expect(result).to.equal(false);
@@ -144,7 +144,7 @@ describe("src index entrypoint", () => {
     const result = shouldRunMain(
       "file:///repo/src/index.ts",
       "D:/repo/src/index.ts",
-      () => "D:/repo/src/index.ts"
+      () => "D:/repo/src/index.ts",
     );
 
     expect(result).to.equal(true);

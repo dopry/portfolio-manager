@@ -48,8 +48,8 @@ describe("PortfolioManagerPropertyListLinksCommand (parse)", () => {
           { "@_id": "2", "@_hint": "Warehouse" },
         ],
         null,
-        0
-      )
+        0,
+      ),
     );
   });
 

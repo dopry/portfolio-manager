@@ -7,15 +7,15 @@ export class PortfolioManagerConnectionDisconnectCommand extends PortfolioManage
     this.addPortfolioManagerOptions();
     this.requiredOption(
       "--accountId <id>",
-      "The account ID to disconnect from"
+      "The account ID to disconnect from",
     );
     this.option(
       "--keep-shares",
-      "If specified, existing property and meter shares will not be removed"
+      "If specified, existing property and meter shares will not be removed",
     );
     this.option(
       "--note <text>",
-      "An optional note explaining the reason for disconnection"
+      "An optional note explaining the reason for disconnection",
     );
   }
 
@@ -28,7 +28,7 @@ export class PortfolioManagerConnectionDisconnectCommand extends PortfolioManage
       note: opts.note,
     });
     console.log(
-      `Successfully disconnected from account ID: ${opts.accountId}.`
+      `Successfully disconnected from account ID: ${opts.accountId}.`,
     );
   }
 }

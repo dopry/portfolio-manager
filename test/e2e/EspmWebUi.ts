@@ -65,7 +65,7 @@ export class EspmWebUi {
     this._page.on("dialog", (dialog) =>
       dialog.accept().catch(() => {
         // Page/context closed while the dialog was pending — nothing to do.
-      })
+      }),
     );
   }
 
@@ -77,9 +77,7 @@ export class EspmWebUi {
     if (this.context && this.traceDir) {
       try {
         await this.context.tracing.stop(
-          traceName
-            ? { path: `${this.traceDir}/${traceName}.zip` }
-            : undefined
+          traceName ? { path: `${this.traceDir}/${traceName}.zip` } : undefined,
         );
       } catch {
         // Tracing may already be stopped; never mask the test failure.
@@ -147,7 +145,10 @@ export class EspmWebUi {
 
     // "Connect with an Existing User for Sharing" search form.
     await page.locator("#searchContactUsername").fill(providerUsername);
-    await page.getByRole("button", { name: /^search$/i }).first().click();
+    await page
+      .getByRole("button", { name: /^search$/i })
+      .first()
+      .click();
 
     // Connect from the search-result row for the provider account.
     const resultRow = page
@@ -204,14 +205,14 @@ export class EspmWebUi {
       await providerOption.waitFor({ state: "attached" });
     } catch {
       throw new Error(
-        `No connected web services provider option matching '${options.providerUsername}' — is the connection accepted?`
+        `No connected web services provider option matching '${options.providerUsername}' — is the connection accepted?`,
       );
     }
     const providerValue = await providerOption.getAttribute("value");
     await providerSelect.selectOption(
       providerValue // blank value attribute would select the placeholder
         ? providerValue
-        : { label: (await providerOption.innerText()).trim() }
+        : { label: (await providerOption.innerText()).trim() },
     );
 
     // 2. Select Properties — opens the Angular picker dialog.
@@ -251,7 +252,7 @@ export class EspmWebUi {
     const authorizeResponse = page
       .waitForResponse(
         (r) => r.url().includes("/wsBulkSharing/authorizeExchange.json"),
-        { timeout: 180000 }
+        { timeout: 180000 },
       )
       .catch((error) => {
         if (error instanceof errors.TimeoutError) return undefined;
@@ -265,13 +266,13 @@ export class EspmWebUi {
     if (!response) {
       throw new Error(
         "No response from wsBulkSharing/authorizeExchange.json within 180s — " +
-          "the ESPM test environment is likely degraded."
+          "the ESPM test environment is likely degraded.",
       );
     }
     if (response.status() !== 200) {
       throw new Error(
         `wsBulkSharing/authorizeExchange.json returned HTTP ${response.status()} — ` +
-          "ESPM test environment error while creating the share request."
+          "ESPM test environment error while creating the share request.",
       );
     }
   }

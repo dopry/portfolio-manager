@@ -12,7 +12,8 @@ describe("PortfolioManagerCommand version fallback", () => {
       readFileSync: vi.fn(() => JSON.stringify({ version: "1.2.3" })),
     }));
 
-    const { PortfolioManagerCommand } = await import("./PortfolioManagerCommand.js");
+    const { PortfolioManagerCommand } =
+      await import("./PortfolioManagerCommand.js");
     const cmd = new PortfolioManagerCommand();
 
     expect(cmd.version()).to.equal("1.2.3");
@@ -24,7 +25,8 @@ describe("PortfolioManagerCommand version fallback", () => {
       readFileSync: vi.fn(() => JSON.stringify({ name: "portfolio-manager" })),
     }));
 
-    const { PortfolioManagerCommand } = await import("./PortfolioManagerCommand.js");
+    const { PortfolioManagerCommand } =
+      await import("./PortfolioManagerCommand.js");
     const cmd = new PortfolioManagerCommand();
 
     expect(cmd.version()).to.equal("0.0.0");
@@ -38,7 +40,8 @@ describe("PortfolioManagerCommand version fallback", () => {
       }),
     }));
 
-    const { PortfolioManagerCommand } = await import("./PortfolioManagerCommand.js");
+    const { PortfolioManagerCommand } =
+      await import("./PortfolioManagerCommand.js");
     const cmd = new PortfolioManagerCommand();
 
     expect(cmd.version()).to.equal("0.0.0");

@@ -34,7 +34,7 @@ function toDateKey(dateLike: unknown): string | undefined {
 
 async function ensureMetricsFixtureMeter(
   api: PortfolioManagerApi,
-  propertyId: number
+  propertyId: number,
 ): Promise<number> {
   const listResponse = await api.meterMeterListGet(propertyId);
   const links: ILink[] = isIPopulatedResponse(listResponse.response)
@@ -51,7 +51,7 @@ async function ensureMetricsFixtureMeter(
 
   const createResponse = await api.meterMeterPost(
     propertyId,
-    mockMeter(FIXTURE_METER_NAME)
+    mockMeter(FIXTURE_METER_NAME),
   );
   const meterId = createResponse.response.id;
   if (!meterId) {
@@ -62,7 +62,7 @@ async function ensureMetricsFixtureMeter(
 
 async function ensureFixtureConsumption(
   api: PortfolioManagerApi,
-  meterId: number
+  meterId: number,
 ): Promise<void> {
   const consumptionResponse = await api.meterConsumptionDataGet(meterId);
   const existing = (consumptionResponse.meterData.meterConsumption || []).find(
@@ -74,7 +74,7 @@ async function ensureFixtureConsumption(
         endDate === FIXTURE_END_DATE &&
         entry.usage === FIXTURE_USAGE
       );
-    }
+    },
   );
 
   if (existing) {
@@ -97,7 +97,7 @@ async function ensureFixtureConsumption(
 
 export async function ensureStandardMetricsFixture(
   api: PortfolioManagerApi,
-  propertyId: number
+  propertyId: number,
 ): Promise<IStandardMetricsFixture> {
   const meterId = await ensureMetricsFixtureMeter(api, propertyId);
   await ensureFixtureConsumption(api, meterId);

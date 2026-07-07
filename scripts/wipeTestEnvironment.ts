@@ -3,8 +3,7 @@ import { PortfolioManager } from "../src/PortfolioManager.ts";
 import { PortfolioManagerApi } from "../src/PortfolioManagerApi.ts";
 import { parseLinkId } from "../src/functions/parseLinkId.ts";
 
-const DEFAULT_TEST_ENDPOINT =
-  "https://portfoliomanager.energystar.gov/wstest/";
+const DEFAULT_TEST_ENDPOINT = "https://portfoliomanager.energystar.gov/wstest/";
 
 type WipeArgs = {
   yes: boolean;
@@ -70,7 +69,7 @@ async function main() {
 
   if (!args.allowNonTestEndpoint && !args.endpoint.includes("/wstest/")) {
     console.error(
-      `Refusing to wipe non-test endpoint: ${args.endpoint}\nUse --allow-non-test-endpoint only if you are absolutely sure.`
+      `Refusing to wipe non-test endpoint: ${args.endpoint}\nUse --allow-non-test-endpoint only if you are absolutely sure.`,
     );
     process.exitCode = 2;
     return;
@@ -105,18 +104,20 @@ async function main() {
   const propertyDeleteErrors: Array<{ propertyId: number; error: string }> = [];
   for (const [index, propertyId] of uniquePropertyIds.reverse().entries()) {
     const current = index + 1;
-    console.log(`[${current}/${totalProperties}] deleting property ${propertyId}...`);
+    console.log(
+      `[${current}/${totalProperties}] deleting property ${propertyId}...`,
+    );
     try {
       await pm.deleteProperty(propertyId);
       deletedProperties++;
       console.log(
-        `[${current}/${totalProperties}] deleted property ${propertyId} (deleted=${deletedProperties})`
+        `[${current}/${totalProperties}] deleted property ${propertyId} (deleted=${deletedProperties})`,
       );
     } catch (error) {
       if (isNotFoundError(error)) {
         deletedProperties++;
         console.log(
-          `[${current}/${totalProperties}] property ${propertyId} already deleted/not found (deleted=${deletedProperties})`
+          `[${current}/${totalProperties}] property ${propertyId} already deleted/not found (deleted=${deletedProperties})`,
         );
       } else {
         const message = error instanceof Error ? error.message : String(error);
@@ -125,7 +126,7 @@ async function main() {
           error: message,
         });
         console.error(
-          `[${current}/${totalProperties}] failed property ${propertyId}: ${message}`
+          `[${current}/${totalProperties}] failed property ${propertyId}: ${message}`,
         );
       }
     }
@@ -134,8 +135,7 @@ async function main() {
   // Connections and shares are seeded externally (web UI) and accumulate in
   // the shared test account; reject all pendings so runs start from baseline.
   const wipeNote = "wipeTestEnvironment";
-  const rejectErrors: Array<{ action: string; id: number; error: string }> =
-    [];
+  const rejectErrors: Array<{ action: string; id: number; error: string }> = [];
   let rejectedPropertyShares = 0;
   let rejectedMeterShares = 0;
   let rejectedConnections = 0;

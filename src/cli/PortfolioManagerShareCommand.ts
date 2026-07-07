@@ -45,15 +45,15 @@ class PortfolioManagerShareAcceptCommand extends PortfolioManagerBaseCommand {
     this.addOption(
       new Option("--type <type>", "The type of share to accept")
         .choices(["property", "meter"])
-        .makeOptionMandatory()
+        .makeOptionMandatory(),
     );
     this.requiredOption(
       "--id <id>",
-      "The ID of the property or meter share to accept"
+      "The ID of the property or meter share to accept",
     );
     this.option(
       "--note <text>",
-      "An optional note to send with the acceptance"
+      "An optional note to send with the acceptance",
     );
   }
   protected async _action(): Promise<void> {
@@ -77,11 +77,11 @@ class PortfolioManagerShareRejectCommand extends PortfolioManagerBaseCommand {
     this.addOption(
       new Option("--type <type>", "The type of share to reject")
         .choices(["property", "meter"])
-        .makeOptionMandatory()
+        .makeOptionMandatory(),
     );
     this.requiredOption(
       "--id <id>",
-      "The ID of the property or meter share to reject"
+      "The ID of the property or meter share to reject",
     );
     this.option("--note <text>", "An optional note to send with the rejection");
   }
@@ -106,11 +106,11 @@ class PortfolioManagerShareRemoveCommand extends PortfolioManagerBaseCommand {
     this.addOption(
       new Option("--type <type>", "The type of share to remove")
         .choices(["property", "meter"])
-        .makeOptionMandatory()
+        .makeOptionMandatory(),
     );
     this.requiredOption(
       "--id <id>",
-      "The ID of the property or meter to unshare"
+      "The ID of the property or meter to unshare",
     );
     this.option("--note <text>", "An optional note explaining the reason");
   }

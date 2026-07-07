@@ -3,7 +3,9 @@ import type { PortfolioManager } from "../../PortfolioManager.js";
 import { PortfolioManagerBaseCommand } from "../../cli/PortfolioManagerBaseCommand.js";
 import { PortfolioManagerCommand } from "../../cli/PortfolioManagerCommand.js";
 
-function applyExitOverrideRecursively(command: PortfolioManagerBaseCommand): void {
+function applyExitOverrideRecursively(
+  command: PortfolioManagerBaseCommand,
+): void {
   command.exitOverride();
   for (const subCommand of command.commands) {
     applyExitOverrideRecursively(subCommand as PortfolioManagerBaseCommand);
@@ -90,7 +92,7 @@ export function setupCliHarness(): CliHarness {
   vi.spyOn(console, "error").mockImplementation(() => undefined);
   vi.spyOn(
     PortfolioManagerBaseCommand.prototype,
-    "getPortfolioManagerClient"
+    "getPortfolioManagerClient",
   ).mockReturnValue(fakeClient as unknown as PortfolioManager);
 
   async function parseCli(args: string[]): Promise<void> {
@@ -100,7 +102,7 @@ export function setupCliHarness(): CliHarness {
 
   async function parseCliHelp(
     args: string[],
-    appendHelpFlag = true
+    appendHelpFlag = true,
   ): Promise<void> {
     const cli = new PortfolioManagerCommand();
     cli.configureOutput({
@@ -111,14 +113,16 @@ export function setupCliHarness(): CliHarness {
     const argv = appendHelpFlag ? [...args, "--help"] : args;
     try {
       await cli.parseAsync(argv, { from: "user" });
-    }
-    catch (error) {
+    } catch (error) {
       if (
         typeof error === "object" &&
         error !== null &&
         "code" in error &&
-        ["commander.helpDisplayed", "commander.help", "commander.outputHelp"]
-          .includes((error as { code?: string }).code || "")
+        [
+          "commander.helpDisplayed",
+          "commander.help",
+          "commander.outputHelp",
+        ].includes((error as { code?: string }).code || "")
       ) {
         return;
       }

@@ -38,7 +38,7 @@ describe("PortfolioManagerMeterListEntitiesCommand (parse)", () => {
 
     expect(harness.fakeClient.getMeters).toHaveBeenCalledWith("99");
     expect(console.log).toHaveBeenCalledWith(
-      JSON.stringify([{ id: 55, name: "Main" }], null, 0)
+      JSON.stringify([{ id: 55, name: "Main" }], null, 0),
     );
   });
 
@@ -59,7 +59,7 @@ describe("PortfolioManagerMeterListEntitiesCommand (parse)", () => {
         "--fields",
         "id",
         "badField",
-      ])
+      ]),
     ).rejects.toThrow("Invalid field(s): badField");
 
     expect(harness.fakeClient.getMeters).not.toHaveBeenCalled();

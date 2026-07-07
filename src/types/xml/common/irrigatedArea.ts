@@ -1,8 +1,5 @@
 export type IrrigationAreaUnits =
-  | "Square Feet"
-  | "Square Meters"
-  | "Acres"
-  | "";
+  "Square Feet" | "Square Meters" | "Acres" | "";
 
 export interface IrrigationAreaBase {
   default?: boolean; // Specifies whether to use the default value for Irrigated Area. Only applicable for Multi-Family Housing.

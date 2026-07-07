@@ -11,7 +11,7 @@ export const STANDARD_PROPERTY_NAMES = [
 
 async function listPropertyLinks(
   client: PortfolioManager,
-  accountId: number
+  accountId: number,
 ): Promise<ILink[]> {
   try {
     return await client.getPropertyLinks(accountId);
@@ -29,7 +29,7 @@ async function listPropertyLinks(
 export async function ensureStandardProperties(
   api: PortfolioManagerApi,
   accountId: number,
-  propertyNames: string[] = STANDARD_PROPERTY_NAMES
+  propertyNames: string[] = STANDARD_PROPERTY_NAMES,
 ): Promise<number[]> {
   const client = new PortfolioManager(api);
   let links = await listPropertyLinks(client, accountId);
@@ -42,7 +42,7 @@ export async function ensureStandardProperties(
           ...mockIProperty(),
           name: propertyName,
         },
-        accountId
+        accountId,
       );
       links = await listPropertyLinks(client, accountId);
     }
@@ -55,7 +55,9 @@ export async function ensureStandardProperties(
     }
     const id = parseLinkId(link);
     if (id === undefined) {
-      throw new Error(`Expected numeric id for standard property '${propertyName}'`);
+      throw new Error(
+        `Expected numeric id for standard property '${propertyName}'`,
+      );
     }
     return id;
   });

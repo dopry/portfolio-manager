@@ -20,11 +20,9 @@
     "strict": true,
     "target": "ES2022",
     "traceResolution": false,
-    "types": [
-      "node"
-    ],
+    "types": ["node"]
   },
   "compileOnSave": false,
   "exclude": ["node_modules", "dist", "src/**/*.spec.ts"],
-  "include": ["src"],
+  "include": ["src"]
 }

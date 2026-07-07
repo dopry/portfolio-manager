@@ -8,7 +8,7 @@ export const STANDARD_METER_NAME = "Integration Fixture Meter A";
 export async function ensureStandardMeterFixture(
   api: PortfolioManagerApi,
   propertyId: number,
-  meterName: string = STANDARD_METER_NAME
+  meterName: string = STANDARD_METER_NAME,
 ): Promise<IMeter> {
   const listResponse = await api.meterMeterListGet(propertyId);
   const links = isIPopulatedResponse(listResponse.response)
@@ -27,7 +27,10 @@ export async function ensureStandardMeterFixture(
     }
   }
 
-  const createResponse = await api.meterMeterPost(propertyId, mockMeter(meterName));
+  const createResponse = await api.meterMeterPost(
+    propertyId,
+    mockMeter(meterName),
+  );
   const meterId = createResponse.response.id;
   if (!meterId) {
     throw new Error("Expected created fixture meter to include id");

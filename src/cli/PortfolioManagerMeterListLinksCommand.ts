@@ -17,7 +17,7 @@ export class PortfolioManagerMeterListLinksCommand extends PortfolioManagerBaseC
     super("links");
     this.requiredOption(
       "--propertyId <propertyId>",
-      "property id to fetch meters for"
+      "property id to fetch meters for",
     )
       .option("--myAccessOnly", "only fetch meters that I have access to")
       .addPortfolioManagerOptions()
@@ -29,10 +29,10 @@ export class PortfolioManagerMeterListLinksCommand extends PortfolioManagerBaseC
     this.validateSelectedFields(cmdOpts.fields, this.fields);
     const meters = await this.getPortfolioManagerClient().getMeterLinks(
       cmdOpts.propertyId,
-      cmdOpts.myAccessOnly
+      cmdOpts.myAccessOnly,
     );
     const mapped = meters.map((meter) =>
-      this.pickFields(meter, cmdOpts.fields)
+      this.pickFields(meter, cmdOpts.fields),
     );
 
     const indent = cmdOpts.indent;

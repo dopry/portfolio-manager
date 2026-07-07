@@ -17,7 +17,7 @@
   getMonthlyMetrics: boolean, // 14
   getReasonsForNoEnergyScore: boolean, // 15
   webServiceCallMethod: string, // 16
-  userInterfaceMetricName: string // 17
+  userInterfaceMetricName: string, // 17
 ];
 // derived from https://downloads.energystar.gov/bi/portfolio-manager/Custom_Reporting_Metric_Inventory_en_US.xlsx
 // prettier-ignore
@@ -1781,5 +1781,5 @@ export const METRICS_INDEX = METRICS.reduce<Record<string, MetricTuple>>(
     acc[slug] = metric;
     return acc;
   },
-  {}
+  {},
 );

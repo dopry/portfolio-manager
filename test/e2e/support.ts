@@ -7,7 +7,8 @@ import { ensureStandardMeterFixture } from "../../src/test/ensureStandardMeterFi
 import { ensureStandardProperties } from "../../src/test/ensureStandardProperties.js";
 import { DEFAULT_WEB_UI_URL } from "./EspmWebUi.js";
 
-export const DEFAULT_API_URL = "https://portfoliomanager.energystar.gov/wstest/";
+export const DEFAULT_API_URL =
+  "https://portfoliomanager.energystar.gov/wstest/";
 
 export const E2E_PROPERTY_NAME = "E2E Share Fixture Property";
 export const E2E_METER_NAME = "E2E Share Fixture Meter";
@@ -32,10 +33,15 @@ export function getE2eConfig(): IE2eConfig {
     username: process.env.PM_USERNAME2 || "",
     password: process.env.PM_PASSWORD2 || "",
   };
-  if (!provider.username || !provider.password || !peer.username || !peer.password) {
+  if (
+    !provider.username ||
+    !provider.password ||
+    !peer.username ||
+    !peer.password
+  ) {
     throw new Error(
       "The e2e suite needs PM_USERNAME/PM_PASSWORD (provider) and " +
-        "PM_USERNAME2/PM_PASSWORD2 (persistent peer) environment variables."
+        "PM_USERNAME2/PM_PASSWORD2 (persistent peer) environment variables.",
     );
   }
   return {
@@ -55,12 +61,12 @@ export interface IE2eClient {
 
 export function createClient(
   config: IE2eConfig,
-  credentials: { username: string; password: string }
+  credentials: { username: string; password: string },
 ): IE2eClient {
   const api = new PortfolioManagerApi(
     config.apiUrl,
     credentials.username,
-    credentials.password
+    credentials.password,
   );
   return { api, pm: new PortfolioManager(api) };
 }
@@ -71,7 +77,7 @@ export function createClient(
  */
 export async function waitFor<T>(
   probe: () => Promise<T | undefined>,
-  options: { timeoutMs?: number; intervalMs?: number; label?: string } = {}
+  options: { timeoutMs?: number; intervalMs?: number; label?: string } = {},
 ): Promise<T> {
   const timeoutMs = options.timeoutMs ?? 60000;
   const intervalMs = options.intervalMs ?? 5000;
@@ -81,7 +87,7 @@ export async function waitFor<T>(
     if (result !== undefined) return result;
     if (Date.now() >= deadline) {
       throw new Error(
-        `Timed out after ${timeoutMs}ms waiting for ${options.label || "condition"}`
+        `Timed out after ${timeoutMs}ms waiting for ${options.label || "condition"}`,
       );
     }
     await new Promise((resolve) => setTimeout(resolve, intervalMs));
@@ -93,7 +99,7 @@ export async function waitFor<T>(
  * returns their ids. Runs against the web services API with peer credentials.
  */
 export async function ensurePeerFixtures(
-  peer: IE2eClient
+  peer: IE2eClient,
 ): Promise<{ propertyId: number; meterId: number }> {
   const accountId = await peer.pm.getAccountId();
   const [propertyId] = await ensureStandardProperties(peer.api, accountId, [
@@ -102,7 +108,7 @@ export async function ensurePeerFixtures(
   const meter = await ensureStandardMeterFixture(
     peer.api,
     propertyId,
-    E2E_METER_NAME
+    E2E_METER_NAME,
   );
   if (meter.id === undefined) {
     throw new Error("Expected fixture meter to have an id");
@@ -119,7 +125,7 @@ export async function ensurePeerFixtures(
  */
 export async function ensureCleanProviderState(
   provider: PortfolioManager,
-  peerUsername: string
+  peerUsername: string,
 ): Promise<void> {
   const note = "e2e ensureCleanProviderState";
 
@@ -148,7 +154,7 @@ export async function ensureCleanProviderState(
  */
 export async function disconnectIfConnected(
   provider: PortfolioManager,
-  peerAccountId: number
+  peerAccountId: number,
 ): Promise<void> {
   try {
     await provider.disconnect(peerAccountId, {

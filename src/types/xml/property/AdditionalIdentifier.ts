@@ -6,14 +6,14 @@
 //     '@_description': 'Custom ID 1'
 //   },
 export interface IAdditionIdentifierType {
-    '@_id': string;
-    '@_standardApproved': string;
-    '@_name': string;
-    '@_description': string;
+  "@_id": string;
+  "@_standardApproved": string;
+  "@_name": string;
+  "@_description": string;
 }
 
 export interface IAdditionalIdentifierTypes {
-    additionalIdentifierType: IAdditionIdentifierType[];
+  additionalIdentifierType: IAdditionIdentifierType[];
 }
 
 // {
@@ -28,12 +28,12 @@ export interface IAdditionalIdentifierTypes {
 //   '@_id': '2391167'
 // }
 export interface IAdditionalIdentifier {
-    '@_id': string;
-    additionalIdentifierType: IAdditionIdentifierType;
-    description: string;
-    value: string;
+  "@_id": string;
+  additionalIdentifierType: IAdditionIdentifierType;
+  description: string;
+  value: string;
 }
 
 export interface IAdditionalIdentifiers {
-    additionalIdentifier: IAdditionalIdentifier[];
+  additionalIdentifier: IAdditionalIdentifier[];
 }

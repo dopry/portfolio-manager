@@ -23,12 +23,11 @@ export class PortfolioManagerPropertyListEntitiesCommand extends PortfolioManage
   ];
 
   defaultFields = ["id", "name"];
-  _description = "List Properties"
+  _description = "List Properties";
   constructor() {
     super("entities");
     this.addPortfolioManagerOptions();
-    this.addFieldsOption(this.fields, this.defaultFields)
-
+    this.addFieldsOption(this.fields, this.defaultFields);
   }
 
   protected async _action(): Promise<void> {
@@ -36,7 +35,7 @@ export class PortfolioManagerPropertyListEntitiesCommand extends PortfolioManage
 
     const properties = await this.getPortfolioManagerClient().getProperties();
     const mapped = properties.map((property) =>
-      this.pickFields(property, cmdOpts.fields)
+      this.pickFields(property, cmdOpts.fields),
     );
     const indent = cmdOpts.indent;
     console.log(JSON.stringify(mapped, null, indent));

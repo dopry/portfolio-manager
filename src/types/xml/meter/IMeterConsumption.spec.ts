@@ -9,7 +9,7 @@ describe("isIMeterConsumption", () => {
         startDate: new Date("2024-01-01"),
         endDate: new Date("2024-01-31"),
         usage: 100,
-      })
+      }),
     ).to.equal(true);
   });
 
@@ -18,7 +18,7 @@ describe("isIMeterConsumption", () => {
       isIMeterConsumption({
         id: 1,
         startDate: new Date("2024-01-01"),
-      })
+      }),
     ).to.equal(false);
   });
 

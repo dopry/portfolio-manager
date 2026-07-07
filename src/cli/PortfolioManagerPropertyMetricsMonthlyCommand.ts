@@ -4,10 +4,11 @@ import { PortfolioManagerBaseCommand } from "./PortfolioManagerBaseCommand.js";
 
 export class PortfolioManagerPropertyMetricsMonthlyCommand extends PortfolioManagerBaseCommand {
   protected _description = "Get monthly metrics for a property";
-  protected get examples() { return [
-    "# customizing the output",
-    `${this.getFullCommand()} --propertyId <propertyId> --fields name year month value --indent 2`,
-  ];
+  protected get examples() {
+    return [
+      "# customizing the output",
+      `${this.getFullCommand()} --propertyId <propertyId> --fields name year month value --indent 2`,
+    ];
   }
   protected fields = ["propertyId", "name", "uom", "year", "month", "value"];
   protected defaultFields = this.fields;
@@ -16,16 +17,16 @@ export class PortfolioManagerPropertyMetricsMonthlyCommand extends PortfolioMana
     super("monthly");
     const MONTHLY_METRICS = METRICS.filter((m) => m[14]).map((m) => [m[0]]);
     this.addPortfolioManagerOptions();
-    this.addFieldsOption(this.fields, this.defaultFields)
+    this.addFieldsOption(this.fields, this.defaultFields);
     this.requiredOption(
       "--propertyId <propertyId>",
-      "property to fetch metrics for"
+      "property to fetch metrics for",
     );
     this.requiredOption("--year <year>", "year to fetch metrics for");
     this.requiredOption("--month <month>", "month to fetch metrics for");
     this.option(
       "--metrics [metrics...]",
-      `metrics to include: ${MONTHLY_METRICS.join(", ")}`
+      `metrics to include: ${MONTHLY_METRICS.join(", ")}`,
     );
     this.option("--include_null", "include null values");
   }
@@ -49,19 +50,23 @@ export class PortfolioManagerPropertyMetricsMonthlyCommand extends PortfolioMana
         year,
         month,
         metrics,
-        exclude_null
+        exclude_null,
       );
 
       const mapped = items.map((item) => this.pickFields(item, fields));
       console.log(JSON.stringify(mapped, null, indent));
-    }
-    catch (e) {
+    } catch (e) {
       process.exitCode = 1;
       if (e instanceof PortfolioManagerApiError) {
-        console.error('api error', e.message, e.status, e.statusText, e.responseText);
-      }
-      else {
-        console.error('unknown error', e);
+        console.error(
+          "api error",
+          e.message,
+          e.status,
+          e.statusText,
+          e.responseText,
+        );
+      } else {
+        console.error("unknown error", e);
       }
     }
   }

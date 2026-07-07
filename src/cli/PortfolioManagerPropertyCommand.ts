@@ -3,9 +3,9 @@ import { PortfolioManagerPropertyListCommand } from "./PortfolioManagerPropertyL
 import { PortfolioManagerPropertyMetricsCommand } from "./PortfolioManagerPropertyMetricsCommand.js";
 
 export class PortfolioManagerPropertyCommand extends PortfolioManagerBaseCommand {
-    constructor() {
-        super("property")
-        this.addCommand(new PortfolioManagerPropertyListCommand())
-        this.addCommand(new PortfolioManagerPropertyMetricsCommand())
-    }
+  constructor() {
+    super("property");
+    this.addCommand(new PortfolioManagerPropertyListCommand());
+    this.addCommand(new PortfolioManagerPropertyMetricsCommand());
+  }
 }

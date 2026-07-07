@@ -8,7 +8,7 @@ describe("isIMeterDelivery", () => {
         id: 1,
         deliveryDate: new Date("2024-01-01"),
         quantity: 100,
-      })
+      }),
     ).to.equal(true);
   });
 
@@ -17,7 +17,7 @@ describe("isIMeterDelivery", () => {
       isIMeterDelivery({
         id: 1,
         deliveryDate: new Date("2024-01-01"),
-      })
+      }),
     ).to.equal(false);
   });
 

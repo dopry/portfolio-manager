@@ -94,10 +94,10 @@ const username = "<UserName>";
 const password = "<Password>";
 
 async function main() {
-    const api = new PortfolioManagerApi(endpoint, username, password);
-    const pm = new PortfolioManager(api);
-    const properties = await pm.getProperties();
-    console.log(properties);
+  const api = new PortfolioManagerApi(endpoint, username, password);
+  const pm = new PortfolioManager(api);
+  const properties = await pm.getProperties();
+  console.log(properties);
 }
 
 main();
@@ -107,46 +107,59 @@ main();
 
 ```typescript
 class PortfolioManager {
-    // Developer-friendly facade to the Portfolio Manager API
-    constructor(api: PortfolioManagerApi) {}
+  // Developer-friendly facade to the Portfolio Manager API
+  constructor(api: PortfolioManagerApi) {}
 
-    async getAccount(): Promise<IAccount>;
-    async getAccountId(): Promise<number>;
-    async getMeter(meterId: number): Promise<IMeter>;
-    async getMeterConsumption(
-        meterId: number,
-        startDate?: Date,
-        endDate?: Date
-    ): Promise<(IMeterDelivery | IMeterConsumption)[]>;
-    async getMeterLinks(propertyId: number, myAccessOnly?: boolean): Promise<ILink[]>;
-    async getMeters(propertyId: number): Promise<IMeter[]>;
-    async getAssociatedMeters(propertyId: number): Promise<IMeterPropertyAssociationList>;
-    async getProperty(propertyId: number): Promise<IClientProperty>;
-    async getPropertyLinks(accountId?: number): Promise<ILink[]>;
-    async getProperties(accountId?: number): Promise<IClientProperty[]>;
+  async getAccount(): Promise<IAccount>;
+  async getAccountId(): Promise<number>;
+  async getMeter(meterId: number): Promise<IMeter>;
+  async getMeterConsumption(
+    meterId: number,
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<(IMeterDelivery | IMeterConsumption)[]>;
+  async getMeterLinks(
+    propertyId: number,
+    myAccessOnly?: boolean,
+  ): Promise<ILink[]>;
+  async getMeters(propertyId: number): Promise<IMeter[]>;
+  async getAssociatedMeters(
+    propertyId: number,
+  ): Promise<IMeterPropertyAssociationList>;
+  async getProperty(propertyId: number): Promise<IClientProperty>;
+  async getPropertyLinks(accountId?: number): Promise<ILink[]>;
+  async getProperties(accountId?: number): Promise<IClientProperty[]>;
 }
 
 class PortfolioManagerApi {
-    // Typed gateway to the Portfolio Manager API
-    constructor(endpoint: string, username: string, password: string);
+  // Typed gateway to the Portfolio Manager API
+  constructor(endpoint: string, username: string, password: string);
 
-    async getAccount(): Promise<IGetAccountResponse>;
-    async getMeter(meterId: number): Promise<IGetMeterResponse>;
-    async getProperty(propertyId: number): Promise<IGetPropertyResponse>;
-    async postProperty(property: IProperty, accountId: number): Promise<IPostPropertyResponse>;
-    async getPropertyList(accountId: number): Promise<IGetPropertyListResponse>;
-    async postPropertyMeter(propertyId: number, meter: IMeter): Promise<IPostPropertyMeterResponse>;
-    async getPropertyMeterAssociationList(propertyId: number): Promise<IGetPropertyMeterAssociationListResponse>;
-    async getPropertyMeterList(
-        propertyId: number,
-        myAccessOnly = false
-    ): Promise<IGetPropertyMeterListResponse>;
-    async getMeterConsumptionData(
-        meterId: number,
-        page?: number,
-        startDate?: Date,
-        endDate?: Date
-    ): Promise<IGetMeterConsumptionResponse>;
+  async getAccount(): Promise<IGetAccountResponse>;
+  async getMeter(meterId: number): Promise<IGetMeterResponse>;
+  async getProperty(propertyId: number): Promise<IGetPropertyResponse>;
+  async postProperty(
+    property: IProperty,
+    accountId: number,
+  ): Promise<IPostPropertyResponse>;
+  async getPropertyList(accountId: number): Promise<IGetPropertyListResponse>;
+  async postPropertyMeter(
+    propertyId: number,
+    meter: IMeter,
+  ): Promise<IPostPropertyMeterResponse>;
+  async getPropertyMeterAssociationList(
+    propertyId: number,
+  ): Promise<IGetPropertyMeterAssociationListResponse>;
+  async getPropertyMeterList(
+    propertyId: number,
+    myAccessOnly = false,
+  ): Promise<IGetPropertyMeterListResponse>;
+  async getMeterConsumptionData(
+    meterId: number,
+    page?: number,
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<IGetMeterConsumptionResponse>;
 }
 ```
 

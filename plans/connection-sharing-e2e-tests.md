@@ -14,7 +14,7 @@ The connection and sharing client methods added in
 tests. They cannot be exercised against the live `wstest` environment because
 **ESPM's web services API is receive-only for connections and shares**: a
 provider can list pending requests and accept/reject them, but there is no API
-to *initiate* a connection request or a share. Initiation is done exclusively
+to _initiate_ a connection request or a share. Initiation is done exclusively
 by a standard Portfolio Manager user through the web UI
 (`src/PortfolioManagerApi.ts` notes this: "Pending response wrappers depend on
 externally seeded requests in TEST").
@@ -50,10 +50,10 @@ in `pmtest` shows up in `wstest` pending lists.
 
 ### Two test accounts
 
-| Role | Account | Credentials (env) | Purpose |
-|------|---------|-------------------|---------|
-| Provider (SUT) | existing web-services test account | `PM_USERNAME` / `PM_PASSWORD` | The account our SDK acts as; accepts/rejects via API. Must be searchable (Account Settings → Your Preferences → searchable = Yes). |
-| Peer (seeder) | persistent peer test account | `PM_USERNAME2` / `PM_PASSWORD2` | Long-lived peer account, driven by Playwright in `pmtest`; owns fixture property + meters; initiates connections and shares. |
+| Role           | Account                            | Credentials (env)               | Purpose                                                                                                                            |
+| -------------- | ---------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Provider (SUT) | existing web-services test account | `PM_USERNAME` / `PM_PASSWORD`   | The account our SDK acts as; accepts/rejects via API. Must be searchable (Account Settings → Your Preferences → searchable = Yes). |
+| Peer (seeder)  | persistent peer test account       | `PM_USERNAME2` / `PM_PASSWORD2` | Long-lived peer account, driven by Playwright in `pmtest`; owns fixture property + meters; initiates connections and shares.       |
 
 ### Runner choice: Playwright as a library inside vitest (recommended)
 
@@ -89,15 +89,15 @@ added value at this scale. Revisit if the UI-automation surface grows.
 - [x] No CAPTCHA, MFA, or WAF blockers for headless Chromium login.
 - [x] Provider account had no Terms of Use / custom fields (no agreement
       checkbox rendered). **Gotcha found:** the provider account was not
-      *searchable*, so the peer's contact search returned zero results.
-      Fixed via `npx tsx test/e2e/probe.ts provider-settings
-      --make-searchable` — a persistent account setting, re-apply after an
-      EPA test-environment refresh.
+      _searchable_, so the peer's contact search returned zero results.
+      Fixed via `npx tsx test/e2e/probe.ts provider-settings --make-searchable`
+      — a persistent account setting, re-apply after an EPA test-environment
+      refresh.
 
 ### 1. Dependencies & scaffolding
 
 - Add `playwright` to `devDependencies`; add `npx playwright install
-  chromium` to CI and CONTRIBUTING setup notes.
+chromium` to CI and CONTRIBUTING setup notes.
 - New directory `test/e2e/` (as built):
   - `test/e2e/EspmWebUi.ts` — page-object style helper around a Playwright
     `Page`: `login()`, `sendConnectionRequest(providerUsername)`,
@@ -116,7 +116,7 @@ added value at this scale. Revisit if the UI-automation surface grows.
 
 - Fixture setup (SDK, peer creds against `wstest`): one property with one
   electric meter, fixed names (`E2E Share Fixture Property` / `E2E Share
-  Fixture Meter`) reused idempotently across runs via the `ensure*` helpers;
+Fixture Meter`) reused idempotently across runs via the `ensure*` helpers;
   correlation happens through timestamped notes on accept/reject calls.
 - Clean state before each run, from the provider side (API only):
   `ensureCleanProviderState()` rejects pending connections/shares from the
@@ -184,7 +184,7 @@ many requests), `SHAREUPDATE` notifications on permission edits.
 - **Shared-state flakiness**: timestamped fixture names + notes let us
   correlate and clean stale artifacts from crashed runs; `ensureCleanState()`
   makes reruns safe.
-- **Terms of use / propriety**: we are automating our *own* test accounts in
+- **Terms of use / propriety**: we are automating our _own_ test accounts in
   the environment EPA provides specifically for provider testing; keep
   request volume minimal and off production.
 
@@ -200,11 +200,11 @@ many requests), `SHAREUPDATE` notifications on permission edits.
 
 ## References
 
-- EPA, *How to Use Web Services: Connection and Sharing Guidance for
-  Providers* — https://portfoliomanager.energystar.gov/pdf/reference/Connection_and_Sharing_for_Data_Exchange_en_US.pdf
-- EPA, *How to Share Properties with Other Portfolio Manager Users* (Dec 2024)
+- EPA, _How to Use Web Services: Connection and Sharing Guidance for
+  Providers_ — https://portfoliomanager.energystar.gov/pdf/reference/Connection_and_Sharing_for_Data_Exchange_en_US.pdf
+- EPA, _How to Share Properties with Other Portfolio Manager Users_ (Dec 2024)
   — https://www.energystar.gov/sites/default/files/2025-01/How%20to%20Share%20Properties%20with%20Other%20Portfolio%20Manager%20Users_December%202024.pdf
-- EPA, *Testing Web Services* —
+- EPA, _Testing Web Services_ —
   https://portfoliomanager.energystar.gov/pdf/reference/Testing_Web_Services_en_US.pdf
   (test UI: `…/pmtest`, test API: `…/wstest`)
 - Provider-side API surface: `src/PortfolioManagerApi.ts:506-604`,

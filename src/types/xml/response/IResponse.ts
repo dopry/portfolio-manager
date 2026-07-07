@@ -32,9 +32,7 @@ export function isIPopulatedResponse(obj: unknown): obj is IPopoulatedResponse {
   if (!isRecord(links)) return false;
   if (!Object.hasOwn(links, "link")) return false;
 
-  return (
-    Array.isArray(links["link"])
-  );
+  return Array.isArray(links["link"]);
 }
 
 export function isIEmptyResponse(obj: unknown): obj is IEmptyResponse {

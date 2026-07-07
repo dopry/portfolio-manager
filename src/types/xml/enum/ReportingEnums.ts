@@ -1,7 +1,7 @@
 // see: /xml-schemas/portfoliomanager-schema/enum/reportingEnums.xsd
 
 export const REPORTING_INTERVALS = ["MONTHLY", "QUARTERLY", "YEARLY"] as const;
-export type ReportingInterval = typeof REPORTING_INTERVALS[number];
+export type ReportingInterval = (typeof REPORTING_INTERVALS)[number];
 
 // CUSTOM - Custom report.
 // ENERGY_STAR - ENERGY STAR reports that are pre-defined (i.e., Water Performance, Energy Performance, etc.). This type is currently not support yet.
@@ -13,7 +13,7 @@ export const REPORT_TYPES = [
   "DATA_RESPONSE",
   "DATA_REQUEST",
 ] as const;
-export type ReportType = typeof REPORT_TYPES[number];
+export type ReportType = (typeof REPORT_TYPES)[number];
 
 // INITIALIZED - Indicates that the report was initially created or its configuration (i.e., timeframe, properties, metrics, etc.) has been updated.
 // SUBMITTED - Indicates that the report has been submitted for generation and is waiting to be generated.
@@ -29,4 +29,4 @@ export const REPORT_STATUSES = [
   "GENERATED",
   "READY_FOR_DOWNLOAD",
 ];
-export type ReportStatus = typeof REPORT_STATUSES[number];
+export type ReportStatus = (typeof REPORT_STATUSES)[number];

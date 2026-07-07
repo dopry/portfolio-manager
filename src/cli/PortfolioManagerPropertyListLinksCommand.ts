@@ -16,10 +16,9 @@ export class PortfolioManagerPropertyListLinksCommand extends PortfolioManagerBa
   defaultFields = ["@_id", "@_hint"];
   constructor() {
     super("links");
-    this.description("List property links")
+    this.description("List property links");
     this.addPortfolioManagerOptions();
-    this.addFieldsOption(this.fields, this.defaultFields)
-
+    this.addFieldsOption(this.fields, this.defaultFields);
   }
 
   protected async _action(): Promise<void> {
@@ -27,7 +26,7 @@ export class PortfolioManagerPropertyListLinksCommand extends PortfolioManagerBa
     const propertyLinks =
       await this.getPortfolioManagerClient().getPropertyLinks();
     const mapped = Object.values(propertyLinks).map((property) =>
-      this.pickFields(property, cmdOpts.fields)
+      this.pickFields(property, cmdOpts.fields),
     );
     const indent = cmdOpts.indent;
     console.log(JSON.stringify(mapped, null, indent));

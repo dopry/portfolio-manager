@@ -1,8 +1,19 @@
-import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import { parseLinkId } from "./functions/parseLinkId.js";
 import { mockIProperty, mockMeter } from "./Mocks.js";
 import { PortfolioManager } from "./PortfolioManager.js";
-import { PortfolioManagerApi, PortfolioManagerApiError } from "./PortfolioManagerApi.js";
+import {
+  PortfolioManagerApi,
+  PortfolioManagerApiError,
+} from "./PortfolioManagerApi.js";
 import {
   ensureStandardMetricsFixture,
   IStandardMetricsFixture,
@@ -18,7 +29,7 @@ const USERNAME = process.env.PM_USERNAME || "";
 const PASSWORD = process.env.PM_PASSWORD || "";
 if (!USERNAME || !PASSWORD) {
   throw new Error(
-    "Please set PM_USERNAME and PM_PASSWORD environment variables"
+    "Please set PM_USERNAME and PM_PASSWORD environment variables",
   );
 }
 const RUN_ID = `${Date.now()}-${Math.round(Math.random() * 1000000)}`;
@@ -52,9 +63,12 @@ describe("PortfolioManager (integration)", () => {
     testPropertyIds = await ensureStandardProperties(
       api,
       account.id || 0,
-      STANDARD_PROPERTY_NAMES
+      STANDARD_PROPERTY_NAMES,
     );
-    metricsFixture = await ensureStandardMetricsFixture(api, testPropertyIds[0]);
+    metricsFixture = await ensureStandardMetricsFixture(
+      api,
+      testPropertyIds[0],
+    );
   }
 
   beforeAll(async () => {
@@ -64,7 +78,7 @@ describe("PortfolioManager (integration)", () => {
   afterAll(async () => {
     // Meters created on fixture properties must be cleaned explicitly.
     const uniqueFixtureMeters = Array.from(
-      new Set(createdFixturePropertyMeterIds)
+      new Set(createdFixturePropertyMeterIds),
     ).reverse();
     for (const meterId of uniqueFixtureMeters) {
       try {
@@ -125,9 +139,12 @@ describe("PortfolioManager (integration)", () => {
     // PM API delete removes property from account list but GET by ID still returns 200.
     const linksAfterDelete = await pm.getPropertyLinks();
     const stillLinked = linksAfterDelete.some(
-      (link) => parseLinkId(link) === created.id
+      (link) => parseLinkId(link) === created.id,
     );
-    expect(stillLinked, "deleted property should not appear in account property list").to.equal(false);
+    expect(
+      stillLinked,
+      "deleted property should not appear in account property list",
+    ).to.equal(false);
   }, 90000);
 
   it("createMeter + getMeterLinks + getMeter", async () => {
@@ -168,7 +185,7 @@ describe("PortfolioManager (integration)", () => {
 
     const createdMeter = await pm.createMeter(
       createdProperty.id || 0,
-      mockMeter(withRunId("PM Integration Delete Methods Meter"))
+      mockMeter(withRunId("PM Integration Delete Methods Meter")),
     );
 
     const meterDeleted = await pm.deleteMeter(createdMeter.id || 0);
@@ -181,9 +198,12 @@ describe("PortfolioManager (integration)", () => {
     // PM API delete removes property from account list but GET by ID still returns 200.
     const linksAfterDelete = await pm.getPropertyLinks();
     const stillLinked = linksAfterDelete.some(
-      (link) => parseLinkId(link) === createdProperty.id
+      (link) => parseLinkId(link) === createdProperty.id,
     );
-    expect(stillLinked, "deleted property should not appear in account property list").to.equal(false);
+    expect(
+      stillLinked,
+      "deleted property should not appear in account property list",
+    ).to.equal(false);
   }, 120000);
 
   it("getMeters on controlled property", async () => {
@@ -197,7 +217,7 @@ describe("PortfolioManager (integration)", () => {
     }
     const createdMeter = await pm.createMeter(
       createdProperty.id || 0,
-      mockMeter(withRunId("PM Integration Meter For List"))
+      mockMeter(withRunId("PM Integration Meter For List")),
     );
 
     const meters = await pm.getMeters(createdProperty.id || 0);
@@ -223,7 +243,7 @@ describe("PortfolioManager (integration)", () => {
 
     const createdMeter = await pm.createMeter(
       createdProperty.id || 0,
-      mockMeter(withRunId("PM Integration Meter For Additional Identifier"))
+      mockMeter(withRunId("PM Integration Meter For Additional Identifier")),
     );
     if (createdMeter.id) {
       createdFixturePropertyMeterIds.push(createdMeter.id);
@@ -238,12 +258,12 @@ describe("PortfolioManager (integration)", () => {
     const created = await pm.upsertMeterAdditionalIdentifier(
       meterId,
       identifierName,
-      initialValue
+      initialValue,
     );
     expect(created).to.be.an("array");
 
     const createdIdentifier = created.find(
-      (identifier) => identifier.description === identifierName
+      (identifier) => identifier.description === identifierName,
     );
     if (!createdIdentifier) {
       throw new Error("Expected created additional identifier");
@@ -254,7 +274,10 @@ describe("PortfolioManager (integration)", () => {
       throw new Error("Expected numeric additional identifier id");
     }
 
-    const fetched = await pm.getMeterAdditionalIdentifier(meterId, identifierId);
+    const fetched = await pm.getMeterAdditionalIdentifier(
+      meterId,
+      identifierId,
+    );
     expect(fetched.description).to.equal(identifierName);
     expect(fetched.value).to.equal(initialValue);
 
@@ -263,18 +286,21 @@ describe("PortfolioManager (integration)", () => {
     const updatedLinks = await pm.putMeterAdditionalIdentifier(
       meterId,
       identifierId,
-      { ...fetched, value: updatedValue }
+      { ...fetched, value: updatedValue },
     );
     expect(updatedLinks).to.be.an("array");
 
     const upserted = await pm.upsertMeterAdditionalIdentifier(
       meterId,
       identifierName,
-      updatedValue
+      updatedValue,
     );
     expect(upserted).to.be.an("array");
 
-    const fetchedUpdated = await pm.getMeterAdditionalIdentifier(meterId, identifierId);
+    const fetchedUpdated = await pm.getMeterAdditionalIdentifier(
+      meterId,
+      identifierId,
+    );
     expect(fetchedUpdated.value).to.equal(updatedValue);
 
     const meterDeleted = await pm.deleteMeter(meterId);
@@ -304,7 +330,7 @@ describe("PortfolioManager (integration)", () => {
 
     const createdMeter = await pm.createMeter(
       createdProperty.id || 0,
-      mockMeter(withRunId("PM Integration Meter For Association"))
+      mockMeter(withRunId("PM Integration Meter For Association")),
     );
     if (createdMeter.id) {
       createdFixturePropertyMeterIds.push(createdMeter.id);
@@ -314,7 +340,7 @@ describe("PortfolioManager (integration)", () => {
     const meterId = createdMeter.id || 0;
     const associationPost = await api.meterPropertyAssociationSinglePost(
       propertyId,
-      meterId
+      meterId,
     );
     expect(associationPost.response["@_status"]).to.equal("Ok");
 
@@ -347,7 +373,7 @@ describe("PortfolioManager (integration)", () => {
       2024,
       1,
       ["siteElectricityUseMonthly"],
-      false
+      false,
     );
     expect(monthly).to.be.an("array");
 
@@ -356,7 +382,7 @@ describe("PortfolioManager (integration)", () => {
       2024,
       1,
       ["siteTotal"],
-      false
+      false,
     );
     expect(monthly2).to.be.an("object");
 
@@ -365,7 +391,7 @@ describe("PortfolioManager (integration)", () => {
       2024,
       1,
       ["siteTotal", "sourceTotal", "score"],
-      false
+      false,
     );
     expect(annual).to.be.an("object");
   }, 60000);
@@ -436,7 +462,7 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
     } as never);
 
     await expect(pm.getMeterConsumption(1)).rejects.toThrow(
-      "Invalid next page link for meter 1"
+      "Invalid next page link for meter 1",
     );
 
     vi.mocked(api.meterConsumptionDataGet).mockResolvedValueOnce({
@@ -454,7 +480,7 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
       },
     } as never);
     await expect(pm.getMeterConsumption(1)).rejects.toThrow(
-      "Invalid next page link for meter 1"
+      "Invalid next page link for meter 1",
     );
   });
 
@@ -523,14 +549,18 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
     vi.spyOn(pm, "getProperty").mockResolvedValue({ id: 6 } as never);
 
     await expect(pm.getProperties(1)).resolves.toEqual([{ id: 6 }]);
-    await expect(pm.getProperties(1)).rejects.toThrow("Invalid property id in link");
+    await expect(pm.getProperties(1)).rejects.toThrow(
+      "Invalid property id in link",
+    );
   });
 
   it("getAccountId + getMeter throw when payloads are missing required objects", async () => {
     const api = createExtendedMockApi();
     const pm = new PortfolioManager(api);
 
-    vi.mocked(api.accountAccountGet).mockResolvedValue({ account: {} } as never);
+    vi.mocked(api.accountAccountGet).mockResolvedValue({
+      account: {},
+    } as never);
     vi.mocked(api.meterMeterGet).mockResolvedValue({ response: {} } as never);
 
     await expect(pm.getAccountId()).rejects.toThrow("No account id found");
@@ -569,36 +599,38 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
 
     vi.mocked(api.meterIdentifierGet).mockRejectedValueOnce(api404 as never);
     await expect(pm.getMeterAdditionalIdentifier(1, 2)).rejects.toThrow(
-      "Meter or additionalIdentifier not found"
+      "Meter or additionalIdentifier not found",
     );
 
     vi.mocked(api.meterIdentifierPost).mockResolvedValueOnce({
       response: { "@_status": "Ok", links: "" },
     } as never);
     await expect(
-      pm.postMeterAdditionalIdentifier(1, { value: "x" } as never)
+      pm.postMeterAdditionalIdentifier(1, { value: "x" } as never),
     ).rejects.toThrow("Unable to create additionalIdentifier");
 
     vi.mocked(api.meterIdentifierPost).mockRejectedValueOnce(api404 as never);
     await expect(
-      pm.postMeterAdditionalIdentifier(1, { value: "x" } as never)
+      pm.postMeterAdditionalIdentifier(1, { value: "x" } as never),
     ).rejects.toThrow("Meter not found: 1");
 
     vi.mocked(api.meterIdentifierPut).mockResolvedValueOnce({
       response: { "@_status": "Ok", links: "" },
     } as never);
     await expect(
-      pm.putMeterAdditionalIdentifier(1, 2, { value: "x" } as never)
+      pm.putMeterAdditionalIdentifier(1, 2, { value: "x" } as never),
     ).rejects.toThrow("Unable to update additionalIdentifier");
 
     vi.mocked(api.meterIdentifierPut).mockRejectedValueOnce(api404 as never);
     await expect(
-      pm.putMeterAdditionalIdentifier(1, 2, { value: "x" } as never)
+      pm.putMeterAdditionalIdentifier(1, 2, { value: "x" } as never),
     ).rejects.toThrow("Meter not found: 1");
 
-    vi.mocked(api.meterIdentifierListGet).mockRejectedValueOnce(api404 as never);
+    vi.mocked(api.meterIdentifierListGet).mockRejectedValueOnce(
+      api404 as never,
+    );
     await expect(pm.getMeterAdditionalIdentifiers(1)).rejects.toThrow(
-      "Meter not found"
+      "Meter not found",
     );
   });
 
@@ -620,12 +652,12 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
         { "@_id": "3", additionalIdentifierType: { "@_id": "3" } } as never,
       ]);
 
-    await expect(pm.upsertMeterAdditionalIdentifier(8, "X", "Y")).rejects.toThrow(
-      "Invalid additional identifier id"
-    );
-    await expect(pm.upsertMeterAdditionalIdentifier(8, "New", "Y")).rejects.toThrow(
-      "No available Custom ID slots"
-    );
+    await expect(
+      pm.upsertMeterAdditionalIdentifier(8, "X", "Y"),
+    ).rejects.toThrow("Invalid additional identifier id");
+    await expect(
+      pm.upsertMeterAdditionalIdentifier(8, "New", "Y"),
+    ).rejects.toThrow("No available Custom ID slots");
   });
 
   it("meter and property CRUD wrappers throw on failed responses", async () => {
@@ -636,7 +668,7 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
       response: { "@_status": "Ok", links: "" },
     } as never);
     await expect(pm.createMeter(1, { name: "m" } as never)).rejects.toThrow(
-      "Failed to create meter"
+      "Failed to create meter",
     );
 
     vi.mocked(api.meterMeterDelete).mockResolvedValueOnce({
@@ -649,15 +681,19 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
     } as never);
     vi.spyOn(pm, "getAccount").mockResolvedValueOnce({ id: 9 } as never);
     await expect(pm.createProperty({ name: "p" } as never)).rejects.toThrow(
-      "Failed to create property"
+      "Failed to create property",
     );
 
     vi.mocked(api.propertyPropertyDelete).mockResolvedValueOnce({
       response: { "@_status": "Error" },
     } as never);
-    await expect(pm.deleteProperty(1)).rejects.toThrow("Failed to delete property");
+    await expect(pm.deleteProperty(1)).rejects.toThrow(
+      "Failed to delete property",
+    );
 
-    vi.mocked(api.propertyPropertyGet).mockResolvedValueOnce({ response: {} } as never);
+    vi.mocked(api.propertyPropertyGet).mockResolvedValueOnce({
+      response: {},
+    } as never);
     await expect(pm.getProperty(1)).rejects.toThrow("No property found");
   });
 
@@ -668,9 +704,13 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
     vi.mocked(api.meterPropertyAssociationGet).mockResolvedValueOnce({
       meterPropertyAssociationList: "",
     } as never);
-    await expect(pm.getAssociatedMeters(1)).rejects.toThrow("No associated meters found");
+    await expect(pm.getAssociatedMeters(1)).rejects.toThrow(
+      "No associated meters found",
+    );
 
-    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const errorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
     vi.spyOn(pm, "getAssociatedMeters")
       .mockResolvedValueOnce({ propertyId: 1 } as never)
       .mockRejectedValueOnce(new Error("x"));
@@ -757,24 +797,34 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
     const pm = new PortfolioManager(api);
 
     await expect(pm.getPropertyMonthlyMetrics2(1, 2024, 1, [])).rejects.toThrow(
-      "No metrics provided"
+      "No metrics provided",
     );
     await expect(
-      pm.getPropertyMonthlyMetrics2(1, 2024, 1, Array.from({ length: 11 }, (_, i) => `m${i}`))
+      pm.getPropertyMonthlyMetrics2(
+        1,
+        2024,
+        1,
+        Array.from({ length: 11 }, (_, i) => `m${i}`),
+      ),
     ).rejects.toThrow("Too many metrics provided");
     await expect(pm.getPropertyMetrics(1, 2024, 1, [])).rejects.toThrow(
-      "No metrics provided"
+      "No metrics provided",
     );
     await expect(
-      pm.getPropertyMetrics(1, 2024, 1, Array.from({ length: 11 }, (_, i) => `m${i}`))
+      pm.getPropertyMetrics(
+        1,
+        2024,
+        1,
+        Array.from({ length: 11 }, (_, i) => `m${i}`),
+      ),
     ).rejects.toThrow("Too many metrics provided");
 
     vi.mocked(api.propertyMetricsMonthlyGet).mockResolvedValueOnce({
       response: { "@_status": "Ok" },
     } as never);
-    await expect(pm.getPropertyMonthlyMetrics(1, 2024, 1, ["x"])).rejects.toThrow(
-      "No property monthly metrics found"
-    );
+    await expect(
+      pm.getPropertyMonthlyMetrics(1, 2024, 1, ["x"]),
+    ).rejects.toThrow("No property monthly metrics found");
 
     vi.mocked(api.propertyMetricsMonthlyGet).mockResolvedValueOnce({
       propertyMetrics: {
@@ -787,14 +837,16 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
         ],
       },
     } as never);
-    await expect(pm.getPropertyMonthlyMetrics(1, 2024, 1, ["x"], false)).rejects.toThrow(
-      "Invalid monthly metric date"
-    );
+    await expect(
+      pm.getPropertyMonthlyMetrics(1, 2024, 1, ["x"], false),
+    ).rejects.toThrow("Invalid monthly metric date");
 
-    vi.mocked(api.propertyMetricsGet).mockResolvedValueOnce({ response: {} } as never);
-    await expect(pm.getPropertyMonthlyMetrics2(1, 2024, 1, ["x"])).rejects.toThrow(
-      "No property metrics found"
-    );
+    vi.mocked(api.propertyMetricsGet).mockResolvedValueOnce({
+      response: {},
+    } as never);
+    await expect(
+      pm.getPropertyMonthlyMetrics2(1, 2024, 1, ["x"]),
+    ).rejects.toThrow("No property metrics found");
 
     vi.mocked(api.propertyMetricsGet).mockResolvedValueOnce({
       propertyMetrics: {
@@ -807,13 +859,15 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
         ],
       },
     } as never);
-    await expect(pm.getPropertyMonthlyMetrics2(1, 2024, 1, ["x"], false)).rejects.toThrow(
-      "Invalid monthly metric date"
-    );
+    await expect(
+      pm.getPropertyMonthlyMetrics2(1, 2024, 1, ["x"], false),
+    ).rejects.toThrow("Invalid monthly metric date");
 
-    vi.mocked(api.propertyMetricsGet).mockResolvedValueOnce({ response: {} } as never);
+    vi.mocked(api.propertyMetricsGet).mockResolvedValueOnce({
+      response: {},
+    } as never);
     await expect(pm.getPropertyMetrics(1, 2024, 1, ["x"])).rejects.toThrow(
-      "No property metrics found"
+      "No property metrics found",
     );
   });
 
@@ -830,7 +884,11 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
               "@_uom": "kBtu",
               monthlyMetric: [
                 { "@_month": "1", "@_year": "2024", value: 10 },
-                { "@_month": "2", "@_year": "2024", value: { "@_xsi:nil": "true" } },
+                {
+                  "@_month": "2",
+                  "@_year": "2024",
+                  value: { "@_xsi:nil": "true" },
+                },
                 { "@_month": "3", "@_year": "2024", value: 0 },
               ],
             },
@@ -844,7 +902,11 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
               "@_name": "siteTotal",
               "@_uom": "kBtu",
               monthlyMetric: [
-                { "@_month": "2", "@_year": "2024", value: { "@_xsi:nil": "true" } },
+                {
+                  "@_month": "2",
+                  "@_year": "2024",
+                  value: { "@_xsi:nil": "true" },
+                },
               ],
             },
           ],
@@ -856,7 +918,7 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
       2024,
       1,
       ["siteTotal"],
-      true
+      true,
     );
     // 0 is a legitimate metric value; exclude_null must only drop xsi:nil.
     expect(includeNullFiltered.siteTotal.value).toEqual([
@@ -869,7 +931,7 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
       2024,
       1,
       ["siteTotal"],
-      true
+      true,
     );
     expect(allFilteredOut).toEqual({});
 
@@ -883,7 +945,13 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
         ],
       },
     } as never);
-    const noUom = await pm.getPropertyMonthlyMetrics2(7, 2024, 1, ["siteTotal"], false);
+    const noUom = await pm.getPropertyMonthlyMetrics2(
+      7,
+      2024,
+      1,
+      ["siteTotal"],
+      false,
+    );
     expect(noUom.siteTotal.uom).to.equal("");
   });
 
@@ -914,7 +982,13 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
       },
     } as never);
 
-    const rows = await pm.getPropertyMonthlyMetrics(3, 2024, 1, ["monthly"], false);
+    const rows = await pm.getPropertyMonthlyMetrics(
+      3,
+      2024,
+      1,
+      ["monthly"],
+      false,
+    );
     expect(rows).toEqual([
       {
         propertyId: 3,
@@ -945,18 +1019,18 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
       },
     } as never);
     // exclude_null drops only the xsi:nil month, not the legitimate 0 value.
-    await expect(pm.getPropertyMonthlyMetrics(3, 2024, 1, ["monthly"], true)).resolves.toEqual(
-      [
-        {
-          propertyId: 3,
-          name: "monthly",
-          uom: "kBtu",
-          month: 2,
-          year: 2024,
-          value: 0,
-        },
-      ]
-    );
+    await expect(
+      pm.getPropertyMonthlyMetrics(3, 2024, 1, ["monthly"], true),
+    ).resolves.toEqual([
+      {
+        propertyId: 3,
+        name: "monthly",
+        uom: "kBtu",
+        month: 2,
+        year: 2024,
+        value: 0,
+      },
+    ]);
   });
 
   it("getPropertyMetrics skips non-annual and handles null annual values", async () => {
@@ -1003,10 +1077,22 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
         },
       } as never);
 
-    const includeNull = await pm.getPropertyMetrics(5, 2024, 1, ["score"], false);
+    const includeNull = await pm.getPropertyMetrics(
+      5,
+      2024,
+      1,
+      ["score"],
+      false,
+    );
     expect(includeNull.score.value).to.equal(null);
 
-    const filteredNull = await pm.getPropertyMetrics(5, 2024, 1, ["score"], true);
+    const filteredNull = await pm.getPropertyMetrics(
+      5,
+      2024,
+      1,
+      ["score"],
+      true,
+    );
     expect(filteredNull).toEqual({});
 
     const nonNull = await pm.getPropertyMetrics(5, 2024, 1, ["score"], true);
@@ -1031,7 +1117,9 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
   it("getMeterConsumption returns empty list for unknown meterData shape", async () => {
     const api = createMinimalMockApi();
     const pm = new PortfolioManager(api);
-    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const errorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
 
     vi.mocked(api.meterConsumptionDataGet).mockResolvedValue({
       meterData: {
@@ -1077,8 +1165,12 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
     // duplicated it), and each subsequent page once.
     expect(api.meterConsumptionDataGet).toHaveBeenCalledTimes(2);
 
-    vi.mocked(api.meterConsumptionDataGet).mockResolvedValueOnce({ response: {} } as never);
-    await expect(pm.getMeterConsumption(1)).rejects.toThrow("No meter consumption found");
+    vi.mocked(api.meterConsumptionDataGet).mockResolvedValueOnce({
+      response: {},
+    } as never);
+    await expect(pm.getMeterConsumption(1)).rejects.toThrow(
+      "No meter consumption found",
+    );
   });
 
   it("getMeterLinks throws when response status is not Ok", async () => {
@@ -1089,7 +1181,9 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
       response: { "@_status": "Error" },
     } as never);
 
-    await expect(pm.getMeterLinks(1)).rejects.toThrow("Request Error, response");
+    await expect(pm.getMeterLinks(1)).rejects.toThrow(
+      "Request Error, response",
+    );
   });
 
   it("getMeterLinks returns empty on truly empty Ok responses", async () => {
@@ -1111,36 +1205,50 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
     const pm = new PortfolioManager(api);
     const api500 = new PortfolioManagerApiError(500, "Internal Server Error");
 
-    vi.mocked(api.meterIdentifierGet).mockRejectedValueOnce(new Error("boom-get"));
-    await expect(pm.getMeterAdditionalIdentifier(1, 2)).rejects.toThrow("boom-get");
+    vi.mocked(api.meterIdentifierGet).mockRejectedValueOnce(
+      new Error("boom-get"),
+    );
+    await expect(pm.getMeterAdditionalIdentifier(1, 2)).rejects.toThrow(
+      "boom-get",
+    );
     vi.mocked(api.meterIdentifierGet).mockRejectedValueOnce(api500 as never);
     await expect(pm.getMeterAdditionalIdentifier(1, 2)).rejects.toThrow(
-      "Internal Server Error"
+      "Internal Server Error",
     );
 
-    vi.mocked(api.meterIdentifierPost).mockRejectedValueOnce(new Error("boom-post"));
+    vi.mocked(api.meterIdentifierPost).mockRejectedValueOnce(
+      new Error("boom-post"),
+    );
     await expect(
-      pm.postMeterAdditionalIdentifier(1, { value: "x" } as never)
+      pm.postMeterAdditionalIdentifier(1, { value: "x" } as never),
     ).rejects.toThrow("boom-post");
     vi.mocked(api.meterIdentifierPost).mockRejectedValueOnce(api500 as never);
     await expect(
-      pm.postMeterAdditionalIdentifier(1, { value: "x" } as never)
+      pm.postMeterAdditionalIdentifier(1, { value: "x" } as never),
     ).rejects.toThrow("Internal Server Error");
 
-    vi.mocked(api.meterIdentifierPut).mockRejectedValueOnce(new Error("boom-put"));
+    vi.mocked(api.meterIdentifierPut).mockRejectedValueOnce(
+      new Error("boom-put"),
+    );
     await expect(
-      pm.putMeterAdditionalIdentifier(1, 2, { value: "x" } as never)
+      pm.putMeterAdditionalIdentifier(1, 2, { value: "x" } as never),
     ).rejects.toThrow("boom-put");
     vi.mocked(api.meterIdentifierPut).mockRejectedValueOnce(api500 as never);
     await expect(
-      pm.putMeterAdditionalIdentifier(1, 2, { value: "x" } as never)
+      pm.putMeterAdditionalIdentifier(1, 2, { value: "x" } as never),
     ).rejects.toThrow("Internal Server Error");
 
-    vi.mocked(api.meterIdentifierListGet).mockRejectedValueOnce(new Error("boom-list"));
-    await expect(pm.getMeterAdditionalIdentifiers(1)).rejects.toThrow("boom-list");
-    vi.mocked(api.meterIdentifierListGet).mockRejectedValueOnce(api500 as never);
+    vi.mocked(api.meterIdentifierListGet).mockRejectedValueOnce(
+      new Error("boom-list"),
+    );
     await expect(pm.getMeterAdditionalIdentifiers(1)).rejects.toThrow(
-      "Internal Server Error"
+      "boom-list",
+    );
+    vi.mocked(api.meterIdentifierListGet).mockRejectedValueOnce(
+      api500 as never,
+    );
+    await expect(pm.getMeterAdditionalIdentifiers(1)).rejects.toThrow(
+      "Internal Server Error",
     );
   });
 
@@ -1148,10 +1256,12 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
     const api = createExtendedMockApi();
     const pm = new PortfolioManager(api);
 
-    vi.mocked(api.accountAccountGet).mockResolvedValue({ response: {} } as never);
-    await expect((pm as unknown as { _getAccount: () => Promise<unknown> })._getAccount()).rejects.toThrow(
-      "No account found"
-    );
+    vi.mocked(api.accountAccountGet).mockResolvedValue({
+      response: {},
+    } as never);
+    await expect(
+      (pm as unknown as { _getAccount: () => Promise<unknown> })._getAccount(),
+    ).rejects.toThrow("No account found");
   });
 
   it("getPendingConnections paginates and maps custom fields", async () => {
@@ -1236,62 +1346,62 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
     ]);
   });
 
-    it("getPendingConnections handles missing account list and singleton customField", async () => {
-      const api = createExtendedMockApi();
-      const pm = new PortfolioManager(api);
+  it("getPendingConnections handles missing account list and singleton customField", async () => {
+    const api = createExtendedMockApi();
+    const pm = new PortfolioManager(api);
 
-      vi.mocked(api.connectAccountPendingListGet)
-        .mockResolvedValueOnce({
-          pendingList: {
-            account: [
-              {
-                accountId: 103,
-                username: "acct-c",
-                accountInfo: {
-                  firstName: "C",
-                  lastName: "Three",
-                  email: "c@example.test",
-                  organization: "Org C",
-                },
-                customFieldList: {
-                  customField: {
-                    "@_name": "ticket",
-                    "#text": "T-20",
-                  },
+    vi.mocked(api.connectAccountPendingListGet)
+      .mockResolvedValueOnce({
+        pendingList: {
+          account: [
+            {
+              accountId: 103,
+              username: "acct-c",
+              accountInfo: {
+                firstName: "C",
+                lastName: "Three",
+                email: "c@example.test",
+                organization: "Org C",
+              },
+              customFieldList: {
+                customField: {
+                  "@_name": "ticket",
+                  "#text": "T-20",
                 },
               },
-              {
-                accountId: 104,
-                username: "acct-d",
-                accountInfo: {
-                  firstName: "D",
-                  lastName: "Four",
-                  email: "d@example.test",
-                  organization: "Org D",
-                },
-                customFieldList: {
-                  customField: {
-                    "@_name": "ignored",
-                  },
+            },
+            {
+              accountId: 104,
+              username: "acct-d",
+              accountInfo: {
+                firstName: "D",
+                lastName: "Four",
+                email: "d@example.test",
+                organization: "Org D",
+              },
+              customFieldList: {
+                customField: {
+                  "@_name": "ignored",
                 },
               },
-            ],
-            links: { link: [] },
-          },
-        } as never)
-        .mockResolvedValueOnce({
-          pendingList: {
-            links: { link: [] },
-          },
-        } as never);
+            },
+          ],
+          links: { link: [] },
+        },
+      } as never)
+      .mockResolvedValueOnce({
+        pendingList: {
+          links: { link: [] },
+        },
+      } as never);
 
-      const mapped = await pm.getPendingConnections();
-      expect(mapped[0].customFields).toEqual({ ticket: "T-20" });
-      expect(mapped[1].customFields).toEqual({});
+    const mapped = await pm.getPendingConnections();
+    expect(mapped[0].customFields).toEqual({ ticket: "T-20" });
+    expect(mapped[1].customFields).toEqual({});
 
-      const empty = await pm.getPendingConnections();
-      expect(empty).toEqual([]);
-    });
+    const empty = await pm.getPendingConnections();
+    expect(empty).toEqual([]);
+  });
 
   it("acceptConnection and rejectConnection send expected payloads", async () => {
     const api = createExtendedMockApi();
@@ -1319,13 +1429,13 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
       1,
       71,
       { terminateSharingResponse: { note: "done" } },
-      true
+      true,
     );
     expect(api.disconnectAccountPost).toHaveBeenNthCalledWith(
       2,
       72,
       { terminateSharingResponse: { note: undefined } },
-      undefined
+      undefined,
     );
   });
 
@@ -1465,204 +1575,203 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
     ]);
     expect(api.notificationListGet).toHaveBeenNthCalledWith(1, true);
 
-    await expect(pm.getNotifications({ markAsRead: false })).resolves.toEqual([]);
+    await expect(pm.getNotifications({ markAsRead: false })).resolves.toEqual(
+      [],
+    );
     expect(api.notificationListGet).toHaveBeenNthCalledWith(2, false);
   });
 
-    it("pending property/meter shares follow next-page links", async () => {
-      const api = createExtendedMockApi();
-      const pm = new PortfolioManager(api);
+  it("pending property/meter shares follow next-page links", async () => {
+    const api = createExtendedMockApi();
+    const pm = new PortfolioManager(api);
 
-      vi.mocked(api.sharePropertyPendingListGet)
-        .mockResolvedValueOnce({
-          pendingList: {
-            property: [
-              {
-                propertyId: 1001,
-                propertyInfo: { name: "Property P1" },
-                username: "acct-a",
-                accountId: 101,
-                accessLevel: "Read",
-              },
-            ],
-            links: {
-              link: [
-                {
-                  "@_linkDescription": "next page",
-                  "@_link": "/share/property/pending/list?page=2",
-                },
-              ],
-            },
-          },
-        } as never)
-        .mockResolvedValueOnce({
-          pendingList: {
-            property: [
-              {
-                propertyId: 1002,
-                propertyInfo: { name: "Property P2" },
-                username: "acct-b",
-                accountId: 102,
-                accessLevel: "Read Write",
-              },
-            ],
-            links: { link: [] },
-          },
-        } as never);
-
-      vi.mocked(api.shareMeterPendingListGet)
-        .mockResolvedValueOnce({
-          pendingList: {
-            meter: [
-              {
-                meterId: 2001,
-                propertyId: 1001,
-                propertyInfo: { name: "Property P1" },
-                username: "acct-a",
-                accountId: 101,
-                accessLevel: "Read",
-              },
-            ],
-            links: {
-              link: [
-                {
-                  "@_linkDescription": "next page",
-                  "@_link": "/share/meter/pending/list?page=2",
-                },
-              ],
-            },
-          },
-        } as never)
-        .mockResolvedValueOnce({
-          pendingList: {
-            meter: [
-              {
-                meterId: 2002,
-                propertyId: 1002,
-                propertyInfo: { name: "Property P2" },
-                username: "acct-b",
-                accountId: 102,
-                accessLevel: "Read Write",
-              },
-            ],
-            links: { link: [] },
-          },
-        } as never);
-
-      const propertyShares = await pm.getPendingPropertyShares();
-      expect(api.sharePropertyPendingListGet).toHaveBeenNthCalledWith(1, 1);
-      expect(api.sharePropertyPendingListGet).toHaveBeenNthCalledWith(2, 2);
-      expect(propertyShares.map((item) => item.id)).toEqual([1001, 1002]);
-
-      const meterShares = await pm.getPendingMeterShares();
-      expect(api.shareMeterPendingListGet).toHaveBeenNthCalledWith(1, 1);
-      expect(api.shareMeterPendingListGet).toHaveBeenNthCalledWith(2, 2);
-      expect(meterShares.map((item) => item.id)).toEqual([2001, 2002]);
-    });
-
-    it("getPendingPropertyShares handles missing property list", async () => {
-      const api = createExtendedMockApi();
-      const pm = new PortfolioManager(api);
-
-      vi.mocked(api.sharePropertyPendingListGet).mockResolvedValueOnce({
+    vi.mocked(api.sharePropertyPendingListGet)
+      .mockResolvedValueOnce({
         pendingList: {
+          property: [
+            {
+              propertyId: 1001,
+              propertyInfo: { name: "Property P1" },
+              username: "acct-a",
+              accountId: 101,
+              accessLevel: "Read",
+            },
+          ],
+          links: {
+            link: [
+              {
+                "@_linkDescription": "next page",
+                "@_link": "/share/property/pending/list?page=2",
+              },
+            ],
+          },
+        },
+      } as never)
+      .mockResolvedValueOnce({
+        pendingList: {
+          property: [
+            {
+              propertyId: 1002,
+              propertyInfo: { name: "Property P2" },
+              username: "acct-b",
+              accountId: 102,
+              accessLevel: "Read Write",
+            },
+          ],
           links: { link: [] },
         },
       } as never);
 
-      await expect(pm.getPendingPropertyShares()).resolves.toEqual([]);
-    });
-
-    it("getPendingMeterShares handles missing meter list", async () => {
-      const api = createExtendedMockApi();
-      const pm = new PortfolioManager(api);
-
-      vi.mocked(api.shareMeterPendingListGet).mockResolvedValueOnce({
+    vi.mocked(api.shareMeterPendingListGet)
+      .mockResolvedValueOnce({
         pendingList: {
+          meter: [
+            {
+              meterId: 2001,
+              propertyId: 1001,
+              propertyInfo: { name: "Property P1" },
+              username: "acct-a",
+              accountId: 101,
+              accessLevel: "Read",
+            },
+          ],
+          links: {
+            link: [
+              {
+                "@_linkDescription": "next page",
+                "@_link": "/share/meter/pending/list?page=2",
+              },
+            ],
+          },
+        },
+      } as never)
+      .mockResolvedValueOnce({
+        pendingList: {
+          meter: [
+            {
+              meterId: 2002,
+              propertyId: 1002,
+              propertyInfo: { name: "Property P2" },
+              username: "acct-b",
+              accountId: 102,
+              accessLevel: "Read Write",
+            },
+          ],
           links: { link: [] },
         },
       } as never);
 
-      await expect(pm.getPendingMeterShares()).resolves.toEqual([]);
-    });
+    const propertyShares = await pm.getPendingPropertyShares();
+    expect(api.sharePropertyPendingListGet).toHaveBeenNthCalledWith(1, 1);
+    expect(api.sharePropertyPendingListGet).toHaveBeenNthCalledWith(2, 2);
+    expect(propertyShares.map((item) => item.id)).toEqual([1001, 1002]);
 
-    it("getCustomerList handles error, empty, populated, and fallback responses", async () => {
-      const api = createExtendedMockApi();
-      const pm = new PortfolioManager(api);
+    const meterShares = await pm.getPendingMeterShares();
+    expect(api.shareMeterPendingListGet).toHaveBeenNthCalledWith(1, 1);
+    expect(api.shareMeterPendingListGet).toHaveBeenNthCalledWith(2, 2);
+    expect(meterShares.map((item) => item.id)).toEqual([2001, 2002]);
+  });
 
-      vi.mocked(api.customerListGet)
-        .mockResolvedValueOnce({
-          response: { "@_status": "Error" },
-        } as never)
-        .mockResolvedValueOnce({
-          response: {
-            "@_status": "Ok",
-            links: "",
-          },
-        } as never)
-        .mockResolvedValueOnce({
-          response: {
-            "@_status": "Ok",
-            links: {
-              link: [
-                { "@_id": "42", "@_hint": "Org 42" },
-                { "@_hint": "" },
-              ],
-            },
-          },
-        } as never)
-        .mockResolvedValueOnce({
-          response: {
-            "@_status": "Ok",
-            links: {},
-          },
-        } as never);
+  it("getPendingPropertyShares handles missing property list", async () => {
+    const api = createExtendedMockApi();
+    const pm = new PortfolioManager(api);
 
-      await expect(pm.getCustomerList()).rejects.toThrow("Request Error");
-      await expect(pm.getCustomerList()).resolves.toEqual([]);
-      await expect(pm.getCustomerList()).resolves.toEqual([
-        { id: 42, organizationName: "Org 42" },
-        { id: 0, organizationName: "" },
-      ]);
-      await expect(pm.getCustomerList()).resolves.toEqual([]);
-    });
+    vi.mocked(api.sharePropertyPendingListGet).mockResolvedValueOnce({
+      pendingList: {
+        links: { link: [] },
+      },
+    } as never);
 
-    it("getNotifications handles missing notification arrays and date fallback", async () => {
-      const api = createExtendedMockApi();
-      const pm = new PortfolioManager(api);
+    await expect(pm.getPendingPropertyShares()).resolves.toEqual([]);
+  });
 
-      vi.mocked(api.notificationListGet)
-        .mockResolvedValueOnce({
-          notificationList: {
-            notification: [
-              {
-                notificationId: 123,
-                notificationTypeCode: "UNSHARE",
-                description: "Unshared",
-              },
-            ],
-          },
-        } as never)
-        .mockResolvedValueOnce({
-          notificationList: {},
-        } as never);
+  it("getPendingMeterShares handles missing meter list", async () => {
+    const api = createExtendedMockApi();
+    const pm = new PortfolioManager(api);
 
-      await expect(pm.getNotifications()).resolves.toEqual([
-        {
-          id: 123,
-          type: "UNSHARE",
-          date: "",
-          description: "Unshared",
-          accountId: undefined,
-          propertyId: undefined,
-          meterId: undefined,
-          createdByUsername: undefined,
-          createdByAccountId: undefined,
+    vi.mocked(api.shareMeterPendingListGet).mockResolvedValueOnce({
+      pendingList: {
+        links: { link: [] },
+      },
+    } as never);
+
+    await expect(pm.getPendingMeterShares()).resolves.toEqual([]);
+  });
+
+  it("getCustomerList handles error, empty, populated, and fallback responses", async () => {
+    const api = createExtendedMockApi();
+    const pm = new PortfolioManager(api);
+
+    vi.mocked(api.customerListGet)
+      .mockResolvedValueOnce({
+        response: { "@_status": "Error" },
+      } as never)
+      .mockResolvedValueOnce({
+        response: {
+          "@_status": "Ok",
+          links: "",
         },
-      ]);
+      } as never)
+      .mockResolvedValueOnce({
+        response: {
+          "@_status": "Ok",
+          links: {
+            link: [{ "@_id": "42", "@_hint": "Org 42" }, { "@_hint": "" }],
+          },
+        },
+      } as never)
+      .mockResolvedValueOnce({
+        response: {
+          "@_status": "Ok",
+          links: {},
+        },
+      } as never);
 
-      await expect(pm.getNotifications({ markAsRead: false })).resolves.toEqual(
-        []
-      );
-    });
+    await expect(pm.getCustomerList()).rejects.toThrow("Request Error");
+    await expect(pm.getCustomerList()).resolves.toEqual([]);
+    await expect(pm.getCustomerList()).resolves.toEqual([
+      { id: 42, organizationName: "Org 42" },
+      { id: 0, organizationName: "" },
+    ]);
+    await expect(pm.getCustomerList()).resolves.toEqual([]);
+  });
+
+  it("getNotifications handles missing notification arrays and date fallback", async () => {
+    const api = createExtendedMockApi();
+    const pm = new PortfolioManager(api);
+
+    vi.mocked(api.notificationListGet)
+      .mockResolvedValueOnce({
+        notificationList: {
+          notification: [
+            {
+              notificationId: 123,
+              notificationTypeCode: "UNSHARE",
+              description: "Unshared",
+            },
+          ],
+        },
+      } as never)
+      .mockResolvedValueOnce({
+        notificationList: {},
+      } as never);
+
+    await expect(pm.getNotifications()).resolves.toEqual([
+      {
+        id: 123,
+        type: "UNSHARE",
+        date: "",
+        description: "Unshared",
+        accountId: undefined,
+        propertyId: undefined,
+        meterId: undefined,
+        createdByUsername: undefined,
+        createdByAccountId: undefined,
+      },
+    ]);
+
+    await expect(pm.getNotifications({ markAsRead: false })).resolves.toEqual(
+      [],
+    );
+  });
 });

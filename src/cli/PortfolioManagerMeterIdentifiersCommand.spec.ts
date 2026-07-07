@@ -35,11 +35,11 @@ describe("PortfolioManagerMeterIdentifiersCommand (parse)", () => {
       "description",
     ]);
 
-    expect(harness.fakeClient.getMeterAdditionalIdentifiers).toHaveBeenCalledWith(
-      "1000"
-    );
+    expect(
+      harness.fakeClient.getMeterAdditionalIdentifiers,
+    ).toHaveBeenCalledWith("1000");
     expect(console.log).toHaveBeenCalledWith(
-      JSON.stringify([{ "@_id": "id-1", description: "legacy" }], null, 0)
+      JSON.stringify([{ "@_id": "id-1", description: "legacy" }], null, 0),
     );
   });
 
@@ -59,9 +59,11 @@ describe("PortfolioManagerMeterIdentifiersCommand (parse)", () => {
         "--fields",
         "@_id",
         "badField",
-      ])
+      ]),
     ).rejects.toThrow("Invalid field(s): badField");
 
-    expect(harness.fakeClient.getMeterAdditionalIdentifiers).not.toHaveBeenCalled();
+    expect(
+      harness.fakeClient.getMeterAdditionalIdentifiers,
+    ).not.toHaveBeenCalled();
   });
 });

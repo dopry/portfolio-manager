@@ -23,7 +23,7 @@ async function main() {
 export function shouldRunMain(
   importMetaUrl: string,
   argv1: string | undefined,
-  toFilePath: (path: string) => string = url.fileURLToPath
+  toFilePath: (path: string) => string = url.fileURLToPath,
 ): boolean {
   if (!importMetaUrl.startsWith("file:")) {
     return false;
