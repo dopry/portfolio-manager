@@ -203,9 +203,12 @@ export class PortfolioManagerApi {
       headers: mergedHeaders,
     };
     // undici requires duplex: "half" for streaming request bodies and throws
-    // a TypeError otherwise (node-fetch had no such requirement).
-    if (init.body instanceof ReadableStream && init.duplex == null) {
-      init.duplex = "half";
+    // a TypeError otherwise (node-fetch had no such requirement). Widen the
+    // type locally: DOM's RequestInit (loaded by tsconfig.e2e.json's lib)
+    // does not declare duplex, unlike undici's.
+    const streamInit = init as RequestInit & { duplex?: "half" };
+    if (init.body instanceof ReadableStream && streamInit.duplex == null) {
+      streamInit.duplex = "half";
     }
     const url = this.endpoint + path;
     let response = await fetch(url, init);
