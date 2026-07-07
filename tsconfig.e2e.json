@@ -1,15 +1,13 @@
 {
   // Typechecks the e2e suite (test/e2e is outside the build tsconfig's rootDir).
-  // Browser-automation code needs DOM types (page.evaluate callbacks) and
-  // top-level await (probe.ts), hence the lib/module/target overrides.
+  // Browser-automation code needs DOM types (page.evaluate callbacks), hence
+  // the lib override; module/target (NodeNext/ES2022) are inherited and
+  // support the top-level await in probe.ts.
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "noEmit": true,
     "rootDir": ".",
-    "baseUrl": ".",
-    "lib": ["esnext", "dom", "dom.iterable"],
-    "module": "es2022",
-    "target": "es2022"
+    "lib": ["ES2023", "dom", "dom.iterable"]
   },
   "exclude": ["node_modules", "dist", "src/**/*.spec.ts"],
   "include": ["src", "test/e2e"]
