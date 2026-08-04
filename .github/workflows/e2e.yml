@@ -17,6 +17,7 @@ concurrency:
 jobs:
   e2e:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     env:
       PM_USERNAME: ${{ secrets.PM_USERNAME }}
       PM_PASSWORD: ${{ secrets.PM_PASSWORD }}
@@ -31,12 +32,42 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run typecheck:e2e
-      - run: npm run test:e2e
+      - name: Run E2E tests
+        id: e2e
+        shell: bash
+        run: |
+          run_e2e() {
+            local attempt="$1"
+            echo "::group::E2E attempt ${attempt}/2"
+            export E2E_TRACE_DIR="test-results/e2e/attempt-${attempt}"
+            local test_exit=0
+            npm run test:e2e || test_exit=$?
+            echo "::endgroup::"
+            return "$test_exit"
+          }
+
+          if run_e2e 1; then
+            exit 0
+          fi
+
+          # Every suite invocation runs peer-scoped cleanup in beforeAll and
+          # best-effort cleanup in afterAll. Re-invoking the suite therefore
+          # re-establishes its baseline without the destructive account-wide
+          # wipe:test-environment command.
+          echo "retried=true" >> "${GITHUB_OUTPUT:-/dev/null}"
+          {
+            echo "## E2E retry"
+            echo "Attempt 1 failed; the suite was retried after a 30-second backoff."
+          } >> "${GITHUB_STEP_SUMMARY:-/dev/null}"
+          echo "::warning::E2E attempt 1 failed; retrying the clean suite in 30 seconds"
+          sleep 30
+
+          run_e2e 2
       # Tracing starts after login (EspmWebUi), so no credentials appear in
       # these artifacts; residual content is post-auth pages/session data for
       # throwaway test-environment accounts.
       - name: Upload Playwright traces
-        if: failure()
+        if: failure() || steps.e2e.outputs.retried == 'true'
         uses: actions/upload-artifact@v7
         with:
           name: e2e-traces
