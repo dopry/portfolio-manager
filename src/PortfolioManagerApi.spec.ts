@@ -1363,6 +1363,69 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     );
   });
 
+  it("What's Changed endpoint wrappers build date and cursor queries", async () => {
+    const getSpy = vi.spyOn(unitApi, "get").mockResolvedValue({} as never);
+
+    await unitApi.propertyGetWhatChangedGet(100, "2024-01-02");
+    await unitApi.propertyUseGetWhatChangedGet(100, "2024-01-02", {
+      nextPageKey: "3000 / next",
+    });
+    await unitApi.meterGetWhatChangedGet(100, "2024-01-02", {
+      previousPageKey: 2000,
+    });
+
+    expect(getSpy).toHaveBeenNthCalledWith(
+      1,
+      "customer/100/property/whatChanged?date=2024-01-02",
+    );
+    expect(getSpy).toHaveBeenNthCalledWith(
+      2,
+      "customer/100/propertyUse/whatChanged?date=2024-01-02&nextPageKey=3000+%2F+next",
+    );
+    expect(getSpy).toHaveBeenNthCalledWith(
+      3,
+      "customer/100/meter/whatChanged?date=2024-01-02&previousPageKey=2000",
+    );
+  });
+
+  it("What's Changed endpoint wrappers reject invalid query combinations", async () => {
+    await expect(
+      unitApi.propertyGetWhatChangedGet(100, "01/02/2024"),
+    ).rejects.toThrow("date must be a valid date formatted as YYYY-MM-DD");
+    await expect(
+      unitApi.meterGetWhatChangedGet(100, "2024-02-30"),
+    ).rejects.toThrow("date must be a valid date formatted as YYYY-MM-DD");
+    await expect(
+      unitApi.propertyUseGetWhatChangedGet(100, "2024-01-02", {
+        nextPageKey: "3000",
+        previousPageKey: "1000",
+      }),
+    ).rejects.toThrow(
+      "nextPageKey and previousPageKey cannot be used together",
+    );
+  });
+
+  it("What's Changed responses preserve link arrays for a single result", async () => {
+    fetchMock.mockResolvedValue(
+      new Response(
+        `<response status="Ok"><links><link id="86" httpMethod="GET" link="/property/86" linkDescription="This is the GET url for this Property." hint="Store"/></links></response>`,
+        { status: 200, statusText: "OK" },
+      ),
+    );
+
+    const result = await unitApi.propertyGetWhatChangedGet(100, "2024-01-02");
+
+    expect(fetchMock.mock.calls[0][0]).to.equal(
+      "https://example.test/customer/100/property/whatChanged?date=2024-01-02",
+    );
+    expect(result.response.links).not.to.be.a("string");
+    if (typeof result.response.links === "string") {
+      throw new Error("Expected a populated What's Changed response");
+    }
+    expect(result.response.links.link).to.have.length(1);
+    expect(result.response.links.link[0]["@_id"]).to.equal("86");
+  });
+
   it("propertyCreateSamplePropertiesPOST uses defaults and explicit args", async () => {
     const postSpy = vi.spyOn(unitApi, "post").mockResolvedValue({} as never);
 

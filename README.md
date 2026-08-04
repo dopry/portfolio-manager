@@ -103,6 +103,20 @@ async function main() {
 main();
 ```
 
+### What's Changed
+
+The typed API gateway supports ENERGY STAR's property, property-use, and meter
+What's Changed calls. Dates use the `YYYY-MM-DD` format, and the optional page
+keys are the opaque cursor values returned by Portfolio Manager.
+
+```typescript
+const properties = await api.propertyGetWhatChangedGet(100, "2024-01-01");
+const propertyUses = await api.propertyUseGetWhatChangedGet(100, "2024-01-01", {
+  nextPageKey: "3000",
+});
+const meters = await api.meterGetWhatChangedGet(100, "2024-01-01");
+```
+
 ### Interfaces
 
 ```typescript

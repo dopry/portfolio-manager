@@ -15,6 +15,7 @@ import {
   IGetPendingConnectionsResponse,
   IGetPendingMeterSharesResponse,
   IGetPendingPropertySharesResponse,
+  IGetWhatChangedResponse,
   IMeterConsumptionDataGetResponse,
   IMeterConsumptionDataPutResponse,
   IMeterIdentifierGetResponse,
@@ -36,6 +37,7 @@ import {
   IPropertyPropertyListGetResponse,
   IPropertyPropertyPostResponse,
   ISharingActionResponse,
+  IWhatChangedOptions,
   MeasurementSystem,
 } from "./types/index.js";
 import {
@@ -350,6 +352,77 @@ export class PortfolioManagerApi {
     return this.get<IPropertyPropertyListGetResponse>(
       `account/${accountId}/property/list`,
     );
+  }
+
+  private async getWhatChanged(
+    resource: "property" | "propertyUse" | "meter",
+    customerId: number,
+    date: string,
+    options: IWhatChangedOptions = {},
+  ): Promise<IGetWhatChangedResponse> {
+    const parsedDate = new Date(`${date}T00:00:00.000Z`);
+    if (
+      !/^\d{4}-\d{2}-\d{2}$/.test(date) ||
+      Number.isNaN(parsedDate.getTime()) ||
+      parsedDate.toISOString().slice(0, 10) !== date
+    ) {
+      throw new TypeError("date must be a valid date formatted as YYYY-MM-DD");
+    }
+    if (
+      options.nextPageKey !== undefined &&
+      options.previousPageKey !== undefined
+    ) {
+      throw new TypeError(
+        "nextPageKey and previousPageKey cannot be used together",
+      );
+    }
+
+    const query = new URLSearchParams({ date });
+    if (options.nextPageKey !== undefined) {
+      query.set("nextPageKey", String(options.nextPageKey));
+    }
+    if (options.previousPageKey !== undefined) {
+      query.set("previousPageKey", String(options.previousPageKey));
+    }
+    return this.get<IGetWhatChangedResponse>(
+      `customer/${customerId}/${resource}/whatChanged?${query.toString()}`,
+    );
+  }
+
+  /**
+   * Returns properties changed since the supplied date.
+   * @see https://portfoliomanager.energystar.gov/webservices/home/api/property/getWhatChanged/get
+   */
+  async propertyGetWhatChangedGet(
+    customerId: number,
+    date: string,
+    options: IWhatChangedOptions = {},
+  ): Promise<IGetWhatChangedResponse> {
+    return this.getWhatChanged("property", customerId, date, options);
+  }
+
+  /**
+   * Returns property uses changed since the supplied date.
+   * @see https://portfoliomanager.energystar.gov/webservices/home/api/propertyUse/getWhatChanged/get
+   */
+  async propertyUseGetWhatChangedGet(
+    customerId: number,
+    date: string,
+    options: IWhatChangedOptions = {},
+  ): Promise<IGetWhatChangedResponse> {
+    return this.getWhatChanged("propertyUse", customerId, date, options);
+  }
+
+  /**
+   * Returns meters changed since the supplied date.
+   * @see https://portfoliomanager.energystar.gov/webservices/home/api/meter/getWhatChanged/get
+   */
+  async meterGetWhatChangedGet(
+    customerId: number,
+    date: string,
+    options: IWhatChangedOptions = {},
+  ): Promise<IGetWhatChangedResponse> {
+    return this.getWhatChanged("meter", customerId, date, options);
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/meter/consumptionData/post
