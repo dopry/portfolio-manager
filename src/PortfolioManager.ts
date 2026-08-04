@@ -557,7 +557,7 @@ export class PortfolioManager {
     ) => Promise<IGetWhatChangedResponse>,
   ): Promise<number[]> {
     const ids: number[] = [];
-    let nextPageKey: string | number | undefined;
+    let nextPageKey: string | undefined;
 
     do {
       const options: IWhatChangedOptions =

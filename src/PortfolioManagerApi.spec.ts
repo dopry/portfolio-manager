@@ -1371,7 +1371,7 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
       nextPageKey: "3000 / next",
     });
     await unitApi.meterGetWhatChangedGet(100, "2024-01-02", {
-      previousPageKey: 2000,
+      previousPageKey: "2000",
     });
 
     expect(getSpy).toHaveBeenNthCalledWith(
