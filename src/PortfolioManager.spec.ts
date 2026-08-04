@@ -770,6 +770,20 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
         },
       },
     } as never);
+    vi.mocked(api.propertyUseGetWhatChangedGet).mockResolvedValueOnce({
+      response: {
+        "@_status": "Ok",
+        links: {
+          link: [
+            {
+              "@_link": "http://[",
+              "@_linkDescription": "next page",
+              "@_httpMethod": "GET",
+            },
+          ],
+        },
+      },
+    } as never);
 
     await expect(pm.getChangedPropertyIds("2024-01-01", 88)).rejects.toThrow(
       "Invalid property id in What's Changed link",
@@ -777,6 +791,37 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
     await expect(pm.getChangedMeterIds("2024-01-01", 88)).rejects.toThrow(
       "Invalid next page link for meter What's Changed results",
     );
+    await expect(pm.getChangedPropertyUseIds("2024-01-01", 88)).rejects.toThrow(
+      "Invalid next page link for property use What's Changed results",
+    );
+  });
+
+  it("getChanged ID collection rejects repeated pagination cursors", async () => {
+    const api = createExtendedMockApi();
+    const pm = new PortfolioManager(api);
+    const repeatedNextPage = {
+      response: {
+        "@_status": "Ok",
+        links: {
+          link: [
+            {
+              "@_link":
+                "/customer/88/property/whatChanged?date=2024-01-01&nextPageKey=repeat",
+              "@_linkDescription": "next page",
+              "@_httpMethod": "GET",
+            },
+          ],
+        },
+      },
+    } as never;
+    vi.mocked(api.propertyGetWhatChangedGet)
+      .mockResolvedValueOnce(repeatedNextPage)
+      .mockResolvedValueOnce(repeatedNextPage);
+
+    await expect(pm.getChangedPropertyIds("2024-01-01", 88)).rejects.toThrow(
+      "Repeated next page key for property What's Changed results: repeat",
+    );
+    expect(api.propertyGetWhatChangedGet).toHaveBeenCalledTimes(2);
   });
 
   it("getAccountId + getMeter throw when payloads are missing required objects", async () => {

@@ -557,6 +557,7 @@ export class PortfolioManager {
     ) => Promise<IGetWhatChangedResponse>,
   ): Promise<number[]> {
     const ids: number[] = [];
+    const seenPageKeys = new Set<string>();
     let nextPageKey: string | undefined;
 
     do {
@@ -602,16 +603,29 @@ export class PortfolioManager {
         continue;
       }
 
-      const nextUrl = new URL(
-        nextLink["@_link"],
-        "https://portfoliomanager.energystar.gov",
-      );
+      let nextUrl: URL;
+      try {
+        nextUrl = new URL(
+          nextLink["@_link"],
+          "https://portfoliomanager.energystar.gov",
+        );
+      } catch {
+        throw new Error(
+          `Invalid next page link for ${resourceName} What's Changed results: ${nextLink["@_link"]}`,
+        );
+      }
       const cursor = nextUrl.searchParams.get("nextPageKey");
       if (!cursor) {
         throw new Error(
           `Invalid next page link for ${resourceName} What's Changed results: ${nextLink["@_link"]}`,
         );
       }
+      if (seenPageKeys.has(cursor)) {
+        throw new Error(
+          `Repeated next page key for ${resourceName} What's Changed results: ${cursor}`,
+        );
+      }
+      seenPageKeys.add(cursor);
       nextPageKey = cursor;
     } while (nextPageKey !== undefined);
 
