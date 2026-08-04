@@ -39,7 +39,12 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
       - run: node ./dist/cli.js --help # Run the CLI to ensure it works, we had some test releases where this was broken during the esm migration
-      - run: npm test
+      - name: Run tests with coverage
+        if: matrix.node-version == 'lts/*'
+        run: npm run test:coverage
+      - name: Run tests
+        if: matrix.node-version != 'lts/*'
+        run: npm test
 
   release:
     needs: test
@@ -53,11 +58,6 @@ jobs:
       issues: write # comment on released issues
       pull-requests: write # comment on released PRs
       id-token: write # npm trusted publishing via OIDC
-    env:
-      PM_USERNAME: ${{ secrets.PM_USERNAME }}
-      PM_PASSWORD: ${{ secrets.PM_PASSWORD }}
-      PM_USERNAME2: ${{ secrets.PM_USERNAME2 }}
-      PM_PASSWORD2: ${{ secrets.PM_PASSWORD2 }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -73,7 +73,6 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
       - run: node ./dist/cli.js --help # Run the CLI to ensure it works, we had some test releases where this was broken during the esm migration
-      - run: npm run test:coverage # Run tests with coverage to ensure we fail if there are uncovered lines (e.g. due to a new file missing tests)
       - name: Semantic Release with Trusted Publishing via OIDC
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
