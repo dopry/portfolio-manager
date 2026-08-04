@@ -421,6 +421,9 @@ function createExtendedMockApi(): PortfolioManagerApi {
     propertyPropertyDelete: vi.fn(),
     propertyPropertyGet: vi.fn(),
     propertyPropertyListGet: vi.fn(),
+    propertyGetWhatChangedGet: vi.fn(),
+    propertyUseGetWhatChangedGet: vi.fn(),
+    meterGetWhatChangedGet: vi.fn(),
     propertyMetricsMonthlyGet: vi.fn(),
     propertyMetricsGet: vi.fn(),
     connectAccountPendingListGet: vi.fn(),
@@ -622,6 +625,157 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
     await expect(pm.getProperties(1)).resolves.toEqual([{ id: 6 }]);
     await expect(pm.getProperties(1)).rejects.toThrow(
       "Invalid property id in link",
+    );
+  });
+
+  it("getChangedPropertyIds defaults to the current account and drains cursor pages", async () => {
+    const api = createExtendedMockApi();
+    const pm = new PortfolioManager(api);
+
+    vi.mocked(api.accountAccountGet).mockResolvedValueOnce({
+      account: { id: 77 },
+    } as never);
+    vi.mocked(api.propertyGetWhatChangedGet)
+      .mockResolvedValueOnce({
+        response: {
+          "@_status": "Ok",
+          links: {
+            link: [
+              {
+                "@_id": "5",
+                "@_link": "/property/5",
+                "@_linkDescription": "This is the GET url for this Property.",
+                "@_httpMethod": "GET",
+              },
+              {
+                "@_link":
+                  "/customer/77/property/whatChanged?nextPageKey=opaque%2Fkey%2B1&date=2024-01-01",
+                "@_linkDescription": "next page",
+                "@_httpMethod": "GET",
+              },
+            ],
+          },
+        },
+      } as never)
+      .mockResolvedValueOnce({
+        response: {
+          "@_status": "Ok",
+          links: {
+            link: [
+              {
+                "@_id": "6",
+                "@_link": "/property/6",
+                "@_linkDescription": "This is the GET url for this Property.",
+                "@_httpMethod": "GET",
+              },
+              {
+                "@_link":
+                  "/customer/77/property/whatChanged?previousPageKey=opaque%2Fkey%2B0&date=2024-01-01",
+                "@_linkDescription": "previous page",
+                "@_httpMethod": "GET",
+              },
+            ],
+          },
+        },
+      } as never);
+
+    await expect(pm.getChangedPropertyIds("2024-01-01")).resolves.toEqual([
+      5, 6,
+    ]);
+    expect(api.accountAccountGet).toHaveBeenCalledTimes(1);
+    expect(api.propertyGetWhatChangedGet).toHaveBeenNthCalledWith(
+      1,
+      77,
+      "2024-01-01",
+      {},
+    );
+    expect(api.propertyGetWhatChangedGet).toHaveBeenNthCalledWith(
+      2,
+      77,
+      "2024-01-01",
+      { nextPageKey: "opaque/key+1" },
+    );
+  });
+
+  it("getChangedPropertyUseIds and getChangedMeterIds accept a customer override", async () => {
+    const api = createExtendedMockApi();
+    const pm = new PortfolioManager(api);
+
+    vi.mocked(api.propertyUseGetWhatChangedGet).mockResolvedValueOnce({
+      response: { "@_status": "Ok", links: "" },
+    } as never);
+    vi.mocked(api.meterGetWhatChangedGet).mockResolvedValueOnce({
+      response: {
+        "@_status": "Ok",
+        links: {
+          link: [
+            {
+              "@_id": "9",
+              "@_link": "/meter/9",
+              "@_linkDescription": "This is the GET url for this Meter.",
+              "@_httpMethod": "GET",
+            },
+          ],
+        },
+      },
+    } as never);
+
+    await expect(
+      pm.getChangedPropertyUseIds("2024-01-01", 88),
+    ).resolves.toEqual([]);
+    await expect(pm.getChangedMeterIds("2024-01-01", 88)).resolves.toEqual([9]);
+    expect(api.accountAccountGet).not.toHaveBeenCalled();
+    expect(api.propertyUseGetWhatChangedGet).toHaveBeenCalledWith(
+      88,
+      "2024-01-01",
+      {},
+    );
+    expect(api.meterGetWhatChangedGet).toHaveBeenCalledWith(
+      88,
+      "2024-01-01",
+      {},
+    );
+  });
+
+  it("getChanged ID collection rejects malformed entity and pagination links", async () => {
+    const api = createExtendedMockApi();
+    const pm = new PortfolioManager(api);
+
+    vi.mocked(api.propertyGetWhatChangedGet).mockResolvedValueOnce({
+      response: {
+        "@_status": "Ok",
+        links: {
+          link: [
+            {
+              "@_id": "bad",
+              "@_link": "/property/bad",
+              "@_linkDescription": "This is the GET url for this Property.",
+              "@_httpMethod": "GET",
+            },
+          ],
+        },
+      },
+    } as never);
+    vi.mocked(api.meterGetWhatChangedGet).mockResolvedValueOnce({
+      response: {
+        "@_status": "Ok",
+        links: {
+          link: [
+            {
+              "@_link": "/customer/88/meter/whatChanged?date=2024-01-01",
+              "@_linkDescription": "next page",
+              "@_httpMethod": "GET",
+            },
+          ],
+        },
+      },
+    } as never);
+
+    await expect(pm.getChangedPropertyIds("2024-01-01", 88)).rejects.toThrow(
+      "Invalid property id in What's Changed link",
+    );
+    await expect(pm.getChangedMeterIds("2024-01-01", 88)).rejects.toThrow(
+      "Invalid next page link for meter What's Changed results",
     );
   });
 

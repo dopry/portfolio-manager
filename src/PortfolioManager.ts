@@ -32,7 +32,9 @@ import {
   IClientNotification,
   ICustomFieldList,
   ICustomer,
+  IGetWhatChangedResponse,
   INotification,
+  IWhatChangedOptions,
   ShareLevel,
   AcceptRejectAction,
 } from "./types/index.js";
@@ -541,6 +543,112 @@ export class PortfolioManager {
       },
     );
     return properties;
+  }
+
+  /**
+   * Drains a What's Changed endpoint and maps its entity links to IDs.
+   * Pagination links are transport details, so the facade follows their
+   * opaque cursor values rather than returning them to callers.
+   */
+  private async collectChangedIds(
+    resourceName: "property" | "property use" | "meter",
+    fetchPage: (
+      options: IWhatChangedOptions,
+    ) => Promise<IGetWhatChangedResponse>,
+  ): Promise<number[]> {
+    const ids: number[] = [];
+    let nextPageKey: string | number | undefined;
+
+    do {
+      const options: IWhatChangedOptions =
+        nextPageKey === undefined ? {} : { nextPageKey };
+      const response = await fetchPage(options);
+      if (response.response["@_status"] !== "Ok") {
+        throw new Error(
+          "Request Error, response: " + JSON.stringify(response, null, 2),
+        );
+      }
+      if (isIEmptyResponse(response.response)) {
+        nextPageKey = undefined;
+        continue;
+      }
+      if (!isIPopulatedResponse(response.response)) {
+        throw new Error(
+          `Unexpected ${resourceName} What's Changed response: ${JSON.stringify(response, null, 2)}`,
+        );
+      }
+
+      const links = response.response.links.link;
+      const entityLinks = links.filter(
+        (link) =>
+          link["@_linkDescription"].toLowerCase() !== "next page" &&
+          link["@_linkDescription"].toLowerCase() !== "previous page",
+      );
+      for (const link of entityLinks) {
+        const id = parseLinkId(link);
+        if (id === undefined) {
+          throw new Error(
+            `Invalid ${resourceName} id in What's Changed link: ${JSON.stringify(link)}`,
+          );
+        }
+        ids.push(id);
+      }
+
+      const nextLink = links.find(
+        (link) => link["@_linkDescription"].toLowerCase() === "next page",
+      );
+      if (!nextLink) {
+        nextPageKey = undefined;
+        continue;
+      }
+
+      const nextUrl = new URL(
+        nextLink["@_link"],
+        "https://portfoliomanager.energystar.gov",
+      );
+      const cursor = nextUrl.searchParams.get("nextPageKey");
+      if (!cursor) {
+        throw new Error(
+          `Invalid next page link for ${resourceName} What's Changed results: ${nextLink["@_link"]}`,
+        );
+      }
+      nextPageKey = cursor;
+    } while (nextPageKey !== undefined);
+
+    return ids;
+  }
+
+  /** Returns IDs for properties changed since date across all result pages. */
+  async getChangedPropertyIds(
+    date: string,
+    customerId?: number,
+  ): Promise<number[]> {
+    const resolvedCustomerId = customerId ?? (await this.getAccountId());
+    return this.collectChangedIds("property", (options) =>
+      this.api.propertyGetWhatChangedGet(resolvedCustomerId, date, options),
+    );
+  }
+
+  /** Returns IDs for property uses changed since date across all result pages. */
+  async getChangedPropertyUseIds(
+    date: string,
+    customerId?: number,
+  ): Promise<number[]> {
+    const resolvedCustomerId = customerId ?? (await this.getAccountId());
+    return this.collectChangedIds("property use", (options) =>
+      this.api.propertyUseGetWhatChangedGet(resolvedCustomerId, date, options),
+    );
+  }
+
+  /** Returns IDs for meters changed since date across all result pages. */
+  async getChangedMeterIds(
+    date: string,
+    customerId?: number,
+  ): Promise<number[]> {
+    const resolvedCustomerId = customerId ?? (await this.getAccountId());
+    return this.collectChangedIds("meter", (options) =>
+      this.api.meterGetWhatChangedGet(resolvedCustomerId, date, options),
+    );
   }
 
   async getPropertyMonthlyMetrics(
