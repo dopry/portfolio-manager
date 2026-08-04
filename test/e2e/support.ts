@@ -94,6 +94,41 @@ export async function waitFor<T>(
   }
 }
 
+function isAccessRevokedError(
+  error: unknown,
+): error is PortfolioManagerApiError {
+  return (
+    error instanceof PortfolioManagerApiError &&
+    (error.status === 403 || error.status === 404)
+  );
+}
+
+/**
+ * Waits for access revocation to propagate. ESPM answers 403 Access Denied
+ * (occasionally 404) once complete, but accepted shares can remain readable
+ * briefly after an unshare. Unexpected failures (5xx, network, auth) still
+ * fail immediately rather than masquerading as successful revocation.
+ */
+export async function waitForNoAccess(
+  probe: () => Promise<unknown>,
+  options: { timeoutMs?: number; intervalMs?: number; label?: string } = {},
+): Promise<void> {
+  await waitFor(
+    async () => {
+      try {
+        await probe();
+        return undefined;
+      } catch (error) {
+        if (isAccessRevokedError(error)) {
+          return true;
+        }
+        throw error;
+      }
+    },
+    { ...options, label: options.label ?? "access to be revoked" },
+  );
+}
+
 /**
  * Ensures the peer account owns the fixture property with one meter, and
  * returns their ids. Runs against the web services API with peer credentials.
@@ -162,10 +197,7 @@ export async function disconnectIfConnected(
       note: "e2e cleanup",
     });
   } catch (error) {
-    if (
-      error instanceof PortfolioManagerApiError &&
-      (error.status === 403 || error.status === 404)
-    ) {
+    if (isAccessRevokedError(error)) {
       return; // Not connected — already at baseline.
     }
     throw error;
