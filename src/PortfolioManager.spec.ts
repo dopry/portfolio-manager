@@ -737,6 +737,56 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
     );
   });
 
+  it("getChangedPropertyUseIds and getChangedMeterIds default to the current account", async () => {
+    const api = createExtendedMockApi();
+    const pm = new PortfolioManager(api);
+
+    vi.mocked(api.accountAccountGet).mockResolvedValueOnce({
+      account: { id: 77 },
+    } as never);
+    vi.mocked(api.propertyUseGetWhatChangedGet).mockResolvedValueOnce({
+      response: { "@_status": "Ok", links: "" },
+    } as never);
+    vi.mocked(api.meterGetWhatChangedGet).mockResolvedValueOnce({
+      response: { "@_status": "Ok", links: "" },
+    } as never);
+
+    await expect(pm.getChangedPropertyUseIds("2024-01-01")).resolves.toEqual(
+      [],
+    );
+    await expect(pm.getChangedMeterIds("2024-01-01")).resolves.toEqual([]);
+    expect(api.accountAccountGet).toHaveBeenCalledTimes(1);
+    expect(api.propertyUseGetWhatChangedGet).toHaveBeenCalledWith(
+      77,
+      "2024-01-01",
+      {},
+    );
+    expect(api.meterGetWhatChangedGet).toHaveBeenCalledWith(
+      77,
+      "2024-01-01",
+      {},
+    );
+  });
+
+  it("getChanged ID collection rejects failed and malformed responses", async () => {
+    const api = createExtendedMockApi();
+    const pm = new PortfolioManager(api);
+
+    vi.mocked(api.propertyGetWhatChangedGet).mockResolvedValueOnce({
+      response: { "@_status": "Error", links: "" },
+    } as never);
+    vi.mocked(api.propertyUseGetWhatChangedGet).mockResolvedValueOnce({
+      response: { "@_status": "Ok", links: { link: "not-an-array" } },
+    } as never);
+
+    await expect(pm.getChangedPropertyIds("2024-01-01", 88)).rejects.toThrow(
+      "Request Error, response",
+    );
+    await expect(pm.getChangedPropertyUseIds("2024-01-01", 88)).rejects.toThrow(
+      "Unexpected property use What's Changed response",
+    );
+  });
+
   it("getChanged ID collection rejects malformed entity and pagination links", async () => {
     const api = createExtendedMockApi();
     const pm = new PortfolioManager(api);

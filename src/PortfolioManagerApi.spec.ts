@@ -29,6 +29,7 @@ import {
   ILink,
   IMeter,
   isIEmptyResponse,
+  isIPropertyMetricValueNull,
   isIPropertyMonthlyMetric,
   isIPopulatedResponse,
   isIPropertyAnnualMetric,
@@ -808,6 +809,11 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
 });
 
 describe("PortfolioManagerApi (unit coverage paths)", () => {
+  it("distinguishes parsed xsi:nil markers from missing metric values", () => {
+    expect(isIPropertyMetricValueNull({ "@_xsi:nil": true })).to.equal(true);
+    expect(isIPropertyMetricValueNull(undefined as never)).to.equal(false);
+  });
+
   const unitApi = new PortfolioManagerApi(
     "https://example.test/",
     "test-user",
