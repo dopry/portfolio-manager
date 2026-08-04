@@ -103,6 +103,35 @@ async function main() {
 main();
 ```
 
+### What's Changed
+
+The typed API gateway supports ENERGY STAR's property, property-use, and meter
+What's Changed calls. Dates use the `YYYY-MM-DD` format, and the optional page
+keys are the opaque cursor values returned by Portfolio Manager.
+
+```typescript
+const properties = await api.propertyGetWhatChangedGet(100, "2024-01-01");
+const propertyUses = await api.propertyUseGetWhatChangedGet(100, "2024-01-01", {
+  nextPageKey: "3000",
+});
+const meters = await api.meterGetWhatChangedGet(100, "2024-01-01");
+```
+
+The `PortfolioManager` facade maps all paginated links to IDs and defaults to
+the current account. Pass a customer ID only when querying an alternate
+account.
+
+```typescript
+const propertyIds = await pm.getChangedPropertyIds("2024-01-01");
+const propertyUseIds = await pm.getChangedPropertyUseIds("2024-01-01");
+const meterIds = await pm.getChangedMeterIds("2024-01-01");
+
+const alternateCustomerPropertyIds = await pm.getChangedPropertyIds(
+  "2024-01-01",
+  100,
+);
+```
+
 ### Interfaces
 
 ```typescript
@@ -129,6 +158,18 @@ class PortfolioManager {
   async getProperty(propertyId: number): Promise<IClientProperty>;
   async getPropertyLinks(accountId?: number): Promise<ILink[]>;
   async getProperties(accountId?: number): Promise<IClientProperty[]>;
+  async getChangedPropertyIds(
+    date: string,
+    customerId?: number,
+  ): Promise<number[]>;
+  async getChangedPropertyUseIds(
+    date: string,
+    customerId?: number,
+  ): Promise<number[]>;
+  async getChangedMeterIds(
+    date: string,
+    customerId?: number,
+  ): Promise<number[]>;
 }
 
 class PortfolioManagerApi {

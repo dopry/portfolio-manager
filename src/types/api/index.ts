@@ -4,3 +4,4 @@ export * from "./MeasurementSystem.js";
 export * from "./meter.js";
 export * from "./METRICS.js";
 export * from "./property.js";
+export * from "./whatChanged.js";
