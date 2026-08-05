@@ -98,6 +98,39 @@ Safety checks in the script:
 - requires `--yes`
 - refuses non-`/wstest/` endpoints unless `--allow-non-test-endpoint` is set
 
+### Live-Environment What's Changed Test
+
+The live-environment integration test maintains a property, property use, and
+meter owned by the authenticated test account. It verifies that the property has a
+construction status of `Test`, checks that all three fixture IDs appear in the
+corresponding account-level What's Changed feeds, and updates every fixture
+entity for the next run. Because same-run feed visibility is not guaranteed,
+the test verifies the prior run's mutations before refreshing the fixtures. The
+eight-day lookback allows one day of scheduling tolerance beyond the weekly
+cadence. A missing entity is skipped only when it was newly seeded or its last
+persisted mutation predates the lookback; a fresh missing change fails the test.
+
+It is excluded from the default local test suite because it writes to the live
+ESPM environment. The dedicated workflow runs for pull requests, weekly, and
+on demand using the `LIVE_PM_USERNAME` and `LIVE_PM_PASSWORD` repository
+secrets. All runs share one concurrency group so the persistent fixture is
+never mutated by overlapping jobs. The same workflow gates releases from
+`main` and `next`.
+
+Live-environment credentials are unavailable to fork pull requests. Those changes
+must be tested from a trusted branch in this repository before merging.
+
+```bash
+export PM_USERNAME="LiveEnvironmentUserName"
+export PM_PASSWORD="LiveEnvironmentPassword"
+npm run typecheck:live-env
+npm run test:live-env
+```
+
+The live-environment endpoint is fixed to
+`https://portfoliomanager.energystar.gov/ws/` so `PM_ENDPOINT` cannot redirect
+this suite to another environment.
+
 ## CI and Release
 
 GitHub Actions (`.github/workflows/ci.yml`) is the source of truth for the pipeline:

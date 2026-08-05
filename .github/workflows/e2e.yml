@@ -19,10 +19,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
-      PM_USERNAME: ${{ secrets.PM_USERNAME }}
-      PM_PASSWORD: ${{ secrets.PM_PASSWORD }}
-      PM_USERNAME2: ${{ secrets.PM_USERNAME2 }}
-      PM_PASSWORD2: ${{ secrets.PM_PASSWORD2 }}
+      PM_USERNAME: ${{ secrets.TEST_PM_USERNAME }}
+      PM_PASSWORD: ${{ secrets.TEST_PM_PASSWORD }}
+      PM_USERNAME2: ${{ secrets.TEST_PM_USERNAME2 }}
+      PM_PASSWORD2: ${{ secrets.TEST_PM_PASSWORD2 }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v6

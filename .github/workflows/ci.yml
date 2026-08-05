@@ -13,25 +13,12 @@ concurrency:
 
 jobs:
   test:
-    name: test (node ${{ matrix.node-version }})
+    name: checks (node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
-    # CI and nightly E2E share the provider account and its low API rate limit.
-    # One repository-wide lock prevents their live requests from overlapping.
-    concurrency:
-      group: espm-test-env
-      cancel-in-progress: false
     strategy:
       fail-fast: false
-      # The ESPM test API rate-limits per account; running all node versions
-      # against it concurrently trips the limit, so run them one at a time.
-      max-parallel: 1
       matrix:
         node-version: ["20", "22", "lts/*", "latest"]
-    env:
-      PM_USERNAME: ${{ secrets.PM_USERNAME }}
-      PM_PASSWORD: ${{ secrets.PM_PASSWORD }}
-      PM_USERNAME2: ${{ secrets.PM_USERNAME2 }}
-      PM_PASSWORD2: ${{ secrets.PM_PASSWORD2 }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v6
@@ -44,15 +31,38 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
       - run: node ./dist/cli.js --help # Run the CLI to ensure it works, we had some test releases where this was broken during the esm migration
-      - name: Run tests with coverage
-        if: matrix.node-version == 'lts/*'
-        run: npm run test:coverage
-      - name: Run tests
-        if: matrix.node-version != 'lts/*'
-        run: npm test
+
+  live-test:
+    name: live tests (node lts/*)
+    runs-on: ubuntu-latest
+    # CI and nightly E2E share the provider account and its low API rate limit.
+    # One repository-wide lock prevents their live requests from overlapping.
+    concurrency:
+      group: espm-test-env
+      cancel-in-progress: false
+    env:
+      PM_USERNAME: ${{ secrets.TEST_PM_USERNAME }}
+      PM_PASSWORD: ${{ secrets.TEST_PM_PASSWORD }}
+      PM_USERNAME2: ${{ secrets.TEST_PM_USERNAME2 }}
+      PM_PASSWORD2: ${{ secrets.TEST_PM_PASSWORD2 }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: npm
+      - run: npm ci
+      - run: npm run test:coverage
+
+  live-env-whats-changed:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/next'
+    uses: ./.github/workflows/live-env-whats-changed.yml
+    secrets:
+      LIVE_PM_USERNAME: ${{ secrets.LIVE_PM_USERNAME }}
+      LIVE_PM_PASSWORD: ${{ secrets.LIVE_PM_PASSWORD }}
 
   release:
-    needs: test
+    needs: [test, live-test, live-env-whats-changed]
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/next'
     runs-on: ubuntu-latest
     # Only one release at a time per branch; queued pushes wait rather than race.
