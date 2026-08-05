@@ -632,36 +632,33 @@ export class PortfolioManager {
     return ids;
   }
 
-  /** Returns IDs for properties changed since date across all result pages. */
+  /** Returns IDs for a customer's properties changed since date across all result pages. */
   async getChangedPropertyIds(
     date: string,
-    customerId?: number,
+    customerId: number,
   ): Promise<number[]> {
-    const resolvedCustomerId = customerId ?? (await this.getAccountId());
     return this.collectChangedIds("property", (options) =>
-      this.api.propertyGetWhatChangedGet(resolvedCustomerId, date, options),
+      this.api.propertyGetWhatChangedGet(customerId, date, options),
     );
   }
 
-  /** Returns IDs for property uses changed since date across all result pages. */
+  /** Returns IDs for a customer's property uses changed since date across all result pages. */
   async getChangedPropertyUseIds(
     date: string,
-    customerId?: number,
+    customerId: number,
   ): Promise<number[]> {
-    const resolvedCustomerId = customerId ?? (await this.getAccountId());
     return this.collectChangedIds("property use", (options) =>
-      this.api.propertyUseGetWhatChangedGet(resolvedCustomerId, date, options),
+      this.api.propertyUseGetWhatChangedGet(customerId, date, options),
     );
   }
 
-  /** Returns IDs for meters changed since date across all result pages. */
+  /** Returns IDs for a customer's meters changed since date across all result pages. */
   async getChangedMeterIds(
     date: string,
-    customerId?: number,
+    customerId: number,
   ): Promise<number[]> {
-    const resolvedCustomerId = customerId ?? (await this.getAccountId());
     return this.collectChangedIds("meter", (options) =>
-      this.api.meterGetWhatChangedGet(resolvedCustomerId, date, options),
+      this.api.meterGetWhatChangedGet(customerId, date, options),
     );
   }
 

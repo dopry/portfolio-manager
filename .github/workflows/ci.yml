@@ -15,6 +15,11 @@ jobs:
   test:
     name: test (node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
+    # CI and nightly E2E share the provider account and its low API rate limit.
+    # One repository-wide lock prevents their live requests from overlapping.
+    concurrency:
+      group: espm-test-env
+      cancel-in-progress: false
     strategy:
       fail-fast: false
       # The ESPM test API rate-limits per account; running all node versions

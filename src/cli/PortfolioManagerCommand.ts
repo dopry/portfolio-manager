@@ -1,10 +1,12 @@
 import { readFileSync } from "node:fs";
+import { PortfolioManagerAccountCommand } from "./PortfolioManagerAccountCommand.js";
 import { PortfolioManagerBaseCommand } from "./PortfolioManagerBaseCommand.js";
 import { PortfolioManagerConnectionCommand } from "./PortfolioManagerConnectionCommand.js";
 import { PortfolioManagerMeterCommand } from "./PortfolioManagerMeterCommand.js";
 import { PortfolioManagerNotificationsCommand } from "./PortfolioManagerNotificationsCommand.js";
 import { PortfolioManagerPropertyCommand } from "./PortfolioManagerPropertyCommand.js";
 import { PortfolioManagerShareCommand } from "./PortfolioManagerShareCommand.js";
+import { PortfolioManagerWhatChangedCommand } from "./PortfolioManagerWhatChangedCommand.js";
 
 function getPackageVersion(): string {
   // TODO: embed at build time instead of reading from file at runtime
@@ -24,10 +26,12 @@ export class PortfolioManagerCommand extends PortfolioManagerBaseCommand {
     this.description("Portfolio Manager CLI");
     this.version(getPackageVersion());
 
+    this.addCommand(new PortfolioManagerAccountCommand());
     this.addCommand(new PortfolioManagerConnectionCommand());
     this.addCommand(new PortfolioManagerMeterCommand());
     this.addCommand(new PortfolioManagerNotificationsCommand());
     this.addCommand(new PortfolioManagerPropertyCommand());
     this.addCommand(new PortfolioManagerShareCommand());
+    this.addCommand(new PortfolioManagerWhatChangedCommand());
   }
 }

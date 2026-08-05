@@ -35,6 +35,34 @@ npx portfolio-manager --help
 
 Security note: prefer environment variables to avoid exposing credentials in shell history and process listings.
 
+To get the ID and identifying details for the currently authenticated account:
+
+```bash
+npx portfolio-manager account get --indent 2
+```
+
+To list connected customers and find the `customerId` required by the What's
+Changed commands:
+
+```bash
+npx portfolio-manager connection list --indent 2
+```
+
+To inspect all three What's Changed feeds for a connected customer:
+
+```bash
+npx portfolio-manager what-changed all \
+  --customerId 100 \
+  --date 2026-08-01 \
+  --indent 2
+```
+
+Use `property`, `property-use`, or `meter` instead of `all` to query one
+What's Changed endpoint. Each command prints its corresponding ID list as JSON.
+The customer ID is required because Portfolio Manager exposes What's Changed
+as a provider-to-connected-customer feed, not as an audit feed for the
+authenticated provider's own account.
+
 ## Local Development Workflow
 
 ```bash
@@ -117,19 +145,18 @@ const propertyUses = await api.propertyUseGetWhatChangedGet(100, "2024-01-01", {
 const meters = await api.meterGetWhatChangedGet(100, "2024-01-01");
 ```
 
-The `PortfolioManager` facade maps all paginated links to IDs and defaults to
-the current account. Pass a customer ID only when querying an alternate
-account.
+The `PortfolioManager` facade maps all paginated links to IDs. What's Changed
+is a provider-to-customer feed, so each call requires the connected customer's
+account ID; querying the provider's own account returns no customer changes.
 
 ```typescript
-const propertyIds = await pm.getChangedPropertyIds("2024-01-01");
-const propertyUseIds = await pm.getChangedPropertyUseIds("2024-01-01");
-const meterIds = await pm.getChangedMeterIds("2024-01-01");
-
-const alternateCustomerPropertyIds = await pm.getChangedPropertyIds(
+const customerId = 100;
+const propertyIds = await pm.getChangedPropertyIds("2024-01-01", customerId);
+const propertyUseIds = await pm.getChangedPropertyUseIds(
   "2024-01-01",
-  100,
+  customerId,
 );
+const meterIds = await pm.getChangedMeterIds("2024-01-01", customerId);
 ```
 
 ### Interfaces
@@ -160,16 +187,13 @@ class PortfolioManager {
   async getProperties(accountId?: number): Promise<IClientProperty[]>;
   async getChangedPropertyIds(
     date: string,
-    customerId?: number,
+    customerId: number,
   ): Promise<number[]>;
   async getChangedPropertyUseIds(
     date: string,
-    customerId?: number,
+    customerId: number,
   ): Promise<number[]>;
-  async getChangedMeterIds(
-    date: string,
-    customerId?: number,
-  ): Promise<number[]>;
+  async getChangedMeterIds(date: string, customerId: number): Promise<number[]>;
 }
 
 class PortfolioManagerApi {

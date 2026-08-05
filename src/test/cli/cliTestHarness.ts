@@ -13,6 +13,7 @@ function applyExitOverrideRecursively(
 }
 
 export type FakeClient = {
+  getAccount: ReturnType<typeof vi.fn>;
   getProperties: ReturnType<typeof vi.fn>;
   getAssociatedMeters: ReturnType<typeof vi.fn>;
   getMetersPropertiesAssociation: ReturnType<typeof vi.fn>;
@@ -24,6 +25,7 @@ export type FakeClient = {
   getMeters: ReturnType<typeof vi.fn>;
   getPropertyLinks: ReturnType<typeof vi.fn>;
   getPendingConnections: ReturnType<typeof vi.fn>;
+  getCustomerList: ReturnType<typeof vi.fn>;
   acceptConnection: ReturnType<typeof vi.fn>;
   rejectConnection: ReturnType<typeof vi.fn>;
   disconnect: ReturnType<typeof vi.fn>;
@@ -36,10 +38,14 @@ export type FakeClient = {
   unshareProperty: ReturnType<typeof vi.fn>;
   unshareMeter: ReturnType<typeof vi.fn>;
   getNotifications: ReturnType<typeof vi.fn>;
+  getChangedPropertyIds: ReturnType<typeof vi.fn>;
+  getChangedPropertyUseIds: ReturnType<typeof vi.fn>;
+  getChangedMeterIds: ReturnType<typeof vi.fn>;
 };
 
 export function createFakeClient(): FakeClient {
   return {
+    getAccount: vi.fn(),
     getProperties: vi.fn(),
     getAssociatedMeters: vi.fn(),
     getMetersPropertiesAssociation: vi.fn(),
@@ -51,6 +57,7 @@ export function createFakeClient(): FakeClient {
     getMeters: vi.fn(),
     getPropertyLinks: vi.fn(),
     getPendingConnections: vi.fn(),
+    getCustomerList: vi.fn(),
     acceptConnection: vi.fn(),
     rejectConnection: vi.fn(),
     disconnect: vi.fn(),
@@ -63,6 +70,9 @@ export function createFakeClient(): FakeClient {
     unshareProperty: vi.fn(),
     unshareMeter: vi.fn(),
     getNotifications: vi.fn(),
+    getChangedPropertyIds: vi.fn(),
+    getChangedPropertyUseIds: vi.fn(),
+    getChangedMeterIds: vi.fn(),
   };
 }
 

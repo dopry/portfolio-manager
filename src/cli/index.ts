@@ -1,6 +1,9 @@
+export * from "./PortfolioManagerAccountCommand.js";
+export * from "./PortfolioManagerAccountGetCommand.js";
 export * from "./PortfolioManagerBaseCommand.js";
 export * from "./PortfolioManagerCommand.js";
 export * from "./PortfolioManagerConnectionCommand.js";
+export * from "./PortfolioManagerConnectionListCommand.js";
 export * from "./PortfolioManagerMeterAssociationCommand.js";
 export * from "./PortfolioManagerMeterAssociationGetCommand.js";
 export * from "./PortfolioManagerMeterAssociationListCommand.js";
@@ -18,3 +21,4 @@ export * from "./PortfolioManagerPropertyListLinksCommand.js";
 export * from "./PortfolioManagerPropertyMetricsCommand.js";
 export * from "./PortfolioManagerPropertyMetricsMonthlyCommand.js";
 export * from "./PortfolioManagerShareCommand.js";
+export * from "./PortfolioManagerWhatChangedCommand.js";

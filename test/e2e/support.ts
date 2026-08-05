@@ -5,6 +5,8 @@ import {
 } from "../../src/PortfolioManagerApi.js";
 import { ensureStandardMeterFixture } from "../../src/test/ensureStandardMeterFixture.js";
 import { ensureStandardProperties } from "../../src/test/ensureStandardProperties.js";
+import { isIPopulatedResponse } from "../../src/types/xml/index.js";
+import type { IAccount, IProperty } from "../../src/types/xml/index.js";
 import { DEFAULT_WEB_UI_URL } from "./EspmWebUi.js";
 
 export const DEFAULT_API_URL =
@@ -12,6 +14,10 @@ export const DEFAULT_API_URL =
 
 export const E2E_PROPERTY_NAME = "E2E Share Fixture Property";
 export const E2E_METER_NAME = "E2E Share Fixture Meter";
+export const E2E_WHAT_CHANGED_CUSTOMER_NAME =
+  "E2E What's Changed Fixture Customer";
+export const E2E_WHAT_CHANGED_PROPERTY_NAME =
+  "E2E What's Changed Fixture Property";
 
 export interface IE2eConfig {
   apiUrl: string;
@@ -71,6 +77,95 @@ export function createClient(
   return { api, pm: new PortfolioManager(api) };
 }
 
+type EditableProperty = Omit<IProperty, "id" | "accessLevel" | "audit">;
+
+function toEditableProperty(property: IProperty): EditableProperty {
+  const {
+    id: _id,
+    accessLevel: _accessLevel,
+    audit: _audit,
+    ...editable
+  } = property;
+  return editable;
+}
+
+async function ensureWhatChangedCustomer(
+  provider: IE2eClient,
+): Promise<number> {
+  const existing = (await provider.pm.getCustomerList()).find(
+    (customer) => customer.organizationName === E2E_WHAT_CHANGED_CUSTOMER_NAME,
+  );
+  if (existing) return existing.id;
+
+  const suffix = `${Date.now()}${Math.round(Math.random() * 1_000_000)}`;
+  const account: Omit<IAccount, "id"> = {
+    username: `pm_e2e_wc_${suffix}`,
+    password: `PmE2e!${suffix}`,
+    webserviceUser: false,
+    searchable: false,
+    includeTestPropertiesInGraphics: false,
+    languagePreference: "en_US",
+    contact: {
+      firstName: "Portfolio Manager",
+      lastName: "E2E Fixture",
+      email: `portfolio-manager-e2e-${suffix}@example.com`,
+      jobTitle: "Automated test fixture",
+      phone: "202-555-0100",
+      address: {
+        "@_address1": "123 Main St",
+        "@_city": "Washington",
+        "@_state": "DC",
+        "@_postalCode": "20001",
+        "@_country": "US",
+      },
+    },
+    organization: {
+      "@_name": E2E_WHAT_CHANGED_CUSTOMER_NAME,
+      primaryBusiness: "Other",
+      otherBusinessDescription: "Automated test fixture",
+      energyStarPartner: false,
+    },
+  };
+
+  const created = await provider.api.accountCustomerPost(account);
+  if (!isIPopulatedResponse(created.response)) {
+    throw new Error(
+      `Expected customer creation to return an id: ${JSON.stringify(created)}`,
+    );
+  }
+  return created.response.id;
+}
+
+/**
+ * Creates a permanent provider-managed customer/property once, then changes
+ * that property on every nightly E2E run to seed the date-batched feed.
+ */
+export async function ensureWhatChangedFixture(
+  provider: IE2eClient,
+): Promise<{ customerId: number; propertyId: number }> {
+  const customerId = await ensureWhatChangedCustomer(provider);
+  const [propertyId] = await ensureStandardProperties(
+    provider.api,
+    customerId,
+    [E2E_WHAT_CHANGED_PROPERTY_NAME],
+  );
+  const property = (await provider.api.propertyPropertyGet(propertyId))
+    .property;
+  const updated = await provider.api.propertyPropertyPut(propertyId, {
+    ...toEditableProperty(property),
+    notes: `Last What's Changed E2E mutation: ${new Date().toISOString()}`,
+  });
+  if (
+    !isIPopulatedResponse(updated.response) ||
+    updated.response.id !== propertyId
+  ) {
+    throw new Error(
+      `Expected What's Changed fixture update to return property ${propertyId}: ${JSON.stringify(updated)}`,
+    );
+  }
+  return { customerId, propertyId };
+}
+
 /**
  * Polls until `probe` returns a defined value. UI-seeded requests can take a
  * moment to appear in the web services pending lists.
@@ -100,6 +195,17 @@ function isAccessRevokedError(
   return (
     error instanceof PortfolioManagerApiError &&
     (error.status === 403 || error.status === 404)
+  );
+}
+
+function isAlreadyDisconnectedError(
+  error: unknown,
+): error is PortfolioManagerApiError {
+  return (
+    error instanceof PortfolioManagerApiError &&
+    error.status === 400 &&
+    error.responseText?.includes('errorNumber="-200"') === true &&
+    error.responseText.includes("You are not connected to this account")
   );
 }
 
@@ -184,8 +290,9 @@ export async function ensureCleanProviderState(
 
 /**
  * Disconnects from the peer account, removing any accepted shares. The
- * not-connected case (ESPM answers 403 "Access Denied", or 404) is treated as
- * already-at-baseline; anything else (auth, network, 5xx) is a real failure.
+ * not-connected case (ESPM answers 400/-200, 403 "Access Denied", or 404) is
+ * treated as already-at-baseline; anything else (auth, network, 5xx) is a real
+ * failure.
  */
 export async function disconnectIfConnected(
   provider: PortfolioManager,
@@ -197,7 +304,7 @@ export async function disconnectIfConnected(
       note: "e2e cleanup",
     });
   } catch (error) {
-    if (isAccessRevokedError(error)) {
+    if (isAccessRevokedError(error) || isAlreadyDisconnectedError(error)) {
       return; // Not connected — already at baseline.
     }
     throw error;

@@ -33,6 +33,10 @@ if (!USERNAME || !PASSWORD) {
   );
 }
 const RUN_ID = `${Date.now()}-${Math.round(Math.random() * 1000000)}`;
+const WHAT_CHANGED_SINCE = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+  .toISOString()
+  .slice(0, 10);
+const WHAT_CHANGED_CUSTOMER_NAME = "E2E What's Changed Fixture Customer";
 
 function withRunId(base: string): string {
   return `${base} ${RUN_ID}`;
@@ -114,6 +118,43 @@ describe("PortfolioManager (integration)", () => {
     const links = await pm.getPropertyLinks(accountId);
     expect(links).to.be.an("array");
     expect(links.length).to.be.greaterThan(0);
+  }, 60000);
+
+  it("getChangedPropertyIds + getChangedPropertyUseIds + getChangedMeterIds", async () => {
+    const customer = (await pm.getCustomerList()).find(
+      (candidate) => candidate.organizationName === WHAT_CHANGED_CUSTOMER_NAME,
+    );
+    if (!customer) {
+      throw new Error(
+        `Expected connected What's Changed fixture customer '${WHAT_CHANGED_CUSTOMER_NAME}'`,
+      );
+    }
+    const propertyIds = await pm.getChangedPropertyIds(
+      WHAT_CHANGED_SINCE,
+      customer.id,
+    );
+    const propertyUseIds = await pm.getChangedPropertyUseIds(
+      WHAT_CHANGED_SINCE,
+      customer.id,
+    );
+    const meterIds = await pm.getChangedMeterIds(
+      WHAT_CHANGED_SINCE,
+      customer.id,
+    );
+
+    for (const ids of [propertyIds, propertyUseIds, meterIds]) {
+      expect(ids).to.be.an("array");
+      expect(
+        ids.filter((id) => !Number.isInteger(id) || id <= 0),
+      ).to.deep.equal([]);
+    }
+
+    // wstest currently returns a successful empty feed even after its fixture
+    // changes. If it starts tracking changes, also verify returned IDs resolve.
+    if (propertyIds.length > 0) {
+      const property = await pm.getProperty(propertyIds[0]);
+      expect(property.id).to.equal(propertyIds[0]);
+    }
   }, 60000);
 
   it("createProperty + getProperty", async () => {
@@ -628,13 +669,10 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
     );
   });
 
-  it("getChangedPropertyIds defaults to the current account and drains cursor pages", async () => {
+  it("getChangedPropertyIds drains cursor pages for a customer", async () => {
     const api = createExtendedMockApi();
     const pm = new PortfolioManager(api);
 
-    vi.mocked(api.accountAccountGet).mockResolvedValueOnce({
-      account: { id: 77 },
-    } as never);
     vi.mocked(api.propertyGetWhatChangedGet)
       .mockResolvedValueOnce({
         response: {
@@ -679,10 +717,10 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
         },
       } as never);
 
-    await expect(pm.getChangedPropertyIds("2024-01-01")).resolves.toEqual([
+    await expect(pm.getChangedPropertyIds("2024-01-01", 77)).resolves.toEqual([
       5, 6,
     ]);
-    expect(api.accountAccountGet).toHaveBeenCalledTimes(1);
+    expect(api.accountAccountGet).not.toHaveBeenCalled();
     expect(api.propertyGetWhatChangedGet).toHaveBeenNthCalledWith(
       1,
       77,
@@ -732,37 +770,6 @@ describe("PortfolioManager (minimal synthetic edge cases)", () => {
     );
     expect(api.meterGetWhatChangedGet).toHaveBeenCalledWith(
       88,
-      "2024-01-01",
-      {},
-    );
-  });
-
-  it("getChangedPropertyUseIds and getChangedMeterIds default to the current account", async () => {
-    const api = createExtendedMockApi();
-    const pm = new PortfolioManager(api);
-
-    vi.mocked(api.accountAccountGet).mockResolvedValueOnce({
-      account: { id: 77 },
-    } as never);
-    vi.mocked(api.propertyUseGetWhatChangedGet).mockResolvedValueOnce({
-      response: { "@_status": "Ok", links: "" },
-    } as never);
-    vi.mocked(api.meterGetWhatChangedGet).mockResolvedValueOnce({
-      response: { "@_status": "Ok", links: "" },
-    } as never);
-
-    await expect(pm.getChangedPropertyUseIds("2024-01-01")).resolves.toEqual(
-      [],
-    );
-    await expect(pm.getChangedMeterIds("2024-01-01")).resolves.toEqual([]);
-    expect(api.accountAccountGet).toHaveBeenCalledTimes(1);
-    expect(api.propertyUseGetWhatChangedGet).toHaveBeenCalledWith(
-      77,
-      "2024-01-01",
-      {},
-    );
-    expect(api.meterGetWhatChangedGet).toHaveBeenCalledWith(
-      77,
       "2024-01-01",
       {},
     );

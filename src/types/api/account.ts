@@ -19,6 +19,10 @@ export interface IAccountAccountGetResponse extends IParsedXml {
   account: IAccount;
 }
 
+export interface IAccountCustomerPostResponse extends IParsedXml {
+  response: IResponse;
+}
+
 /**
  * The response structure for a pending connections list request.
  * @see https://portfoliomanager.energystar.gov/webservices/home/api/connection/pendingAccountList/get

@@ -5,6 +5,7 @@ import {
   disconnectIfConnected,
   ensureCleanProviderState,
   ensurePeerFixtures,
+  ensureWhatChangedFixture,
   getE2eConfig,
   waitFor,
   waitForNoAccess,
@@ -35,6 +36,9 @@ describe("Connection & Sharing (e2e)", () => {
     try {
       provider = createClient(config, config.provider);
       peer = createClient(config, config.peer);
+      // Seed the permanent provider-managed customer before the UI lifecycle.
+      // It remains usable even when Portfolio Manager's sharing UI is degraded.
+      await ensureWhatChangedFixture(provider);
 
       peerAccountId = await peer.pm.getAccountId();
       fixture = await ensurePeerFixtures(peer);
@@ -60,7 +64,8 @@ describe("Connection & Sharing (e2e)", () => {
     // Keep the trace only for failed runs; passing runs stay tidy.
     await ui?.close(failed ? `connection-sharing-${Date.now()}` : undefined);
 
-    // Best-effort return to baseline for the next run.
+    // Best-effort return the UI-driven peer lifecycle to baseline. The
+    // provider-managed What's Changed fixture is intentionally independent.
     try {
       await ensureCleanProviderState(provider.pm, config.peer.username);
       await disconnectIfConnected(provider.pm, peerAccountId);
