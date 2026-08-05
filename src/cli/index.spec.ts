@@ -2,11 +2,39 @@ import { describe, expect, it } from "vitest";
 import * as cliExports from "./index.js";
 
 describe("cli index exports", () => {
-  it("re-exports core CLI command constructors", () => {
-    expect(cliExports.PortfolioManagerCommand).toBeDefined();
-    expect(cliExports.PortfolioManagerBaseCommand).toBeDefined();
-    expect(cliExports.PortfolioManagerMeterCommand).toBeDefined();
-    expect(cliExports.PortfolioManagerPropertyCommand).toBeDefined();
-    expect(cliExports.PortfolioManagerWhatChangedCommand).toBeDefined();
+  it("re-exports the supported CLI API", () => {
+    expect(Object.keys(cliExports).sort()).toEqual([
+      "PortfolioManagerAccountCommand",
+      "PortfolioManagerAccountGetCommand",
+      "PortfolioManagerBaseCommand",
+      "PortfolioManagerCommand",
+      "PortfolioManagerConnectionAcceptCommand",
+      "PortfolioManagerConnectionCommand",
+      "PortfolioManagerConnectionDisconnectCommand",
+      "PortfolioManagerConnectionListCommand",
+      "PortfolioManagerConnectionListPendingCommand",
+      "PortfolioManagerConnectionRejectCommand",
+      "PortfolioManagerMeterAssociationCommand",
+      "PortfolioManagerMeterAssociationGetCommand",
+      "PortfolioManagerMeterAssociationListCommand",
+      "PortfolioManagerMeterCommand",
+      "PortfolioManagerMeterConsumptionCommand",
+      "PortfolioManagerMeterConsumptionGetCommand",
+      "PortfolioManagerMeterIdentifiersCommand",
+      "PortfolioManagerMeterListCommand",
+      "PortfolioManagerMeterListEntitiesCommand",
+      "PortfolioManagerMeterListLinksCommand",
+      "PortfolioManagerNotificationsCommand",
+      "PortfolioManagerPropertyCommand",
+      "PortfolioManagerPropertyListCommand",
+      "PortfolioManagerPropertyListEntitiesCommand",
+      "PortfolioManagerPropertyListLinksCommand",
+      "PortfolioManagerPropertyMetricsAnnualCommand",
+      "PortfolioManagerPropertyMetricsCommand",
+      "PortfolioManagerPropertyMetricsMonthlyCommand",
+      "PortfolioManagerShareCommand",
+      "PortfolioManagerWhatChangedCommand",
+      "parseIntArg",
+    ]);
   });
 });
