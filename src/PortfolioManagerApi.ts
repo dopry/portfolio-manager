@@ -8,6 +8,7 @@ import { isDate } from "util/types";
 import { ARRAY_JPATHS } from "./types/xml/arrayJPaths.js";
 import {
   IAccountAccountGetResponse,
+  IAccountCustomerPostResponse,
   IAdditionalIdentifier,
   ICreateSamplePropertiesPostResponse,
   IGetCustomerListResponse,
@@ -36,11 +37,13 @@ import {
   IPropertyPropertyDeleteResponse,
   IPropertyPropertyListGetResponse,
   IPropertyPropertyPostResponse,
+  IPropertyPropertyPutResponse,
   ISharingActionResponse,
   IWhatChangedOptions,
   MeasurementSystem,
 } from "./types/index.js";
 import {
+  IAccount,
   IMeter,
   IMeterConsumption,
   IMeterData,
@@ -303,6 +306,16 @@ export class PortfolioManagerApi {
     return this.get<IAccountAccountGetResponse>("account");
   }
 
+  /** Creates and connects a customer account to the authenticated provider. */
+  async accountCustomerPost(
+    account: Omit<IAccount, "id">,
+  ): Promise<IAccountCustomerPostResponse> {
+    return this.post<
+      { account: Omit<IAccount, "id"> },
+      IAccountCustomerPostResponse
+    >("customer", { account });
+  }
+
   // https://portfoliomanager.energystar.gov/webservices/home/test/api/meter/meter/get
   async meterMeterGet(meterId: number): Promise<IMeterMeterGetResponse> {
     return this.get<IMeterMeterGetResponse>(`meter/${meterId}`);
@@ -343,6 +356,16 @@ export class PortfolioManagerApi {
       { property: Omit<IProperty, "id"> },
       IPropertyPropertyPostResponse
     >(`account/${accountId}/property`, { property });
+  }
+
+  async propertyPropertyPut(
+    propertyId: number,
+    property: Omit<IProperty, "id" | "accessLevel" | "audit">,
+  ): Promise<IPropertyPropertyPutResponse> {
+    return this.put<
+      { property: Omit<IProperty, "id" | "accessLevel" | "audit"> },
+      IPropertyPropertyPutResponse
+    >(`property/${propertyId}`, { property });
   }
 
   // https://portfoliomanager.energystar.gov/webservices/home/api/property/propertyList/get

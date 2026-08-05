@@ -18,3 +18,4 @@ export * from "./PortfolioManagerPropertyListLinksCommand.js";
 export * from "./PortfolioManagerPropertyMetricsCommand.js";
 export * from "./PortfolioManagerPropertyMetricsMonthlyCommand.js";
 export * from "./PortfolioManagerShareCommand.js";
+export * from "./PortfolioManagerWhatChangedCommand.js";

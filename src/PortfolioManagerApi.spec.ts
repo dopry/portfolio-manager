@@ -46,6 +46,10 @@ import {
 } from "./test/ensureStandardMetricsFixture.js";
 
 const BASE_URL = "https://portfoliomanager.energystar.gov/wstest/";
+const WHAT_CHANGED_SINCE = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+  .toISOString()
+  .slice(0, 10);
+const WHAT_CHANGED_CUSTOMER_NAME = "E2E What's Changed Fixture Customer";
 
 const USERNAME = process.env.PM_USERNAME;
 const PASSWORD = process.env.PM_PASSWORD;
@@ -179,6 +183,72 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
   it("constructs PortfolioManagerApi", () => {
     expect(api).to.be.an.instanceof(PortfolioManagerApi);
   });
+
+  it("What's Changed endpoints return populated live entity links", async () => {
+    const customer = (await pm.getCustomerList()).find(
+      (candidate) => candidate.organizationName === WHAT_CHANGED_CUSTOMER_NAME,
+    );
+    if (!customer) {
+      throw new Error(
+        `Expected connected What's Changed fixture customer '${WHAT_CHANGED_CUSTOMER_NAME}'`,
+      );
+    }
+
+    for (const { resource, response } of [
+      {
+        resource: "property",
+        response: (
+          await api.propertyGetWhatChangedGet(customer.id, WHAT_CHANGED_SINCE)
+        ).response,
+      },
+      {
+        resource: "propertyUse",
+        response: (
+          await api.propertyUseGetWhatChangedGet(
+            customer.id,
+            WHAT_CHANGED_SINCE,
+          )
+        ).response,
+      },
+      {
+        resource: "meter",
+        response: (
+          await api.meterGetWhatChangedGet(customer.id, WHAT_CHANGED_SINCE)
+        ).response,
+      },
+    ]) {
+      expect(
+        response["@_status"],
+        `Unexpected live ${resource} status: ${JSON.stringify(response)}`,
+      ).to.equal("Ok");
+      expect(
+        isIEmptyResponse(response) || isIPopulatedResponse(response),
+        `Unexpected live ${resource} response: ${JSON.stringify(response)}`,
+      ).to.equal(true);
+      if (resource === "property") {
+        expect(
+          isIPopulatedResponse(response),
+          `Expected live property changes since ${WHAT_CHANGED_SINCE}: ${JSON.stringify(response)}`,
+        ).to.equal(true);
+      }
+      if (!isIPopulatedResponse(response)) {
+        continue;
+      }
+
+      const entityLinks = response.links.link.filter(
+        (link) => link["@_id"] !== undefined,
+      );
+      if (resource === "property") {
+        expect(entityLinks.length).to.be.greaterThan(0);
+      }
+      for (const link of entityLinks) {
+        expect(link["@_id"]).to.match(/^\d+$/);
+        expect(Number(link["@_id"])).to.be.greaterThan(0);
+        expect(link["@_linkDescription"]).to.be.a("string").and.not.equal("");
+        expect(link["@_httpMethod"]).to.equal("GET");
+      }
+    }
+  }, 60000);
 
   // since the PM Test UI became available and we aren't starting from an empty test
   // account we can no longer setup this test case without potentially conflicting with
@@ -1456,9 +1526,11 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     const putSpy = vi.spyOn(unitApi, "put").mockResolvedValue({} as never);
 
     await unitApi.accountAccountGet();
+    await unitApi.accountCustomerPost({ username: "customer" } as never);
     await unitApi.meterMeterGet(1);
     await unitApi.propertyPropertyGet(2);
     await unitApi.propertyPropertyPost({ name: "P" } as never, 3);
+    await unitApi.propertyPropertyPut(2, { name: "P2" } as never);
     await unitApi.propertyPropertyListGet(3);
     await unitApi.meterConsumptionDataPost(4, { meterData: {} } as never);
     await unitApi.meterIdentifierGet(5, 6);
@@ -1504,6 +1576,9 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
     expect(postSpy).toHaveBeenCalledWith("account/3/property", {
       property: { name: "P" },
     });
+    expect(postSpy).toHaveBeenCalledWith("customer", {
+      account: { username: "customer" },
+    });
     expect(postSpy).toHaveBeenCalledWith("meter/4/consumptionData", {
       meterData: {},
     });
@@ -1520,6 +1595,9 @@ describe("PortfolioManagerApi (unit coverage paths)", () => {
 
     expect(putSpy).toHaveBeenCalledWith("meter/5/identifier/6", {
       additionalIdentifier: { value: "def" },
+    });
+    expect(putSpy).toHaveBeenCalledWith("property/2", {
+      property: { name: "P2" },
     });
   });
 });

@@ -727,6 +727,50 @@ describe("PortfolioManagerCommand (parse)", () => {
     expect(console.error).toHaveBeenCalledWith("No new notifications found.");
   });
 
+  it("parses and executes what-changed for a connected customer", async () => {
+    harness.fakeClient.getChangedPropertyIds.mockResolvedValueOnce([101, 102]);
+    harness.fakeClient.getChangedPropertyUseIds.mockResolvedValueOnce([201]);
+    harness.fakeClient.getChangedMeterIds.mockResolvedValueOnce([301, 302]);
+
+    await harness.parseCli([
+      "what-changed",
+      "--customerId",
+      "42",
+      "--date",
+      "2026-08-01",
+      "--indent",
+      "2",
+    ]);
+
+    expect(harness.fakeClient.getChangedPropertyIds).toHaveBeenCalledWith(
+      "2026-08-01",
+      42,
+    );
+    expect(harness.fakeClient.getChangedPropertyUseIds).toHaveBeenCalledWith(
+      "2026-08-01",
+      42,
+    );
+    expect(harness.fakeClient.getChangedMeterIds).toHaveBeenCalledWith(
+      "2026-08-01",
+      42,
+    );
+    expect(console.log).toHaveBeenCalledWith(
+      JSON.stringify(
+        {
+          propertyIds: [101, 102],
+          propertyUseIds: [201],
+          meterIds: [301, 302],
+        },
+        null,
+        2,
+      ),
+    );
+  });
+
+  it("renders help for what-changed", async () => {
+    await harness.parseCliHelp(["what-changed"]);
+  });
+
   it("uses the real base client construction path", async () => {
     vi.restoreAllMocks();
     vi.spyOn(console, "log").mockImplementation(() => undefined);

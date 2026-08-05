@@ -50,10 +50,10 @@ jobs:
             exit 0
           fi
 
-          # Every suite invocation runs peer-scoped cleanup in beforeAll and
-          # best-effort cleanup in afterAll. Re-invoking the suite therefore
-          # re-establishes its baseline without the destructive account-wide
-          # wipe:test-environment command.
+          # Every suite invocation updates the independent provider-managed
+          # What's Changed fixture, then establishes a clean UI-peer baseline.
+          # A failed lifecycle run cleans up in afterAll so the retry can start
+          # without an account-wide wipe.
           echo "retried=true" >> "${GITHUB_OUTPUT:-/dev/null}"
           {
             echo "## E2E retry"

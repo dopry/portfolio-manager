@@ -7,5 +7,6 @@ describe("cli index exports", () => {
     expect(cliExports.PortfolioManagerBaseCommand).toBeDefined();
     expect(cliExports.PortfolioManagerMeterCommand).toBeDefined();
     expect(cliExports.PortfolioManagerPropertyCommand).toBeDefined();
+    expect(cliExports.PortfolioManagerWhatChangedCommand).toBeDefined();
   });
 });

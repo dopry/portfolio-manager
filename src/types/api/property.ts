@@ -14,6 +14,10 @@ export interface IPropertyPropertyPostResponse extends IParsedXml {
   response: IResponse;
 }
 
+export interface IPropertyPropertyPutResponse extends IParsedXml {
+  response: IResponse;
+}
+
 export interface IPropertyPropertyDeleteResponse extends IParsedXml {
   response: IResponse;
 }

@@ -4,7 +4,7 @@ import { parseLinkId } from "./parseLinkId.js";
 describe("parseLinkId", () => {
   it("uses @_id when present", () => {
     const id = parseLinkId({
-      "@_httpMethod": "get",
+      "@_httpMethod": "GET",
       "@_id": "123",
       "@_link": "/property/999",
       "@_linkDescription": "desc",
@@ -15,7 +15,7 @@ describe("parseLinkId", () => {
 
   it("falls back to parsing from @_link", () => {
     const id = parseLinkId({
-      "@_httpMethod": "get",
+      "@_httpMethod": "GET",
       "@_link": "/property/456",
       "@_linkDescription": "desc",
     });
@@ -25,7 +25,7 @@ describe("parseLinkId", () => {
 
   it("returns undefined when id is not numeric", () => {
     const id = parseLinkId({
-      "@_httpMethod": "get",
+      "@_httpMethod": "GET",
       "@_id": "abc",
       "@_link": "/property/456",
       "@_linkDescription": "desc",
@@ -36,7 +36,7 @@ describe("parseLinkId", () => {
 
   it("returns undefined for empty @_id and non-numeric link tail", () => {
     const id = parseLinkId({
-      "@_httpMethod": "get",
+      "@_httpMethod": "GET",
       "@_id": "",
       "@_link": "/property/",
       "@_linkDescription": "desc",

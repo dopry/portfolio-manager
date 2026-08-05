@@ -36,6 +36,9 @@ export type FakeClient = {
   unshareProperty: ReturnType<typeof vi.fn>;
   unshareMeter: ReturnType<typeof vi.fn>;
   getNotifications: ReturnType<typeof vi.fn>;
+  getChangedPropertyIds: ReturnType<typeof vi.fn>;
+  getChangedPropertyUseIds: ReturnType<typeof vi.fn>;
+  getChangedMeterIds: ReturnType<typeof vi.fn>;
 };
 
 export function createFakeClient(): FakeClient {
@@ -63,6 +66,9 @@ export function createFakeClient(): FakeClient {
     unshareProperty: vi.fn(),
     unshareMeter: vi.fn(),
     getNotifications: vi.fn(),
+    getChangedPropertyIds: vi.fn(),
+    getChangedPropertyUseIds: vi.fn(),
+    getChangedMeterIds: vi.fn(),
   };
 }
 
