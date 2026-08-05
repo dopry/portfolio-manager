@@ -35,6 +35,19 @@ npx portfolio-manager --help
 
 Security note: prefer environment variables to avoid exposing credentials in shell history and process listings.
 
+To get the ID and identifying details for the currently authenticated account:
+
+```bash
+npx portfolio-manager account get --indent 2
+```
+
+To list connected customers and find the `customerId` required by the What's
+Changed commands:
+
+```bash
+npx portfolio-manager connection list --indent 2
+```
+
 To inspect all three What's Changed feeds for a connected customer:
 
 ```bash

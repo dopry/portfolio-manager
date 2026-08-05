@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { PortfolioManagerAccountCommand } from "./PortfolioManagerAccountCommand.js";
 import { PortfolioManagerBaseCommand } from "./PortfolioManagerBaseCommand.js";
 import { PortfolioManagerConnectionCommand } from "./PortfolioManagerConnectionCommand.js";
 import { PortfolioManagerMeterCommand } from "./PortfolioManagerMeterCommand.js";
@@ -25,6 +26,7 @@ export class PortfolioManagerCommand extends PortfolioManagerBaseCommand {
     this.description("Portfolio Manager CLI");
     this.version(getPackageVersion());
 
+    this.addCommand(new PortfolioManagerAccountCommand());
     this.addCommand(new PortfolioManagerConnectionCommand());
     this.addCommand(new PortfolioManagerMeterCommand());
     this.addCommand(new PortfolioManagerNotificationsCommand());

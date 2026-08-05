@@ -46,6 +46,37 @@ describe("PortfolioManagerCommand (parse)", () => {
     harness.restore();
   });
 
+  it("parses and executes account get without exposing account secrets", async () => {
+    harness.fakeClient.getAccount.mockResolvedValueOnce({
+      id: 123,
+      username: "provider-user",
+      password: "must-not-be-printed",
+      organization: { "@_name": "Provider Organization" },
+    });
+
+    await harness.parseCli(["account", "get", "--indent", "2"]);
+
+    expect(harness.fakeClient.getAccount).toHaveBeenCalledTimes(1);
+    expect(console.log).toHaveBeenCalledWith(
+      JSON.stringify(
+        {
+          id: 123,
+          username: "provider-user",
+          organizationName: "Provider Organization",
+        },
+        null,
+        2,
+      ),
+    );
+    expect(console.log).not.toHaveBeenCalledWith(
+      expect.stringContaining("must-not-be-printed"),
+    );
+  });
+
+  it("renders help for account get", async () => {
+    await harness.parseCliHelp(["account", "get"]);
+  });
+
   it("parses and executes property list entities with selected fields", async () => {
     harness.fakeClient.getProperties.mockResolvedValueOnce([
       {
@@ -486,6 +517,31 @@ describe("PortfolioManagerCommand (parse)", () => {
         0,
       ),
     );
+  });
+
+  it("parses and executes connection list", async () => {
+    harness.fakeClient.getCustomerList.mockResolvedValueOnce([
+      { id: 42, organizationName: "Example Customer" },
+      { id: 84, organizationName: "Second Customer" },
+    ]);
+
+    await harness.parseCli(["connection", "list", "--indent", "2"]);
+
+    expect(harness.fakeClient.getCustomerList).toHaveBeenCalledTimes(1);
+    expect(console.log).toHaveBeenCalledWith(
+      JSON.stringify(
+        [
+          { id: 42, organizationName: "Example Customer" },
+          { id: 84, organizationName: "Second Customer" },
+        ],
+        null,
+        2,
+      ),
+    );
+  });
+
+  it("renders help for connection list", async () => {
+    await harness.parseCliHelp(["connection", "list"]);
   });
 
   it("shows empty message for connection list-pending", async () => {

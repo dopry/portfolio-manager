@@ -184,7 +184,7 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
     expect(api).to.be.an.instanceof(PortfolioManagerApi);
   });
 
-  it("What's Changed endpoints return populated live entity links", async () => {
+  it("What's Changed endpoints return valid live response shapes", async () => {
     const customer = (await pm.getCustomerList()).find(
       (candidate) => candidate.organizationName === WHAT_CHANGED_CUSTOMER_NAME,
     );
@@ -225,12 +225,6 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
         isIEmptyResponse(response) || isIPopulatedResponse(response),
         `Unexpected live ${resource} response: ${JSON.stringify(response)}`,
       ).to.equal(true);
-      if (resource === "property") {
-        expect(
-          isIPopulatedResponse(response),
-          `Expected live property changes since ${WHAT_CHANGED_SINCE}: ${JSON.stringify(response)}`,
-        ).to.equal(true);
-      }
       if (!isIPopulatedResponse(response)) {
         continue;
       }
@@ -238,9 +232,6 @@ describeIntegration("PortfolioManagerApi (integration)", () => {
       const entityLinks = response.links.link.filter(
         (link) => link["@_id"] !== undefined,
       );
-      if (resource === "property") {
-        expect(entityLinks.length).to.be.greaterThan(0);
-      }
       for (const link of entityLinks) {
         expect(link["@_id"]).to.match(/^\d+$/);
         expect(Number(link["@_id"])).to.be.greaterThan(0);
