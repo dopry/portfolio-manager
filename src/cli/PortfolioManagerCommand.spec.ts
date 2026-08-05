@@ -727,13 +727,14 @@ describe("PortfolioManagerCommand (parse)", () => {
     expect(console.error).toHaveBeenCalledWith("No new notifications found.");
   });
 
-  it("parses and executes what-changed for a connected customer", async () => {
+  it("parses and executes what-changed all", async () => {
     harness.fakeClient.getChangedPropertyIds.mockResolvedValueOnce([101, 102]);
     harness.fakeClient.getChangedPropertyUseIds.mockResolvedValueOnce([201]);
     harness.fakeClient.getChangedMeterIds.mockResolvedValueOnce([301, 302]);
 
     await harness.parseCli([
       "what-changed",
+      "all",
       "--customerId",
       "42",
       "--date",
@@ -767,8 +768,77 @@ describe("PortfolioManagerCommand (parse)", () => {
     );
   });
 
+  it("parses and executes what-changed property", async () => {
+    harness.fakeClient.getChangedPropertyIds.mockResolvedValueOnce([101, 102]);
+
+    await harness.parseCli([
+      "what-changed",
+      "property",
+      "--customerId",
+      "42",
+      "--date",
+      "2026-08-01",
+    ]);
+
+    expect(harness.fakeClient.getChangedPropertyIds).toHaveBeenCalledWith(
+      "2026-08-01",
+      42,
+    );
+    expect(console.log).toHaveBeenCalledWith(
+      JSON.stringify({ propertyIds: [101, 102] }, null, 0),
+    );
+  });
+
+  it("parses and executes what-changed property-use", async () => {
+    harness.fakeClient.getChangedPropertyUseIds.mockResolvedValueOnce([
+      201, 202,
+    ]);
+
+    await harness.parseCli([
+      "what-changed",
+      "property-use",
+      "--customerId",
+      "42",
+      "--date",
+      "2026-08-01",
+    ]);
+
+    expect(harness.fakeClient.getChangedPropertyUseIds).toHaveBeenCalledWith(
+      "2026-08-01",
+      42,
+    );
+    expect(console.log).toHaveBeenCalledWith(
+      JSON.stringify({ propertyUseIds: [201, 202] }, null, 0),
+    );
+  });
+
+  it("parses and executes what-changed meter", async () => {
+    harness.fakeClient.getChangedMeterIds.mockResolvedValueOnce([301, 302]);
+
+    await harness.parseCli([
+      "what-changed",
+      "meter",
+      "--customerId",
+      "42",
+      "--date",
+      "2026-08-01",
+    ]);
+
+    expect(harness.fakeClient.getChangedMeterIds).toHaveBeenCalledWith(
+      "2026-08-01",
+      42,
+    );
+    expect(console.log).toHaveBeenCalledWith(
+      JSON.stringify({ meterIds: [301, 302] }, null, 0),
+    );
+  });
+
   it("renders help for what-changed", async () => {
     await harness.parseCliHelp(["what-changed"]);
+  });
+
+  it("renders help for a what-changed resource", async () => {
+    await harness.parseCliHelp(["what-changed", "property"]);
   });
 
   it("uses the real base client construction path", async () => {

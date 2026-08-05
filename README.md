@@ -38,16 +38,17 @@ Security note: prefer environment variables to avoid exposing credentials in she
 To inspect all three What's Changed feeds for a connected customer:
 
 ```bash
-npx portfolio-manager what-changed \
+npx portfolio-manager what-changed all \
   --customerId 100 \
   --date 2026-08-01 \
   --indent 2
 ```
 
-The command prints `propertyIds`, `propertyUseIds`, and `meterIds` as JSON. The
-customer ID is required because Portfolio Manager exposes What's Changed as a
-provider-to-connected-customer feed, not as an audit feed for the authenticated
-provider's own account.
+Use `property`, `property-use`, or `meter` instead of `all` to query one
+What's Changed endpoint. Each command prints its corresponding ID list as JSON.
+The customer ID is required because Portfolio Manager exposes What's Changed
+as a provider-to-connected-customer feed, not as an audit feed for the
+authenticated provider's own account.
 
 ## Local Development Workflow
 

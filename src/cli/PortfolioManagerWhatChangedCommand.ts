@@ -1,9 +1,22 @@
+import type { PortfolioManager } from "../PortfolioManager.js";
 import {
   parseIntArg,
   PortfolioManagerBaseCommand,
 } from "./PortfolioManagerBaseCommand.js";
 
-export class PortfolioManagerWhatChangedCommand extends PortfolioManagerBaseCommand {
+type WhatChangedOptions = {
+  customerId: number;
+  date: string;
+  indent: number;
+};
+
+type WhatChangedFetcher = (
+  pm: PortfolioManager,
+  date: string,
+  customerId: number,
+) => Promise<number[]>;
+
+abstract class PortfolioManagerWhatChangedLeafCommand extends PortfolioManagerBaseCommand {
   protected get examples(): string[] {
     return [
       `${this.getFullCommand()} --customerId 100 --date 2026-08-01`,
@@ -11,11 +24,8 @@ export class PortfolioManagerWhatChangedCommand extends PortfolioManagerBaseComm
     ];
   }
 
-  constructor() {
-    super("what-changed");
-    this.description(
-      "List changed property, property-use, and meter IDs for a connected customer",
-    );
+  constructor(name: string) {
+    super(name);
     this.addPortfolioManagerOptions();
     this.requiredOption(
       "--customerId <id>",
@@ -28,24 +38,81 @@ export class PortfolioManagerWhatChangedCommand extends PortfolioManagerBaseComm
     );
   }
 
+  protected getWhatChangedOptions(): WhatChangedOptions {
+    return this.optsWithGlobals() as WhatChangedOptions;
+  }
+
+  protected printResult(result: Record<string, number[]>): void {
+    console.log(
+      JSON.stringify(result, null, this.getWhatChangedOptions().indent),
+    );
+  }
+}
+
+class PortfolioManagerWhatChangedResourceCommand extends PortfolioManagerWhatChangedLeafCommand {
+  constructor(
+    name: string,
+    description: string,
+    private readonly outputKey: string,
+    private readonly fetchIds: WhatChangedFetcher,
+  ) {
+    super(name);
+    this.description(description);
+  }
+
   protected async _action(): Promise<void> {
     const pm = this.getPortfolioManagerClient();
-    const opts = this.optsWithGlobals();
-    const propertyIds = await pm.getChangedPropertyIds(
-      opts.date,
-      opts.customerId,
-    );
-    const propertyUseIds = await pm.getChangedPropertyUseIds(
-      opts.date,
-      opts.customerId,
-    );
-    const meterIds = await pm.getChangedMeterIds(opts.date, opts.customerId);
+    const { date, customerId } = this.getWhatChangedOptions();
+    const ids = await this.fetchIds(pm, date, customerId);
+    this.printResult({ [this.outputKey]: ids });
+  }
+}
 
-    console.log(
-      JSON.stringify(
-        { propertyIds, propertyUseIds, meterIds },
-        null,
-        opts.indent,
+class PortfolioManagerWhatChangedAllCommand extends PortfolioManagerWhatChangedLeafCommand {
+  constructor() {
+    super("all");
+    this.description(
+      "List changed property, property-use, and meter IDs for a connected customer",
+    );
+  }
+
+  protected async _action(): Promise<void> {
+    const pm = this.getPortfolioManagerClient();
+    const { date, customerId } = this.getWhatChangedOptions();
+    const propertyIds = await pm.getChangedPropertyIds(date, customerId);
+    const propertyUseIds = await pm.getChangedPropertyUseIds(date, customerId);
+    const meterIds = await pm.getChangedMeterIds(date, customerId);
+    this.printResult({ propertyIds, propertyUseIds, meterIds });
+  }
+}
+
+export class PortfolioManagerWhatChangedCommand extends PortfolioManagerBaseCommand {
+  constructor() {
+    super("what-changed");
+    this.description("List changed resources for a connected customer");
+    this.addCommand(new PortfolioManagerWhatChangedAllCommand());
+    this.addCommand(
+      new PortfolioManagerWhatChangedResourceCommand(
+        "property",
+        "List changed property IDs",
+        "propertyIds",
+        (pm, date, customerId) => pm.getChangedPropertyIds(date, customerId),
+      ),
+    );
+    this.addCommand(
+      new PortfolioManagerWhatChangedResourceCommand(
+        "property-use",
+        "List changed property-use IDs",
+        "propertyUseIds",
+        (pm, date, customerId) => pm.getChangedPropertyUseIds(date, customerId),
+      ),
+    );
+    this.addCommand(
+      new PortfolioManagerWhatChangedResourceCommand(
+        "meter",
+        "List changed meter IDs",
+        "meterIds",
+        (pm, date, customerId) => pm.getChangedMeterIds(date, customerId),
       ),
     );
   }
