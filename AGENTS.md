@@ -6,6 +6,7 @@
 
 - MUST work in a dedicated Git worktree, separate from the primary checkout.
 - MUST NOT write in the primary checkout. MAY inspect it read-only.
+- MUST fetch and rebase feature branches onto latest `origin/next` before opening or updating a PR and before merge.
 - MUST understand the affected flow before changing it.
 - MUST skip unneeded work. MUST reuse existing code, standard library, platform features, and installed dependencies before adding code.
 - MUST implement only the minimum correct change. MUST NOT add speculative abstractions, dependencies, options, or features.
@@ -51,5 +52,6 @@ Goal: green PR means safe stable release.
 ## Done
 
 - MUST use Conventional Commits: `<type>[optional scope][!]: <description>`. Semantic Release derives versions and changelogs from commits.
+- MUST address review comments and feedback with new commits. MUST NOT amend or squash them until explicitly asked to squash.
 - MUST run relevant typecheck, build, and integration tests per `CONTRIBUTING.md` and `README.md`.
 - MUST report blocked tests. MUST NOT replace them with invented mocks.
