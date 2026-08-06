@@ -3,7 +3,7 @@
  * link/form structure for the flow step named on the CLI, so EspmWebUi
  * locators can be validated without guessing.
  *
- *   npx tsx test/e2e/probe.ts <target>
+ *   npx tsx test/wstest-e2e/probe.ts <target>
  *
  * Targets (peer account unless noted):
  *   home              landing page after login
@@ -20,7 +20,7 @@
  *   provider-settings account settings as the PROVIDER account; add
  *                     --make-searchable to enable username searchability
  *
- * See also test/e2e/state.ts to dump the provider-side pending/connected
+ * See also test/wstest-e2e/state.ts to dump the provider-side pending/connected
  * state via the SDK.
  */
 import { EspmWebUi } from "./EspmWebUi.js";

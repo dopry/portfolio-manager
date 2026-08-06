@@ -1,18 +1,20 @@
 name: CI
 
 on:
+  pull_request:
   push:
+    branches: [main, next]
   workflow_dispatch:
 
-# One CI run at a time per branch: back-to-back pushes cancel the stale run
-# instead of doubling load on the ESPM test API. On main/next, queue instead
-# of cancel so an in-flight release is never killed mid-publish.
+# One CI run at a time per ref. Never cancel an active run: credentialed E2E
+# jobs mutate shared state and must reach their cleanup hooks. GitHub may still
+# replace an older pending run when a newer commit arrives.
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/next' }}
+  cancel-in-progress: false
 
 jobs:
-  test:
+  checks:
     name: checks (node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
     strategy:
@@ -32,13 +34,15 @@ jobs:
       - run: npm run build
       - run: node ./dist/cli.js --help # Run the CLI to ensure it works, we had some test releases where this was broken during the esm migration
 
-  live-test:
-    name: live tests (node lts/*)
+  wstest-e2e:
+    name: wstest-e2e
+    if: github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]')
     runs-on: ubuntu-latest
-    # CI and nightly E2E share the provider account and its low API rate limit.
-    # One repository-wide lock prevents their live requests from overlapping.
+    timeout-minutes: 45
+    # CI and the full WSTest E2E workflow share the provider account and its
+    # low API rate limit. One repository-wide lock prevents overlap.
     concurrency:
-      group: espm-test-env
+      group: espm-wstest-e2e
       cancel-in-progress: false
     env:
       PM_USERNAME: ${{ secrets.TEST_PM_USERNAME }}
@@ -52,17 +56,48 @@ jobs:
           node-version: lts/*
           cache: npm
       - run: npm ci
-      - run: npm run test:coverage
+      - name: Run unit and WSTest API E2E tests with coverage
+        run: npm run test:coverage
+      - run: npx playwright install --with-deps chromium
+      - run: npm run typecheck:wstest-e2e
+      - name: Run WSTest E2E tests
+        id: wstest-e2e
+        shell: bash
+        run: bash .github/scripts/run-wstest-e2e.sh
+      - name: Upload Playwright traces
+        if: failure() || steps.wstest-e2e.outputs.retried == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: wstest-e2e-traces
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 14
 
-  live-env-whats-changed:
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/next'
-    uses: ./.github/workflows/live-env-whats-changed.yml
-    secrets:
-      LIVE_PM_USERNAME: ${{ secrets.LIVE_PM_USERNAME }}
-      LIVE_PM_PASSWORD: ${{ secrets.LIVE_PM_PASSWORD }}
+  live-e2e:
+    name: live-e2e
+    if: github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # CI and scheduled/manual Live E2E runs mutate the same persistent fixture.
+    concurrency:
+      group: espm-live-e2e
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck:live-e2e
+      - name: Run Live E2E tests
+        env:
+          PM_USERNAME: ${{ secrets.LIVE_PM_USERNAME }}
+          PM_PASSWORD: ${{ secrets.LIVE_PM_PASSWORD }}
+        run: npm run test:live-e2e
 
   release:
-    needs: [test, live-test, live-env-whats-changed]
+    needs: [checks, wstest-e2e, live-e2e]
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/next'
     runs-on: ubuntu-latest
     # Only one release at a time per branch; queued pushes wait rather than race.

@@ -1,0 +1,49 @@
+name: wstest-e2e
+
+# End-to-end tests contained within the shared ESPM wstest/pmtest environment.
+# The connection/sharing suite drives the pmtest web UI with Playwright and
+# mutates shared stateful test accounts, so all runs are serialized.
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+# The provider/peer test accounts are a shared singleton; runs must serialize.
+concurrency:
+  group: espm-wstest-e2e
+  cancel-in-progress: false
+
+jobs:
+  wstest-e2e:
+    name: wstest-e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      PM_USERNAME: ${{ secrets.TEST_PM_USERNAME }}
+      PM_PASSWORD: ${{ secrets.TEST_PM_PASSWORD }}
+      PM_USERNAME2: ${{ secrets.TEST_PM_USERNAME2 }}
+      PM_PASSWORD2: ${{ secrets.TEST_PM_PASSWORD2 }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run typecheck:wstest-e2e
+      - name: Run WSTest E2E tests
+        id: wstest-e2e
+        shell: bash
+        run: bash .github/scripts/run-wstest-e2e.sh
+      # Tracing starts after login (EspmWebUi), so no credentials appear in
+      # these artifacts; residual content is post-auth pages/session data for
+      # throwaway test-environment accounts.
+      - name: Upload Playwright traces
+        if: failure() || steps.wstest-e2e.outputs.retried == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: wstest-e2e-traces
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 14

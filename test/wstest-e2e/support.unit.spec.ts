@@ -1,6 +1,22 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { PortfolioManagerApiError } from "../../src/PortfolioManagerApi.js";
-import { waitForNoAccess } from "./support.js";
+import { getE2eConfig, waitForNoAccess } from "./support.js";
+
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
+
+describe("getE2eConfig", () => {
+  it("uses the wstest-e2e trace directory by default", () => {
+    vi.stubEnv("PM_USERNAME", "provider");
+    vi.stubEnv("PM_PASSWORD", "provider-password");
+    vi.stubEnv("PM_USERNAME2", "peer");
+    vi.stubEnv("PM_PASSWORD2", "peer-password");
+    vi.stubEnv("E2E_TRACE_DIR", "");
+
+    expect(getE2eConfig().traceDir).toBe("test-results/wstest-e2e");
+  });
+});
 
 describe("waitForNoAccess", () => {
   it("polls until ESPM reports that access is revoked", async () => {

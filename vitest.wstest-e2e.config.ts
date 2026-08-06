@@ -1,12 +1,12 @@
 import { defineConfig } from "vitest/config";
 
-// End-to-end connection/sharing suite. Kept out of the default `vitest run`
-// because it drives the ESPM test web UI with Playwright and mutates shared,
-// stateful test accounts — see plans/connection-sharing-e2e-tests.md.
+// End-to-end connection/sharing suite contained within wstest/pmtest. Kept out
+// of the default `vitest run` because it drives the ESPM test web UI with
+// Playwright and mutates shared, stateful test accounts.
 export default defineConfig({
   test: {
     globals: true,
-    include: ["test/e2e/**/*.e2e.spec.ts"],
+    include: ["test/wstest-e2e/**/*.wstest-e2e.spec.ts"],
     testTimeout: 300000,
     hookTimeout: 300000,
     fileParallelism: false,
