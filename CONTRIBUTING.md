@@ -4,7 +4,7 @@ Thanks for contributing to `portfolio-manager`.
 
 ## Prerequisites
 
-- Node.js `>=20`
+- Node.js `>=20.19.0`
 - npm (uses lockfile; prefer `npm ci`)
 - Portfolio Manager credentials for integration tests
 
@@ -115,8 +115,8 @@ Releases are automated with `semantic-release`.
 
 Configured release branches (see `package.json`):
 
-- `main`
-- `next` (prerelease channel)
+- `main` (stable releases)
+- `next` (prereleases such as `2.0.0-next.2`)
 - maintenance branch patterns (for example `1.x`)
 
 When the GitHub Actions `release` job runs on an eligible branch and all matrix test jobs pass, it runs the coverage gate (`npm run test:coverage`) and then executes:
@@ -127,10 +127,18 @@ npx semantic-release
 
 Publishing uses npm trusted publishing via OIDC — no npm token is stored in CI. The trusted publisher is configured on npmjs.com for this repository and the `ci.yml` workflow.
 
+The repository keeps `0.0.0-semantic-release` as its package version.
+The semantic-release tool calculates and writes the published version; do not
+update the placeholder manually. Promoting a prerelease to a stable release
+requires merging `next` to `main` and allowing the `main` workflow to
+publish it.
+
 ## Release Checklist (Maintainer)
 
-1. Confirm branch is eligible for release (`main`, `next`, or maintenance pattern).
-2. Confirm CI is green, including CLI startup check (`node ./dist/cli.js --help`).
-3. Confirm dependency lockfile changes are intentional.
-4. Merge through normal review flow; do not manually publish from local machine.
-5. Verify release artifacts/changelog in npm/Git provider after CI release job completes.
+1. Update the README and migration guide for user-visible or breaking changes.
+2. Run `npm install` after dependency or package metadata changes and commit the updated lockfile.
+3. Run the normal lint, typecheck, build, and test checks.
+4. Confirm CI is green, including the CLI startup check.
+5. For a prerelease, merge to `next`; for a stable release, merge `next` to `main`.
+6. Do not publish manually or edit the semantic-release version placeholder.
+7. Verify the npm package, stable or prerelease dist-tag, Git tag, and GitHub release notes after the workflow completes.

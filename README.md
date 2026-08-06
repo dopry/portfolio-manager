@@ -1,6 +1,6 @@
 # Unofficial Energy Star Portfolio Manager SDK and CLI Tool
 
-**1.x is still evolving and may include breaking changes while the architecture stabilizes.**
+See the [migration guide](MIGRATION.md).
 
 Portfolio Manager is an important benchmarking tool for measurement and verification of energy efficiency projects. It supports federal incentive programs, federal decision making, and Energy Star building certifications. It is primarily used by [large companies](https://www.energystar.gov/buildings/facility-owners-and-managers/existing-buildings/save-energy/expert-help/find-spp/most_active#).
 
@@ -12,11 +12,13 @@ The Node.js SDK makes the platform more accessible to JavaScript developers.
 
 ## Runtime and Packaging
 
-- Node.js: `>=20`
+- Node.js: `>=20.19.0`
 - Package format: ESM-only (`"type": "module"`)
 - CLI bin entry: `dist/cli.js`
 
 If you are consuming the SDK in your own code, use ESM imports.
+SDK classes and types are exported from `portfolio-manager`. CLI command
+classes for embedding are exported separately from `portfolio-manager/cli`.
 
 ## CLI Quickstart
 
@@ -59,9 +61,23 @@ npx portfolio-manager what-changed all \
 
 Use `property`, `property-use`, or `meter` instead of `all` to query one
 What's Changed endpoint. Each command prints its corresponding ID list as JSON.
-The customer ID is required because Portfolio Manager exposes What's Changed
-as a provider-to-connected-customer feed, not as an audit feed for the
-authenticated provider's own account.
+The `customerId` is the account ID used in Portfolio Manager's What's Changed
+route. Use a connected customer's account ID for provider-to-customer feeds.
+The production API can also return changes owned by the authenticated account
+when its own account ID is supplied; the test environment may behave
+differently.
+
+Connection and sharing workflows are also available from the CLI:
+
+```bash
+npx portfolio-manager connection list-pending --indent 2
+npx portfolio-manager connection accept --accountId 100
+npx portfolio-manager share list-pending --indent 2
+npx portfolio-manager notifications list --no-clear --indent 2
+```
+
+Run `npx portfolio-manager <command> --help` for the complete options for a
+command.
 
 ## Local Development Workflow
 
@@ -141,15 +157,22 @@ GitHub Actions (`.github/workflows/ci.yml`) is the source of truth for the pipel
 4. `node ./dist/cli.js --help`
 5. `npm test`
 
-The release job runs `npx semantic-release` from configured release branches (`main`, `next`, and maintenance branch patterns in `package.json`), publishing to npm via trusted publishing (OIDC) — no npm token is stored in CI.
+The release job runs `npx semantic-release` from configured release branches,
+publishing to npm via trusted publishing (OIDC). `next` publishes prereleases;
+stable releases publish from `main`. See `CONTRIBUTING.md` for the release
+checklist. No npm token is stored in CI.
 
 ## SDK
 
-There is not yet a full docs framework; source code is the most complete reference.
+The package includes TypeScript declarations for the complete public API. The
+examples below cover the main entry points; the generated declarations and
+exported source types are the source of truth for individual method signatures.
 
 ### Quickstart
 
 ```typescript
+import { PortfolioManager, PortfolioManagerApi } from "portfolio-manager";
+
 const endpoint = "https://portfoliomanager.energystar.gov/wstest/";
 const username = "<UserName>";
 const password = "<Password>";
@@ -161,8 +184,13 @@ async function main() {
   console.log(properties);
 }
 
-main();
+await main();
 ```
+
+`PortfolioManagerApi` accepts optional `maxRetries` and `retryBaseDelayMs`
+settings for rate-limit handling. `PortfolioManager` accepts optional
+`concurrency` and `logger` settings for facade fan-out operations and error
+reporting.
 
 ### What's Changed
 
@@ -179,8 +207,9 @@ const meters = await api.meterGetWhatChangedGet(100, "2024-01-01");
 ```
 
 The `PortfolioManager` facade maps all paginated links to IDs. What's Changed
-is a provider-to-customer feed, so each call requires the connected customer's
-account ID; querying the provider's own account returns no customer changes.
+requires the account ID whose feed is being queried. This is normally a
+connected customer's ID for provider workflows, but production also supports
+the authenticated account's own ID for its owned resources.
 
 ```typescript
 const customerId = 100;
@@ -192,73 +221,48 @@ const propertyUseIds = await pm.getChangedPropertyUseIds(
 const meterIds = await pm.getChangedMeterIds("2024-01-01", customerId);
 ```
 
-### Interfaces
+### Public API
+
+Use `PortfolioManager` for developer-friendly operations such as accounts,
+properties, meters, metrics, What's Changed feeds, connections, shares, and
+notifications. Representative methods include:
+
+- `getAccount()`, `getProperties()`, `createProperty()`, and `deleteProperty()`
+- `getMeters()`, `createMeter()`, `deleteMeter()`, and `getMeterConsumption()`
+- `getPropertyMetrics()` and `getPropertyMonthlyMetrics()`
+- `getPendingConnections()`, `acceptConnection()`, and `disconnect()`
+- `getPendingPropertyShares()`, `acceptMeterShare()`, and `unshareProperty()`
+- `getNotifications()` and `getCustomerList()`
+
+Use `PortfolioManagerApi` when you need response wrappers that closely match
+the ENERGY STAR web-service endpoints. Its endpoint-oriented methods include
+`accountAccountGet()`, `propertyPropertyGet()`, `meterMeterGet()`,
+`connectAccountPendingListGet()`, and `notificationListGet()`.
+
+Failed HTTP and XML responses throw `PortfolioManagerApiError`, which exposes
+the response status, status text, body, and URL when available. Using the `api`
+instance from the quickstart:
 
 ```typescript
-class PortfolioManager {
-  // Developer-friendly facade to the Portfolio Manager API
-  constructor(api: PortfolioManagerApi) {}
+import { isPortfolioManagerApiError } from "portfolio-manager";
 
-  async getAccount(): Promise<IAccount>;
-  async getAccountId(): Promise<number>;
-  async getMeter(meterId: number): Promise<IMeter>;
-  async getMeterConsumption(
-    meterId: number,
-    startDate?: Date,
-    endDate?: Date,
-  ): Promise<(IMeterDelivery | IMeterConsumption)[]>;
-  async getMeterLinks(
-    propertyId: number,
-    myAccessOnly?: boolean,
-  ): Promise<ILink[]>;
-  async getMeters(propertyId: number): Promise<IMeter[]>;
-  async getAssociatedMeters(
-    propertyId: number,
-  ): Promise<IMeterPropertyAssociationList>;
-  async getProperty(propertyId: number): Promise<IClientProperty>;
-  async getPropertyLinks(accountId?: number): Promise<ILink[]>;
-  async getProperties(accountId?: number): Promise<IClientProperty[]>;
-  async getChangedPropertyIds(
-    date: string,
-    customerId: number,
-  ): Promise<number[]>;
-  async getChangedPropertyUseIds(
-    date: string,
-    customerId: number,
-  ): Promise<number[]>;
-  async getChangedMeterIds(date: string, customerId: number): Promise<number[]>;
+try {
+  await api.accountAccountGet();
+} catch (error) {
+  if (isPortfolioManagerApiError(error)) {
+    console.error(error.status, error.responseText);
+  }
+  throw error;
 }
+```
 
-class PortfolioManagerApi {
-  // Typed gateway to the Portfolio Manager API
-  constructor(endpoint: string, username: string, password: string);
+CLI command classes are intentionally separate from the SDK root:
 
-  async getAccount(): Promise<IGetAccountResponse>;
-  async getMeter(meterId: number): Promise<IGetMeterResponse>;
-  async getProperty(propertyId: number): Promise<IGetPropertyResponse>;
-  async postProperty(
-    property: IProperty,
-    accountId: number,
-  ): Promise<IPostPropertyResponse>;
-  async getPropertyList(accountId: number): Promise<IGetPropertyListResponse>;
-  async postPropertyMeter(
-    propertyId: number,
-    meter: IMeter,
-  ): Promise<IPostPropertyMeterResponse>;
-  async getPropertyMeterAssociationList(
-    propertyId: number,
-  ): Promise<IGetPropertyMeterAssociationListResponse>;
-  async getPropertyMeterList(
-    propertyId: number,
-    myAccessOnly = false,
-  ): Promise<IGetPropertyMeterListResponse>;
-  async getMeterConsumptionData(
-    meterId: number,
-    page?: number,
-    startDate?: Date,
-    endDate?: Date,
-  ): Promise<IGetMeterConsumptionResponse>;
-}
+```typescript
+import {
+  PortfolioManagerCommand,
+  PortfolioManagerConnectionAcceptCommand,
+} from "portfolio-manager/cli";
 ```
 
 ## Contributing
