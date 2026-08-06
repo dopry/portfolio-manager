@@ -29,9 +29,10 @@ the flow is:
    Connect → accept Terms of Use → Send Connection Request).
 2. **Provider → API**: `GET /connect/account/pending/list`, then
    `POST /connect/account/{accountId}` to accept/reject.
-3. **User → UI**: Sharing tab → **Set Up Web Services/Data Exchange** → select
-   provider → Select Properties → choose permissions (Bulk: Exchange Data
-   Full/Read Only/Custom) → **Authorize Exchange**.
+3. **User → UI**: Sharing tab → **Share (or Edit Access to) a Property** → select
+   properties and provider → **Personalized Sharing & Exchange Data** →
+   configure Exchange Data permissions for each property → **Share
+   Property(ies)**.
 4. **Provider → API**: `GET /share/property/pending/list`,
    `POST /share/property/{propertyId}`; same for meters via
    `GET /share/meter/pending/list`, `POST /share/meter/{meterId}`.
@@ -80,8 +81,8 @@ added value at this scale. Revisit if the UI-automation surface grows.
 - [x] Peer account (`PM_USERNAME2`) exists and logs in to `pmtest`.
 - [x] Peer account can call the `wstest` API with basic auth — fixtures are
       created via the SDK (`ensureStandardProperties`/`ensureStandardMeterFixture`).
-- [x] Connect + share flows walked with `test/e2e/probe.ts`; selectors
-      captured in `test/e2e/EspmWebUi.ts`. Notable findings: pages hang on
+- [x] Connect + share flows walked with `test/wstest-e2e/probe.ts`; selectors
+      captured in `test/wstest-e2e/EspmWebUi.ts`. Notable findings: pages hang on
       the `load` event (wait for `domcontentloaded`), page content renders
       via JS after load, contacts live at `/contact/list` (not `/contacts`),
       and the share flow is an Angular app (`wsBulkSharing`,
@@ -90,7 +91,7 @@ added value at this scale. Revisit if the UI-automation surface grows.
 - [x] Provider account had no Terms of Use / custom fields (no agreement
       checkbox rendered). **Gotcha found:** the provider account was not
       _searchable_, so the peer's contact search returned zero results.
-      Fixed via `npx tsx test/e2e/probe.ts provider-settings --make-searchable`
+      Fixed via `npx tsx test/wstest-e2e/probe.ts provider-settings --make-searchable`
       — a persistent account setting, re-apply after an EPA test-environment
       refresh.
 
@@ -98,19 +99,19 @@ added value at this scale. Revisit if the UI-automation surface grows.
 
 - Add `playwright` to `devDependencies`; add `npx playwright install chromium`
   to CI and CONTRIBUTING setup notes.
-- New directory `test/e2e/` (as built):
-  - `test/e2e/EspmWebUi.ts` — page-object style helper around a Playwright
+- New directory `test/wstest-e2e/` (as built):
+  - `test/wstest-e2e/EspmWebUi.ts` — page-object style helper around a Playwright
     `Page`: `login()`, `sendConnectionRequest(providerUsername)`,
     `setupDataExchangeShare({ propertyNames, accessLevel })`, `close()`.
-  - `test/e2e/support.ts` — env config plus orchestration helpers combining
+  - `test/wstest-e2e/support.ts` — env config plus orchestration helpers combining
     SDK + UI: `ensureCleanProviderState()`, `disconnectIfConnected()`,
     `ensurePeerFixtures()`, `waitFor()`.
-  - `test/e2e/probe.ts` / `test/e2e/state.ts` — selector-maintenance and
+  - `test/wstest-e2e/probe.ts` / `test/wstest-e2e/state.ts` — selector-maintenance and
     pending-state debug utilities.
 - Env vars: `PM_USERNAME2`, `PM_PASSWORD2` (persistent peer account), optional
   `PM_WEB_ENDPOINT` (default `https://portfoliomanager.energystar.gov/pmtest`),
   `E2E_HEADLESS` (default true), `E2E_TRACE_DIR` (trace output directory,
-  default `test-results/e2e`; traces are written on failure).
+  default `test-results/wstest-e2e`; traces are written on failure).
 
 ### 2. Fixture & state management
 
@@ -129,27 +130,32 @@ added value at this scale. Revisit if the UI-automation surface grows.
 
 ### 3. Integration spec
 
-`test/e2e/connectionSharing.e2e.spec.ts` (run only via `npm run test:e2e`;
+`test/wstest-e2e/connectionSharing.wstest-e2e.spec.ts` (run only via
+`npm run test:wstest-e2e`;
 fails fast with a clear error unless provider + peer creds are set, matching
 the repo's live-test convention), sequential lifecycle:
 
 1. **Connection**: seed connection request via UI →
    `getPendingConnections()` contains the peer account →
    `acceptConnection(accountId, note)` → pending list is empty.
-2. **Property share (accept)**: seed Exchange Data share of fixture property
-   (bulk, Full Access) → `getPendingPropertyShares()` →
+2. **Bulk recovery probe**: exercise **Set Up Web Services/Data Exchange** →
+   bulk Full Access. Permit only WSTest's known `authorizeExchange.json` HTTP
+   500 with `{}`; fail for any other error, and intentionally fail when the
+   endpoint starts succeeding so the quarantine is removed.
+3. **Property share (accept)**: seed a personalized Exchange Data share of the
+   fixture property (Full Access) → `getPendingPropertyShares()` →
    `acceptPropertyShare()` → verify real access: `getProperty(propertyId)` /
    property metrics succeed from the provider account.
-3. **Meter share**: `getPendingMeterShares()` → accept → verify
+4. **Meter share**: `getPendingMeterShares()` → accept → verify
    `getMeter`/consumption access. Cover the documented coupling: accepting a
    meter share auto-accepts the pending property share, while accepting a
    property share does **not** auto-accept meter shares.
-4. **Reject path**: seed a second share → `rejectPropertyShare()` → pending
+5. **Reject path**: seed a second share → `rejectPropertyShare()` → pending
    list empty, no access granted.
-5. **Unshare / disconnect**: `unshareProperty()` removes access;
+6. **Unshare / disconnect**: `unshareProperty()` removes access;
    `disconnect({ keepShares: false })` → connection gone; re-verify provider
    has no residual access.
-6. Cleanup in `afterAll` (best-effort, mirrors `ensureCleanState`).
+7. Cleanup in `afterAll` (best-effort, mirrors `ensureCleanState`).
 
 Out of scope for v1 (note as future scenarios): share-forward/middleman
 (PDA vs `notificationCreatedByAccountId`), transfer of ownership, custom
@@ -158,15 +164,15 @@ many requests), `SHAREUPDATE` notifications on permission edits.
 
 ### 4. npm scripts & CI
 
-- `"test:e2e": "vitest run --config vitest.e2e.config.ts"` (or an include
-  pattern for `*.e2e.spec.ts`); exclude `*.e2e.spec.ts` from the default
-  `vitest run` so unit/CI runs stay fast and hermetic.
-- GitHub Actions: new `e2e` job/workflow.
+- `"test:wstest-e2e": "vitest run --config vitest.wstest-e2e.config.ts"`;
+  exclude `*.wstest-e2e.spec.ts` from the default
+  `vitest run` so the default suite does not install or drive a browser.
+- GitHub Actions: `wstest-e2e` job/workflow.
   - Secrets: `PM_USERNAME`, `PM_PASSWORD`, `PM_USERNAME2`, `PM_PASSWORD2`.
-  - **Nightly schedule + manual dispatch**, not per-PR: the shared test
-    environment is slow, rate-limited, and stateful; UI drift makes it flaky
-    relative to PR signal.
-  - `concurrency: { group: espm-test-env, cancel-in-progress: false }` —
+  - Run in `CI / wstest-e2e` for trusted pull requests and `main`/`next`
+    pushes, nightly, and by manual dispatch. Fork contributors run it in their
+    fork with their own credentials.
+  - `concurrency: { group: espm-wstest-e2e, cancel-in-progress: false }` —
     the test accounts are a shared singleton; runs must serialize.
   - Upload Playwright traces/screenshots as artifacts on failure.
 

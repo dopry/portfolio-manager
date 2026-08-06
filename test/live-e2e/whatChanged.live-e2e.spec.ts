@@ -22,7 +22,7 @@ const USERNAME = process.env.PM_USERNAME || "";
 const PASSWORD = process.env.PM_PASSWORD || "";
 if (!USERNAME || !PASSWORD) {
   throw new Error(
-    "The live-environment What's Changed test requires PM_USERNAME and PM_PASSWORD.",
+    "The Live E2E What's Changed test requires PM_USERNAME and PM_PASSWORD.",
   );
 }
 

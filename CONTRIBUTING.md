@@ -54,11 +54,11 @@ We optimize for early detection of upstream Portfolio Manager API changes.
 - Test endpoint is fixed to `https://portfoliomanager.energystar.gov/wstest/`.
 - Required environment variables: `PM_USERNAME` and `PM_PASSWORD`.
 
-## End-to-End Connection & Sharing Tests
+## wstest-e2e Tests
 
 ESPM's web services API cannot initiate connection or share requests — a
-standard user must do that through the web UI. The e2e suite
-(`test/e2e/`) drives the **peer account** (`PM_USERNAME2`/`PM_PASSWORD2`)
+standard user must do that through the web UI. The `wstest-e2e` suite
+(`test/wstest-e2e/`) drives the **peer account** (`PM_USERNAME2`/`PM_PASSWORD2`)
 through the test web UI (`https://portfoliomanager.energystar.gov/pmtest`)
 with Playwright to seed those requests, then exercises the SDK as the
 **provider account** (`PM_USERNAME`/`PM_PASSWORD`) against `wstest` to
@@ -67,14 +67,16 @@ accept, verify, and clean up. Design and rationale live in
 
 ```bash
 npx playwright install chromium   # one-time browser download
-npm run typecheck:e2e
-npm run test:e2e
+npm run typecheck:wstest-e2e
+npm run test:wstest-e2e
 ```
 
 Notes:
 
-- The suite is excluded from `npm test`; it runs nightly in CI
-  (`.github/workflows/e2e.yml`) and serializes on the shared test accounts.
+- The suite is excluded from `npm test`; the `CI / wstest-e2e` job runs it for
+  trusted pull requests and pushes to `main` or `next`. A dedicated
+  `.github/workflows/wstest-e2e.yml` workflow also runs nightly and on demand.
+  All runs serialize on the shared test accounts.
 - The peer account is a persistent, standard (non-provider) account in the
   test environment. If EPA refreshes the test environment, recreate it via
   the `pmtest` UI and update the `PM_USERNAME2`/`PM_PASSWORD2` secrets.
@@ -82,20 +84,41 @@ Notes:
   finds nothing (Account Settings → Your Preferences → "Do you want your
   username to be searchable..." → Yes). Already enabled; after an EPA test
   environment refresh, re-apply with
-  `npx tsx test/e2e/probe.ts provider-settings --make-searchable`.
-- `test/e2e/probe.ts` is a selector-maintenance tool: it logs in and dumps
+  `npx tsx test/wstest-e2e/probe.ts provider-settings --make-searchable`.
+- `test/wstest-e2e/probe.ts` is a selector-maintenance tool: it logs in and dumps
   page structure (links, controls, dialogs) for each step of the flows, e.g.
-  `npx tsx test/e2e/probe.ts contacts|add|connect|sharing|wsshare`. Use it
+  `npx tsx test/wstest-e2e/probe.ts contacts|add|connect|sharing|wsshare`. Use it
   to revalidate locators when the ESPM UI changes.
 - Set `E2E_HEADLESS=false` to watch the browser locally; failed runs write
-  Playwright traces to `test-results/e2e/` (override with `E2E_TRACE_DIR`;
+  Playwright traces to `test-results/wstest-e2e/` (override with `E2E_TRACE_DIR`;
   inspect with `npx playwright show-trace <file>.zip`).
 - Endpoints are overridable for alternate environments: `PM_WEB_ENDPOINT`
   (web UI, default `https://portfoliomanager.energystar.gov/pmtest`) and
   `PM_ENDPOINT` (web services API, default
   `https://portfoliomanager.energystar.gov/wstest/`).
-- UI locators live only in `test/e2e/EspmWebUi.ts`; when the ESPM UI changes,
+- UI locators live only in `test/wstest-e2e/EspmWebUi.ts`; when the ESPM UI changes,
   that file is the single place to fix.
+
+## Running E2E Tests From a Fork
+
+GitHub intentionally withholds repository secrets from upstream workflows for
+fork pull requests and Dependabot. Their upstream `CI / wstest-e2e` and
+`CI / live-e2e` jobs are reported as skipped rather than receiving credentials.
+
+To validate a branch in your own fork:
+
+1. Enable GitHub Actions for the fork.
+2. Under **Settings → Secrets and variables → Actions**, add your own test
+   account credentials:
+   - `TEST_PM_USERNAME` and `TEST_PM_PASSWORD`
+   - `TEST_PM_USERNAME2` and `TEST_PM_PASSWORD2`
+   - `LIVE_PM_USERNAME` and `LIVE_PM_PASSWORD` if running Live E2E
+3. Open the fork's **Actions** tab, select `wstest-e2e` or `live-e2e`, choose
+   **Run workflow**, and select the pull-request branch.
+
+Never add credentials to workflow files, commits, pull-request descriptions,
+logs, or uploaded artifacts. Fork credentials remain isolated to the fork;
+they are not made available to the upstream pull-request workflow.
 
 ## CI Source Of Truth
 

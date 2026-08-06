@@ -10,7 +10,7 @@ import { Browser, BrowserContext, Page, chromium, errors } from "playwright";
  * Properties" documents — see plans/connection-sharing-e2e-tests.md.
  *
  * Locators were validated against the live pmtest UI on 2026-07-04 using
- * test/e2e/probe.ts — rerun that tool to revalidate when the ESPM UI drifts.
+ * test/wstest-e2e/probe.ts — rerun that tool to revalidate when the ESPM UI drifts.
  * Keep every selector in this file so drift is a single-file fix.
  */
 
@@ -18,6 +18,33 @@ export const DEFAULT_WEB_UI_URL =
   "https://portfoliomanager.energystar.gov/pmtest";
 
 export type ExchangeDataAccessLevel = "Full Access" | "Read Only Access";
+
+export class EspmWebUiResponseError extends Error {
+  constructor(
+    readonly endpoint: string,
+    readonly status: number,
+    readonly body: string,
+  ) {
+    super(`${endpoint} returned HTTP ${status}${body ? ` — ${body}` : ""}`);
+    this.name = "EspmWebUiResponseError";
+  }
+}
+
+/**
+ * WSTest currently answers the bulk Data Exchange endpoint with this exact
+ * server-side failure. Keep the match deliberately narrow so authentication,
+ * selector, timeout, and changed-response failures still fail CI normally.
+ */
+export function isKnownWstestBulkSharingFailure(
+  error: unknown,
+): error is EspmWebUiResponseError {
+  return (
+    error instanceof EspmWebUiResponseError &&
+    error.endpoint === "/wsBulkSharing/authorizeExchange.json" &&
+    error.status === 500 &&
+    error.body.trim() === "{}"
+  );
+}
 
 export interface IEspmWebUiOptions {
   baseUrl?: string;
@@ -180,7 +207,7 @@ export class EspmWebUi {
    * -> Select Properties -> Bulk Sharing (Exchange Data Full/Read Only
    * Access) -> Authorize Exchange.
    */
-  async setupDataExchangeShare(options: {
+  async setupBulkDataExchangeShare(options: {
     providerUsername: string;
     propertyNames: string[];
     accessLevel: ExchangeDataAccessLevel;
@@ -270,9 +297,146 @@ export class EspmWebUi {
       );
     }
     if (response.status() !== 200) {
+      throw new EspmWebUiResponseError(
+        "/wsBulkSharing/authorizeExchange.json",
+        response.status(),
+        await response.text().catch(() => ""),
+      );
+    }
+  }
+
+  /**
+   * Shares properties with a connected provider through Portfolio Manager's
+   * personalized Exchange Data flow. Unlike the bulk shortcut, this route
+   * sends explicit property and meter permissions through /sharing/submit.json.
+   *
+   * UI path: Sharing -> Share (or Edit Access to) a Property -> select
+   * properties/contact -> Personalized Sharing & Exchange Data -> Exchange
+   * Data for each property -> Apply Selections & Authorize Exchange -> Share.
+   */
+  async setupPersonalizedDataExchangeShare(options: {
+    providerUsername: string;
+    propertyNames: string[];
+    accessLevel: ExchangeDataAccessLevel;
+  }): Promise<void> {
+    const page = this.page;
+    await this.goto(`${this.baseUrl}/sharing_shareProperty`);
+
+    // 1. Select properties and retain their ids for the permission controls
+    // on the next page. Checkbox ids are the Portfolio Manager property ids.
+    await page.locator("#buttonSelectProperties").click();
+    const propertyIds = new Map<string, string>();
+    for (const propertyName of options.propertyNames) {
+      const checkbox = page
+        .locator("tr", { hasText: propertyName })
+        .locator('input[type="checkbox"]')
+        .first();
+      await checkbox.check();
+      const propertyId = await checkbox.getAttribute("id");
+      if (!propertyId) {
+        throw new Error(
+          `Selected property '${propertyName}' has no Portfolio Manager id`,
+        );
+      }
+      propertyIds.set(propertyName, propertyId);
+    }
+    await page
+      .locator("#selectPropertyPage_modalDialog_applySelectionButton")
+      .click();
+
+    // 2. Select the connected provider and choose per-property permissions.
+    const providerSelect = page.locator("#shareWithContactControl");
+    const providerOption = providerSelect
+      .locator("option", { hasText: options.providerUsername })
+      .first();
+    try {
+      await providerOption.waitFor({ state: "attached" });
+    } catch {
       throw new Error(
-        `wsBulkSharing/authorizeExchange.json returned HTTP ${response.status()} — ` +
-          "ESPM test environment error while creating the share request.",
+        `No connected provider contact matching '${options.providerUsername}'`,
+      );
+    }
+    const providerValue = await providerOption.getAttribute("value");
+    await providerSelect.selectOption(
+      providerValue
+        ? providerValue
+        : { label: (await providerOption.innerText()).trim() },
+    );
+    await page.locator("#bulkShare-No").check();
+    await page.locator("#sharePropertyButton").click();
+    await page.waitForLoadState("domcontentloaded");
+
+    // 3. Exchange Data is selected and configured separately for each
+    // property. Meter radios render only for properties that own meters.
+    for (const [propertyName, propertyId] of propertyIds) {
+      const exchangeRadio = page.locator(
+        `input[name$="_${propertyId}-accessLevel0"][value="WEBSERVICE_ACCESS"]`,
+      );
+      try {
+        await exchangeRadio.waitFor({ state: "visible" });
+      } catch {
+        throw new Error(
+          `No Exchange Data option for selected property '${propertyName}'`,
+        );
+      }
+      // Portfolio Manager handles this radio as a command: clicking it opens
+      // the permissions dialog, and it becomes checked only after Apply.
+      await exchangeRadio.click();
+
+      const applyPermissions = page.locator(
+        "#webServiceAccessModalApply:visible",
+      );
+      await applyPermissions.waitFor({ state: "visible" });
+      const permissionNames = await page
+        .locator('input[name^="DX_"][type="radio"]:visible')
+        .evaluateAll((inputs) =>
+          Array.from(
+            new Set(
+              inputs
+                .map((input) => input.getAttribute("name"))
+                .filter((name): name is string => Boolean(name)),
+            ),
+          ),
+        );
+      for (const permissionName of permissionNames) {
+        if (permissionName.startsWith("DX_ALLOW_SHARE_FWD_")) continue;
+        const permission =
+          options.accessLevel === "Full Access" ||
+          !permissionName.startsWith("DX_RECOGNITION_")
+            ? options.accessLevel === "Full Access"
+              ? "FULL_ACCESS"
+              : "READ_ONLY"
+            : "NONE";
+        await page
+          .locator(
+            `input[name="${permissionName}"][value="${permission}"]:visible`,
+          )
+          .check();
+      }
+      await page
+        .locator(
+          `input[name^="DX_ALLOW_SHARE_FWD_"][value="${
+            options.accessLevel === "Full Access" ? "true" : "false"
+          }"]:visible`,
+        )
+        .check();
+      await applyPermissions.click();
+      await applyPermissions.waitFor({ state: "hidden" });
+    }
+
+    // 4. Submit the explicit per-property exchange permissions and verify the
+    // XHR because the UI otherwise provides little diagnostic information.
+    const submitResponse = page.waitForResponse(
+      (response) => response.url().includes("/sharing/submit.json"),
+      { timeout: 180000 },
+    );
+    await page.locator("#shareProperty-submit").click();
+    const response = await submitResponse;
+    if (response.status() !== 200) {
+      throw new EspmWebUiResponseError(
+        "/sharing/submit.json",
+        response.status(),
+        await response.text().catch(() => ""),
       );
     }
   }

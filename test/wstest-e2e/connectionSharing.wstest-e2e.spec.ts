@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { EspmWebUi } from "./EspmWebUi.js";
+import { EspmWebUi, isKnownWstestBulkSharingFailure } from "./EspmWebUi.js";
 import {
   createClient,
   disconnectIfConnected,
@@ -24,7 +24,7 @@ import {
 
 const config = getE2eConfig();
 
-describe("Connection & Sharing (e2e)", () => {
+describe("Connection & Sharing (WSTest E2E)", () => {
   let provider: IE2eClient;
   let peer: IE2eClient;
   let ui: EspmWebUi;
@@ -113,8 +113,36 @@ describe("Connection & Sharing (e2e)", () => {
     },
   );
 
+  step(
+    "bulk Data Exchange reports the known WSTest failure until it recovers",
+    async () => {
+      try {
+        await ui.setupBulkDataExchangeShare({
+          providerUsername: config.provider.username,
+          propertyNames: [E2E_PROPERTY_NAME],
+          accessLevel: "Full Access",
+        });
+      } catch (error) {
+        if (isKnownWstestBulkSharingFailure(error)) {
+          console.warn(
+            "Known WSTest limitation: bulk authorizeExchange returned HTTP 500 with {}",
+          );
+          return;
+        }
+        throw error;
+      }
+
+      // An unexpected success creates real pending requests. Remove them so
+      // the recovery signal is the only failure and later runs start clean.
+      await ensureCleanProviderState(provider.pm, config.peer.username);
+      throw new Error(
+        "WSTest bulk Data Exchange now succeeds; remove its known-failure quarantine",
+      );
+    },
+  );
+
   step("peer shares the fixture property for data exchange", async () => {
-    await ui.setupDataExchangeShare({
+    await ui.setupPersonalizedDataExchangeShare({
       providerUsername: config.provider.username,
       propertyNames: [E2E_PROPERTY_NAME],
       accessLevel: "Full Access",
@@ -170,7 +198,7 @@ describe("Connection & Sharing (e2e)", () => {
     });
 
     // Seed a second share and exercise the reject path.
-    await ui.setupDataExchangeShare({
+    await ui.setupPersonalizedDataExchangeShare({
       providerUsername: config.provider.username,
       propertyNames: [E2E_PROPERTY_NAME],
       accessLevel: "Read Only Access",

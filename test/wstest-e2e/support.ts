@@ -47,7 +47,7 @@ export function getE2eConfig(): IE2eConfig {
     !peer.password
   ) {
     throw new Error(
-      "The e2e suite needs PM_USERNAME/PM_PASSWORD (provider) and " +
+      "The WSTest E2E suite needs PM_USERNAME/PM_PASSWORD (provider) and " +
         "PM_USERNAME2/PM_PASSWORD2 (persistent peer) environment variables.",
     );
   }
@@ -57,7 +57,7 @@ export function getE2eConfig(): IE2eConfig {
     provider,
     peer,
     headless: process.env.E2E_HEADLESS !== "false",
-    traceDir: process.env.E2E_TRACE_DIR || "test-results/e2e",
+    traceDir: process.env.E2E_TRACE_DIR || "test-results/wstest-e2e",
   };
 }
 

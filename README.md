@@ -149,7 +149,7 @@ Safety checks in the script:
 - requires `--yes`
 - refuses non-`/wstest/` endpoints unless `--allow-non-test-endpoint` is set
 
-### Live-Environment What's Changed Test
+### live-e2e Tests
 
 The live-environment integration test maintains a property, property use, and
 meter owned by the authenticated test account. It verifies that the property has a
@@ -162,20 +162,22 @@ cadence. A missing entity is skipped only when it was newly seeded or its last
 persisted mutation predates the lookback; a fresh missing change fails the test.
 
 It is excluded from the default local test suite because it writes to the live
-ESPM environment. The dedicated workflow runs for pull requests, weekly, and
-on demand using the `LIVE_PM_USERNAME` and `LIVE_PM_PASSWORD` repository
-secrets. All runs share one concurrency group so the persistent fixture is
-never mutated by overlapping jobs. The same workflow gates releases from
-`main` and `next`.
+ESPM environment. The `CI / live-e2e` job runs for trusted pull requests and
+pushes to `main` or `next` using the `LIVE_PM_USERNAME` and `LIVE_PM_PASSWORD`
+repository secrets. A dedicated `live-e2e` workflow also runs weekly and on
+demand. All runs share one concurrency group so the persistent fixture is
+never mutated by overlapping jobs. The CI job gates releases from `main` and
+`next`.
 
-Live-environment credentials are unavailable to fork pull requests. Those changes
-must be tested from a trusted branch in this repository before merging.
+Live-environment credentials are unavailable to upstream workflows for fork
+pull requests. Fork contributors can configure their own credentials and run
+the workflow in their fork; see `CONTRIBUTING.md`.
 
 ```bash
 export PM_USERNAME="LiveEnvironmentUserName"
 export PM_PASSWORD="LiveEnvironmentPassword"
-npm run typecheck:live-env
-npm run test:live-env
+npm run typecheck:live-e2e
+npm run test:live-e2e
 ```
 
 The live-environment endpoint is fixed to
