@@ -1,0 +1,37 @@
+name: Live Environment What's Changed
+
+on:
+  pull_request:
+  workflow_call:
+    secrets:
+      LIVE_PM_USERNAME:
+        required: true
+      LIVE_PM_PASSWORD:
+        required: true
+  schedule:
+    # Refresh the persistent fixture every Monday at 10:43 UTC.
+    - cron: "43 10 * * 1"
+  workflow_dispatch:
+
+# The persistent live-environment fixture is mutated once per run. Never overlap it.
+concurrency:
+  group: espm-live-env-whats-changed
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck:live-env
+      - name: Run live-environment What's Changed test
+        env:
+          PM_USERNAME: ${{ secrets.LIVE_PM_USERNAME }}
+          PM_PASSWORD: ${{ secrets.LIVE_PM_PASSWORD }}
+        run: npm run test:live-env

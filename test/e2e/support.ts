@@ -5,8 +5,9 @@ import {
 } from "../../src/PortfolioManagerApi.js";
 import { ensureStandardMeterFixture } from "../../src/test/ensureStandardMeterFixture.js";
 import { ensureStandardProperties } from "../../src/test/ensureStandardProperties.js";
+import { toEditableProperty } from "../../src/test/toEditableProperty.js";
 import { isIPopulatedResponse } from "../../src/types/xml/index.js";
-import type { IAccount, IProperty } from "../../src/types/xml/index.js";
+import type { IAccount } from "../../src/types/xml/index.js";
 import { DEFAULT_WEB_UI_URL } from "./EspmWebUi.js";
 
 export const DEFAULT_API_URL =
@@ -75,18 +76,6 @@ export function createClient(
     credentials.password,
   );
   return { api, pm: new PortfolioManager(api) };
-}
-
-type EditableProperty = Omit<IProperty, "id" | "accessLevel" | "audit">;
-
-function toEditableProperty(property: IProperty): EditableProperty {
-  const {
-    id: _id,
-    accessLevel: _accessLevel,
-    audit: _audit,
-    ...editable
-  } = property;
-  return editable;
 }
 
 async function ensureWhatChangedCustomer(
