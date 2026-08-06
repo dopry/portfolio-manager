@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:portfolio-manager:property-bundle:v1",
+  "title": "Portfolio Manager portable property bundle v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "format",
+    "formatVersion",
+    "capabilities",
+    "properties"
+  ],
+  "properties": {
+    "$schema": { "const": "urn:portfolio-manager:property-bundle:v1" },
+    "format": { "const": "portfolio-manager/property-bundle" },
+    "formatVersion": { "const": 1 },
+    "capabilities": {
+      "type": "array",
+      "prefixItems": [{ "const": "property" }],
+      "items": false,
+      "minItems": 1,
+      "maxItems": 1
+    },
+    "properties": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/propertyEntry" }
+    }
+  },
+  "$defs": {
+    "floorArea": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["@_units", "value"],
+      "properties": {
+        "@_units": { "enum": ["Square Feet", "Square Meters"] },
+        "@_temporary": { "type": "boolean" },
+        "currentAsOf": { "type": "string", "format": "date" },
+        "value": { "type": "number" }
+      }
+    },
+    "address": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["@_address1", "@_city", "@_postalCode", "@_country"],
+      "properties": {
+        "@_address1": { "type": "string" },
+        "@_address2": { "type": "string" },
+        "@_city": { "type": "string" },
+        "@_county": { "type": "string" },
+        "@_postalCode": { "type": "string" },
+        "@_state": { "type": "string" },
+        "@_otherState": { "type": "string" },
+        "@_country": { "type": "string" }
+      }
+    },
+    "irrigatedArea": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["units", "value"],
+      "properties": {
+        "default": { "type": "boolean" },
+        "units": {
+          "enum": ["Square Feet", "Square Meters", "Acres", ""]
+        },
+        "value": {
+          "anyOf": [{ "type": "number" }, { "const": "" }]
+        }
+      }
+    },
+    "property": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "constructionStatus",
+        "primaryFunction",
+        "grossFloorArea",
+        "yearBuilt",
+        "address",
+        "isFederalProperty",
+        "occupancyPercentage"
+      ],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "constructionStatus": {
+          "enum": ["Existing", "Project", "Test"]
+        },
+        "primaryFunction": { "type": "string", "minLength": 1 },
+        "grossFloorArea": { "$ref": "#/$defs/floorArea" },
+        "irrigatedArea": { "$ref": "#/$defs/irrigatedArea" },
+        "yearBuilt": { "type": "integer" },
+        "address": { "$ref": "#/$defs/address" },
+        "numberOfBuildings": { "type": "number" },
+        "isFederalProperty": { "type": "boolean" },
+        "federalOwner": { "type": "string" },
+        "agency": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "country"],
+          "properties": {
+            "id": { "type": "integer" },
+            "code": { "type": "string" },
+            "name": { "type": "string" },
+            "country": { "type": "string" }
+          }
+        },
+        "agencyDepartmentRegion": { "type": "string" },
+        "federalCampus": { "type": "string" },
+        "occupancyPercentage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "multipleOf": 5
+        },
+        "notes": { "type": "string" },
+        "isInstitutionalProperty": { "type": "boolean" }
+      }
+    },
+    "propertyEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref", "property"],
+      "properties": {
+        "ref": {
+          "type": "string",
+          "pattern": "^property:[1-9][0-9]*$"
+        },
+        "property": { "$ref": "#/$defs/property" }
+      }
+    }
+  }
+}

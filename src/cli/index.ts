@@ -20,6 +20,8 @@ export * from "./PortfolioManagerMeterListEntitiesCommand.js";
 export * from "./PortfolioManagerMeterListLinksCommand.js";
 export * from "./PortfolioManagerNotificationsCommand.js";
 export * from "./PortfolioManagerPropertyCommand.js";
+export * from "./PortfolioManagerPropertyExportCommand.js";
+export * from "./PortfolioManagerPropertyImportCommand.js";
 export * from "./PortfolioManagerPropertyListCommand.js";
 export * from "./PortfolioManagerPropertyListEntitiesCommand.js";
 export * from "./PortfolioManagerPropertyListLinksCommand.js";

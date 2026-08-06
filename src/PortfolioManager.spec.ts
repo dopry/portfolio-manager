@@ -188,6 +188,43 @@ describe("PortfolioManager (integration)", () => {
     ).to.equal(false);
   }, 90000);
 
+  it("exports and imports a property bundle in the wstest environment", async () => {
+    const source = await pm.createProperty({
+      ...mockIProperty(),
+      name: withRunId("PM Bundle Source"),
+    });
+    createdPropertyIds.push(source.id);
+
+    const bundle = await pm.exportProperty(source.id);
+    expect(bundle.properties).to.have.length(1);
+    expect(bundle.properties[0].property.name).to.equal(source.name);
+    expect(bundle.properties[0].property).not.to.have.property("id");
+    expect(bundle.properties[0].property).not.to.have.property("audit");
+
+    const result = await pm.importProperties(bundle, {
+      namePrefix: "Imported ",
+    });
+    expect(result.status, JSON.stringify(result)).to.equal("complete");
+    const importedResult = result.properties[0];
+    expect(importedResult.status, JSON.stringify(result)).to.equal("created");
+    if (importedResult.id === undefined) {
+      throw new Error(
+        `Expected imported property id: ${JSON.stringify(result)}`,
+      );
+    }
+    createdPropertyIds.push(importedResult.id);
+
+    const imported = await pm.getProperty(importedResult.id);
+    expect(imported.name).to.equal(`Imported ${source.name}`);
+    expect(imported.primaryFunction).to.equal(source.primaryFunction);
+    expect(imported.grossFloorArea.value).to.equal(source.grossFloorArea.value);
+
+    expect(await pm.deleteProperty(importedResult.id)).to.equal(true);
+    untrackId(createdPropertyIds, importedResult.id);
+    expect(await pm.deleteProperty(source.id)).to.equal(true);
+    untrackId(createdPropertyIds, source.id);
+  }, 120000);
+
   it("createMeter + getMeterLinks + getMeter", async () => {
     const propertyId = testPropertyIds[0];
 

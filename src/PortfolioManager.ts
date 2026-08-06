@@ -5,6 +5,10 @@ import {
 import { mapWithConcurrency } from "./functions/mapWithConcurrency.js";
 import { parseLinkId } from "./functions/parseLinkId.js";
 import {
+  sanitizePropertyForBundle,
+  validatePropertyBundle,
+} from "./PropertyBundle.js";
+import {
   IAccount,
   IAdditionalIdentifier,
   IClientConsumption,
@@ -37,6 +41,14 @@ import {
   IWhatChangedOptions,
   ShareLevel,
   AcceptRejectAction,
+  IExportPropertiesOptions,
+  IImportPropertiesOptions,
+  IImportPropertiesResult,
+  IImportPropertyResult,
+  IPropertyBundleV1,
+  PROPERTY_BUNDLE_FORMAT,
+  PROPERTY_BUNDLE_SCHEMA,
+  PROPERTY_BUNDLE_VERSION,
 } from "./types/index.js";
 
 /**
@@ -473,9 +485,15 @@ export class PortfolioManager {
     );
   }
 
-  async createProperty(property: Omit<IProperty, "id">): Promise<IProperty> {
-    const account = await this.getAccount();
-    const response = await this.api.propertyPropertyPost(property, account.id);
+  async createProperty(
+    property: Omit<IProperty, "id">,
+    accountId?: number,
+  ): Promise<IProperty> {
+    const targetAccountId = accountId ?? (await this.getAccountId());
+    const response = await this.api.propertyPropertyPost(
+      property,
+      targetAccountId,
+    );
     if (isIPopulatedResponse(response.response)) {
       const propertyId = response.response.id;
       return await this.getProperty(propertyId);
@@ -543,6 +561,167 @@ export class PortfolioManager {
       },
     );
     return properties;
+  }
+
+  async exportProperty(
+    propertyId: number,
+    options: IExportPropertiesOptions = {},
+  ): Promise<IPropertyBundleV1> {
+    return this.exportProperties([propertyId], options);
+  }
+
+  async exportProperties(
+    propertyIds: number[],
+    options: IExportPropertiesOptions = {},
+  ): Promise<IPropertyBundleV1> {
+    if (propertyIds.length === 0) {
+      throw new TypeError("At least one property id is required");
+    }
+    if (
+      propertyIds.some(
+        (propertyId) => !Number.isInteger(propertyId) || propertyId < 1,
+      )
+    ) {
+      throw new TypeError("Property ids must be positive integers");
+    }
+    if (new Set(propertyIds).size !== propertyIds.length) {
+      throw new TypeError("Property ids must not contain duplicates");
+    }
+
+    const sortedIds = [...propertyIds].sort((left, right) => left - right);
+    let completed = 0;
+    const properties = await mapWithConcurrency(
+      sortedIds,
+      this.concurrency,
+      async (propertyId, index) => {
+        const property = await this.getProperty(propertyId);
+        completed++;
+        const ref = `property:${index + 1}`;
+        options.onProgress?.({
+          operation: "export",
+          propertyRef: ref,
+          completed,
+          total: sortedIds.length,
+        });
+        return {
+          ref,
+          property: sanitizePropertyForBundle(property),
+        };
+      },
+    );
+
+    return {
+      $schema: PROPERTY_BUNDLE_SCHEMA,
+      format: PROPERTY_BUNDLE_FORMAT,
+      formatVersion: PROPERTY_BUNDLE_VERSION,
+      capabilities: ["property"],
+      properties,
+    };
+  }
+
+  async importProperties(
+    bundle: unknown,
+    options: IImportPropertiesOptions = {},
+  ): Promise<IImportPropertiesResult> {
+    validatePropertyBundle(bundle);
+    if (
+      options.accountId !== undefined &&
+      (!Number.isInteger(options.accountId) || options.accountId < 1)
+    ) {
+      throw new TypeError("Target account id must be a positive integer");
+    }
+    const imports = bundle.properties.map((entry) => {
+      const { currentAsOf, ...grossFloorArea } = entry.property.grossFloorArea;
+      return {
+        ref: entry.ref,
+        property: {
+          ...entry.property,
+          name: `${options.namePrefix ?? ""}${entry.property.name}${options.nameSuffix ?? ""}`,
+          grossFloorArea: {
+            ...grossFloorArea,
+            ...(currentAsOf === undefined
+              ? {}
+              : {
+                  currentAsOf: new Date(`${currentAsOf}T00:00:00Z`),
+                }),
+          },
+        },
+      };
+    });
+    const total = imports.length;
+    for (const entry of imports) {
+      if (entry.property.name.length < 1 || entry.property.name.length > 80) {
+        throw new TypeError(
+          `Imported property name for ${entry.ref} must contain 1-80 characters`,
+        );
+      }
+    }
+
+    if (options.dryRun) {
+      return {
+        status: "dry-run",
+        properties: imports.map((entry) => ({
+          ref: entry.ref,
+          status: "planned",
+        })),
+      };
+    }
+
+    const results: IImportPropertyResult[] = [];
+    let completed = 0;
+
+    for (const entry of imports) {
+      try {
+        const property = await this.createProperty(
+          entry.property,
+          options.accountId,
+        );
+        results.push({ ref: entry.ref, status: "created", id: property.id });
+        completed++;
+        options.onProgress?.({
+          operation: "import",
+          propertyRef: entry.ref,
+          completed,
+          total,
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        results.push({ ref: entry.ref, status: "failed", error: message });
+
+        if (!options.keepPartial) {
+          const created = results
+            .filter(
+              (result): result is IImportPropertyResult & { id: number } =>
+                result.status === "created" && result.id !== undefined,
+            )
+            .reverse();
+          let cleanupCompleted = 0;
+          for (const result of created) {
+            try {
+              await this.deleteProperty(result.id);
+              result.status = "rolled-back";
+            } catch (cleanupError) {
+              result.status = "cleanup-failed";
+              result.error =
+                cleanupError instanceof Error
+                  ? cleanupError.message
+                  : String(cleanupError);
+            }
+            cleanupCompleted++;
+            options.onProgress?.({
+              operation: "cleanup",
+              propertyRef: result.ref,
+              completed: cleanupCompleted,
+              total: created.length,
+            });
+          }
+        }
+
+        return { status: "failed", properties: results, error: message };
+      }
+    }
+
+    return { status: "complete", properties: results };
   }
 
   /**

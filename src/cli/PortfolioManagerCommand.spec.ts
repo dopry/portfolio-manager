@@ -17,7 +17,9 @@ describe("parseIntArg", () => {
   });
 
   it("throws InvalidArgumentError on invalid integers", () => {
-    expect(() => parseIntArg("abc")).to.throw(InvalidArgumentError);
+    for (const value of ["abc", "1.5", "10abc", "9007199254740992"]) {
+      expect(() => parseIntArg(value), value).to.throw(InvalidArgumentError);
+    }
   });
 });
 

@@ -41,6 +41,8 @@ export type FakeClient = {
   getChangedPropertyIds: ReturnType<typeof vi.fn>;
   getChangedPropertyUseIds: ReturnType<typeof vi.fn>;
   getChangedMeterIds: ReturnType<typeof vi.fn>;
+  exportProperties: ReturnType<typeof vi.fn>;
+  importProperties: ReturnType<typeof vi.fn>;
 };
 
 export function createFakeClient(): FakeClient {
@@ -73,6 +75,8 @@ export function createFakeClient(): FakeClient {
     getChangedPropertyIds: vi.fn(),
     getChangedPropertyUseIds: vi.fn(),
     getChangedMeterIds: vi.fn(),
+    exportProperties: vi.fn(),
+    importProperties: vi.fn(),
   };
 }
 

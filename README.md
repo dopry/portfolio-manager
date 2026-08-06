@@ -79,6 +79,41 @@ npx portfolio-manager notifications list --no-clear --indent 2
 Run `npx portfolio-manager <command> --help` for the complete options for a
 command.
 
+### Portable property bundles (core preview)
+
+Export one or more properties to deterministic, versioned JSON:
+
+```bash
+npx portfolio-manager property export --output property.json 123
+npx portfolio-manager property export --all --output portfolio.json
+```
+
+Existing files are not overwritten unless `--force` is supplied. Use stdout
+instead of a file by omitting `--output`.
+
+Validate a bundle without creating anything, then import it into the
+authenticated account or a connected customer account:
+
+```bash
+npx portfolio-manager property import property.json --dry-run
+npx portfolio-manager property import property.json --account-id 456
+```
+
+This first bundle capability carries core property fields only. It deliberately
+omits Portfolio Manager IDs, audit/access fields, property uses, meters,
+consumption, associations, and sharing. Those child-resource capabilities will
+be added without changing the v1 core-property shape.
+
+Bundles identify the v1 schema with the stable
+`urn:portfolio-manager:property-bundle:v1` URN. The schema ships with the
+package as `PROPERTY_BUNDLE_SCHEMA_DOCUMENT` and through the
+`portfolio-manager/schemas/property-bundle-v1.schema.json` export, so validation
+does not depend on a moving GitHub branch.
+
+Property bundles can contain sensitive names, addresses, identifiers, notes,
+costs, and consumption as capabilities are added. Store production exports as
+securely as the source account data.
+
 ## Local Development Workflow
 
 ```bash
