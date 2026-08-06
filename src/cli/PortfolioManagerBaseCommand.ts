@@ -5,8 +5,8 @@ import { PortfolioManagerApi } from "../PortfolioManagerApi.js";
 import { isRecord } from "../types/xml/response/IResponse.js";
 
 export function parseIntArg(value: string): number {
-  const parsedValue = Number.parseInt(value, 10);
-  if (Number.isNaN(parsedValue)) {
+  const parsedValue = Number(value);
+  if (!/^[+-]?\d+$/.test(value) || !Number.isSafeInteger(parsedValue)) {
     throw new InvalidArgumentError(`Invalid integer: ${value}`);
   }
   return parsedValue;
@@ -136,6 +136,20 @@ export class PortfolioManagerBaseCommand extends Command {
       result.push(parent);
     }
     return result;
+  }
+
+  protected getResolvedIndent(): number {
+    const configuredCommand = this._getCommandAndParents().find((command) => {
+      const source = command.getOptionValueSource("indent");
+      return source !== undefined && source !== "default";
+    });
+    if (configuredCommand) {
+      return Number(configuredCommand.getOptionValue("indent"));
+    }
+    const indentOption = this.options.find(
+      (option) => option.long === "--indent",
+    )!;
+    return Number(indentOption.defaultValue);
   }
 
   protected async _action(): Promise<void> {

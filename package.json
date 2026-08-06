@@ -24,6 +24,7 @@
       "types": "./dist/cli/index.d.ts",
       "import": "./dist/cli/index.js"
     },
+    "./schemas/property-bundle-v1.schema.json": "./dist/schemas/property-bundle-v1.schema.json",
     "./package.json": "./package.json"
   },
   "sideEffects": false,
@@ -58,6 +59,8 @@
     "@eslint/js": "^10.0.1",
     "@types/node": "^25.3.5",
     "@vitest/coverage-v8": "^4.0.18",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
     "eslint": "^10.6.0",
     "eslint-config-prettier": "^10.1.8",
     "playwright": "^1.61.1",

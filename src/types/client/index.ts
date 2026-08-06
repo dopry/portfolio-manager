@@ -7,3 +7,4 @@ export * from "./IClientPendingConnectionRequest.js";
 export * from "./IClientPendingShareRequest.js";
 export * from "./IClientProperty.js";
 export * from "./ICustomer.js";
+export * from "./IPropertyBundle.js";

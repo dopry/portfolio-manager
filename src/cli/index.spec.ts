@@ -26,6 +26,8 @@ describe("cli index exports", () => {
       "PortfolioManagerMeterListLinksCommand",
       "PortfolioManagerNotificationsCommand",
       "PortfolioManagerPropertyCommand",
+      "PortfolioManagerPropertyExportCommand",
+      "PortfolioManagerPropertyImportCommand",
       "PortfolioManagerPropertyListCommand",
       "PortfolioManagerPropertyListEntitiesCommand",
       "PortfolioManagerPropertyListLinksCommand",
