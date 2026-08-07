@@ -6,6 +6,9 @@ on:
     branches: [main, next]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 # One CI run at a time per ref. Never cancel an active run: credentialed E2E
 # jobs mutate shared state and must reach their cleanup hooks. GitHub may still
 # replace an older pending run when a newer commit arrives.
