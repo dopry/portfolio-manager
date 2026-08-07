@@ -12,7 +12,7 @@ The Node.js SDK makes the platform more accessible to JavaScript developers.
 
 ## Runtime and Packaging
 
-- Node.js: `>=20.19.0`
+- Node.js: `>=22.22.2`
 - Package format: ESM-only (`"type": "module"`)
 - CLI bin entry: `dist/cli.js`
 

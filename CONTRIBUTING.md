@@ -4,7 +4,7 @@ Thanks for contributing to `portfolio-manager`.
 
 ## Prerequisites
 
-- Node.js `>=20.19.0`
+- Node.js `>=22.22.2`
 - npm (uses lockfile; prefer `npm ci`)
 - Portfolio Manager credentials for integration tests
 
