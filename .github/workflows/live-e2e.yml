@@ -6,6 +6,9 @@ on:
     - cron: "43 10 * * 1"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 # Live E2E tests mutate persistent fixtures. Never overlap them.
 concurrency:
   group: espm-live-e2e
