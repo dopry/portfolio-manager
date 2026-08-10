@@ -140,12 +140,11 @@ the repo's live-test convention), sequential lifecycle:
    `acceptConnection(accountId, note)` → pending list is empty.
 2. **Bulk property share (accept)**: exercise **Set Up Web Services/Data Exchange** →
    bulk Full Access → `getPendingPropertyShares()` →
-   `acceptPropertyShare()` → verify real access: `getProperty(propertyId)` /
-   property metrics succeed from the provider account.
-3. **Meter share**: `getPendingMeterShares()` → accept → verify
-   `getMeter`/consumption access. Cover the documented coupling: accepting a
-   meter share auto-accepts the pending property share, while accepting a
-   property share does **not** auto-accept meter shares.
+   `acceptPropertyShare()` → verify real access with `getProperty(propertyId)`
+   from the provider account.
+3. **Meter share**: verify `getPendingMeterShares()` remains pending after the
+   property share is accepted → accept → verify `getMeter` access. This covers
+   that accepting a property share does **not** auto-accept meter shares.
 4. **Reject path**: unshare, seed a personalized second share →
    `rejectPropertyShare()` → pending
    list empty, no access granted.
