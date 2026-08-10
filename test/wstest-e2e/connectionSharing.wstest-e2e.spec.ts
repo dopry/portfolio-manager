@@ -192,16 +192,19 @@ describe("Connection & Sharing (WSTest E2E)", () => {
       }
     }
 
-    expect(
-      (await provider.pm.getPendingPropertyShares()).some(
-        (share) => share.sharerUsername === config.peer.username,
-      ),
-    ).toBe(false);
-    expect(
-      (await provider.pm.getPendingMeterShares()).some(
-        (share) => share.sharerUsername === config.peer.username,
-      ),
-    ).toBe(false);
+    await waitFor(
+      async () => {
+        const [propertyShares, meterShares] = await Promise.all([
+          provider.pm.getPendingPropertyShares(),
+          provider.pm.getPendingMeterShares(),
+        ]);
+        const peerStillPending = [...propertyShares, ...meterShares].some(
+          (share) => share.sharerUsername === config.peer.username,
+        );
+        return peerStillPending ? undefined : true;
+      },
+      { label: "rejected shares to leave pending lists" },
+    );
 
     await waitForNoAccess(() => provider.pm.getProperty(fixture.propertyId), {
       label: "property access to be revoked",
