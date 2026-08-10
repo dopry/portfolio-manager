@@ -30,22 +30,6 @@ export class EspmWebUiResponseError extends Error {
   }
 }
 
-/**
- * WSTest currently answers the bulk Data Exchange endpoint with this exact
- * server-side failure. Keep the match deliberately narrow so authentication,
- * selector, timeout, and changed-response failures still fail CI normally.
- */
-export function isKnownWstestBulkSharingFailure(
-  error: unknown,
-): error is EspmWebUiResponseError {
-  return (
-    error instanceof EspmWebUiResponseError &&
-    error.endpoint === "/wsBulkSharing/authorizeExchange.json" &&
-    error.status === 500 &&
-    error.body.trim() === "{}"
-  );
-}
-
 export interface IEspmWebUiOptions {
   baseUrl?: string;
   headless?: boolean;
