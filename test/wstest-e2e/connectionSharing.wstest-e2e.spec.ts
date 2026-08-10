@@ -192,6 +192,17 @@ describe("Connection & Sharing (WSTest E2E)", () => {
       }
     }
 
+    expect(
+      (await provider.pm.getPendingPropertyShares()).some(
+        (share) => share.sharerUsername === config.peer.username,
+      ),
+    ).toBe(false);
+    expect(
+      (await provider.pm.getPendingMeterShares()).some(
+        (share) => share.sharerUsername === config.peer.username,
+      ),
+    ).toBe(false);
+
     await waitForNoAccess(() => provider.pm.getProperty(fixture.propertyId), {
       label: "property access to be revoked",
     });

@@ -150,8 +150,7 @@ the repo's live-test convention), sequential lifecycle:
    `rejectPropertyShare()` → pending
    list empty, no access granted.
 5. **Disconnect**:
-   `disconnect({ keepShares: false })` → connection gone; re-verify provider
-   has no residual access.
+   `disconnect({ keepShares: false })` → connection and pending connection gone.
 6. Cleanup in `afterAll` (best-effort, mirrors `ensureCleanState`).
 
 Out of scope for v1 (note as future scenarios): share-forward/middleman
