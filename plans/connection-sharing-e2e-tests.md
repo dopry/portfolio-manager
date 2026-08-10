@@ -153,7 +153,8 @@ the repo's live-test convention), sequential lifecycle:
    peer, no access granted.
 5. **Disconnect**:
    `disconnect({ keepShares: false })` → connection and pending connection gone.
-6. Cleanup in `afterAll` (best-effort, mirrors `ensureCleanState`).
+6. Cleanup in `afterAll` is best-effort via `ensureCleanProviderState()` and
+   `disconnectIfConnected()`.
 
 Out of scope for v1 (note as future scenarios): share-forward/middleman
 (PDA vs `notificationCreatedByAccountId`), transfer of ownership, custom
