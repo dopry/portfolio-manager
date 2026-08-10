@@ -197,12 +197,15 @@ describe("Connection & Sharing (WSTest E2E)", () => {
       },
       { label: "second pending property share from peer" },
     );
+    const pendingMeter = await waitFor(
+      async () => {
+        const shares = await provider.pm.getPendingMeterShares();
+        return shares.find((s) => s.sharerUsername === config.peer.username);
+      },
+      { label: "second pending meter share from peer" },
+    );
     await provider.pm.rejectPropertyShare(pending.propertyId, "e2e reject");
-    for (const share of await provider.pm.getPendingMeterShares()) {
-      if (share.sharerUsername === config.peer.username) {
-        await provider.pm.rejectMeterShare(share.id, "e2e reject");
-      }
-    }
+    await provider.pm.rejectMeterShare(pendingMeter.id, "e2e reject");
 
     await waitFor(
       async () => {

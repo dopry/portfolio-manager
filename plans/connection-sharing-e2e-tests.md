@@ -147,9 +147,9 @@ the repo's live-test convention), sequential lifecycle:
 3. **Meter share**: verify `getPendingMeterShares()` remains pending after the
    property share is accepted → accept → verify `getMeter` access. This covers
    that accepting a property share does **not** auto-accept meter shares.
-4. **Reject path**: unshare, seed a personalized second share →
-   `rejectPropertyShare()` → pending
-   list empty, no access granted.
+4. **Reject path**: unshare, seed a personalized second share → wait for its
+   property and meter requests → reject both → no pending shares from the peer,
+   no access granted.
 5. **Disconnect**:
    `disconnect({ keepShares: false })` → connection and pending connection gone.
 6. Cleanup in `afterAll` (best-effort, mirrors `ensureCleanState`).
