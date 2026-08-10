@@ -138,8 +138,10 @@ the repo's live-test convention), sequential lifecycle:
 1. **Connection**: seed connection request via UI →
    `getPendingConnections()` contains the peer account →
    `acceptConnection(accountId, note)` → pending list is empty.
-2. **Bulk property share (accept)**: exercise **Set Up Web Services/Data Exchange** →
-   bulk Full Access → `getPendingPropertyShares()` →
+2. **Data Exchange property share (accept)**: exercise **Set Up Web Services/Data
+   Exchange** → bulk Full Access. WSTest intermittently returns the confirmed
+   `authorizeExchange.json` HTTP 500 with `{}`; only for that exact response,
+   fall back to personalized Full Access. Then `getPendingPropertyShares()` →
    `acceptPropertyShare()` → verify real access with `getProperty(propertyId)`
    from the provider account.
 3. **Meter share**: verify `getPendingMeterShares()` remains pending after the
