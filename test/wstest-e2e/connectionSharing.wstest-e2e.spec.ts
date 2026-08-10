@@ -10,6 +10,7 @@ import {
   ensurePeerFixtures,
   ensureWhatChangedFixture,
   getE2eConfig,
+  isPendingRequestAlreadyFulfilledError,
   waitFor,
   waitForNoAccess,
   E2E_PROPERTY_NAME,
@@ -205,7 +206,11 @@ describe("Connection & Sharing (WSTest E2E)", () => {
       { label: "second pending meter share from peer" },
     );
     await provider.pm.rejectPropertyShare(pending.propertyId, "e2e reject");
-    await provider.pm.rejectMeterShare(pendingMeter.id, "e2e reject");
+    try {
+      await provider.pm.rejectMeterShare(pendingMeter.id, "e2e reject");
+    } catch (error) {
+      if (!isPendingRequestAlreadyFulfilledError(error)) throw error;
+    }
 
     await waitFor(
       async () => {

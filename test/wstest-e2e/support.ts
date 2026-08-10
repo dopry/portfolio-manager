@@ -199,6 +199,24 @@ function isAlreadyDisconnectedError(
 }
 
 /**
+ * Rejecting a WSTest property share can fulfill its pending meter share before
+ * the separate meter rejection reaches the API. This exact response was
+ * observed in serialized CI runs on 2026-08-10.
+ */
+export function isPendingRequestAlreadyFulfilledError(
+  error: unknown,
+): error is PortfolioManagerApiError {
+  return (
+    error instanceof PortfolioManagerApiError &&
+    error.status === 400 &&
+    error.responseText?.includes('errorNumber="-200"') === true &&
+    error.responseText.includes(
+      "The pending request doesn't exist or has been fulfilled",
+    )
+  );
+}
+
+/**
  * Waits for access revocation to propagate. ESPM answers 403 Access Denied
  * (occasionally 404) once complete, but accepted shares can remain readable
  * briefly after an unshare. Unexpected failures (5xx, network, auth) still
