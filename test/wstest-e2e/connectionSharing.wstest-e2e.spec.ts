@@ -139,7 +139,11 @@ describe("Connection & Sharing (WSTest E2E)", () => {
     const pendingProperty = await waitFor(
       async () => {
         const shares = await provider.pm.getPendingPropertyShares();
-        return shares.find((s) => s.sharerUsername === config.peer.username);
+        return shares.find(
+          (s) =>
+            s.sharerUsername === config.peer.username &&
+            s.propertyId === fixture.propertyId,
+        );
       },
       { label: "pending property share from peer" },
     );
@@ -194,14 +198,23 @@ describe("Connection & Sharing (WSTest E2E)", () => {
     const pending = await waitFor(
       async () => {
         const shares = await provider.pm.getPendingPropertyShares();
-        return shares.find((s) => s.sharerUsername === config.peer.username);
+        return shares.find(
+          (s) =>
+            s.sharerUsername === config.peer.username &&
+            s.propertyId === fixture.propertyId,
+        );
       },
       { label: "second pending property share from peer" },
     );
     const pendingMeter = await waitFor(
       async () => {
         const shares = await provider.pm.getPendingMeterShares();
-        return shares.find((s) => s.sharerUsername === config.peer.username);
+        return shares.find(
+          (s) =>
+            s.sharerUsername === config.peer.username &&
+            s.id === fixture.meterId &&
+            s.propertyId === fixture.propertyId,
+        );
       },
       { label: "second pending meter share from peer" },
     );
