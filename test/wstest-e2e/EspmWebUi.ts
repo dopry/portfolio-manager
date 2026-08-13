@@ -31,11 +31,12 @@ export class EspmWebUiResponseError extends Error {
 }
 
 /**
- * WSTest currently answers the bulk Data Exchange endpoint with this exact
- * server-side failure. Keep the match deliberately narrow so authentication,
+ * WSTest intermittently answers the bulk Data Exchange endpoint with this
+ * exact server-side failure. Both success and this response were observed in
+ * serialized CI runs on 2026-08-10. Keep the match narrow so authentication,
  * selector, timeout, and changed-response failures still fail CI normally.
  */
-export function isKnownWstestBulkSharingFailure(
+export function isIntermittentWstestBulkSharingFailure(
   error: unknown,
 ): error is EspmWebUiResponseError {
   return (

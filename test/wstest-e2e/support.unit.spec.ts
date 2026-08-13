@@ -1,6 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { PortfolioManagerApiError } from "../../src/PortfolioManagerApi.js";
-import { getE2eConfig, waitForNoAccess } from "./support.js";
+import {
+  getE2eConfig,
+  isPendingRequestAlreadyFulfilledError,
+  waitForNoAccess,
+} from "./support.js";
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -78,5 +82,31 @@ describe("waitForNoAccess", () => {
       "Timed out after 0ms waiting for property access to be revoked",
     );
     expect(probe).toHaveBeenCalledOnce();
+  });
+});
+
+describe("isPendingRequestAlreadyFulfilledError", () => {
+  it("recognizes the observed WSTest pending-request response", () => {
+    expect(
+      isPendingRequestAlreadyFulfilledError(
+        new PortfolioManagerApiError(
+          400,
+          "",
+          '<response status="Error"><errors><error errorNumber="-200" errorDescription="The pending request doesn\'t exist or has been fulfilled"/></errors></response>',
+        ),
+      ),
+    ).toBe(true);
+  });
+
+  it.each([
+    new PortfolioManagerApiError(500, "", 'errorNumber="-200"'),
+    new PortfolioManagerApiError(
+      400,
+      "",
+      '<error errorNumber="-200" errorDescription="You are not connected to this account"/>',
+    ),
+    new Error("network failure"),
+  ])("rejects unrelated failures", (error) => {
+    expect(isPendingRequestAlreadyFulfilledError(error)).toBe(false);
   });
 });

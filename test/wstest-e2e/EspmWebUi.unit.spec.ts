@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
   EspmWebUiResponseError,
-  isKnownWstestBulkSharingFailure,
+  isIntermittentWstestBulkSharingFailure,
 } from "./EspmWebUi.js";
 
-describe("isKnownWstestBulkSharingFailure", () => {
+describe("isIntermittentWstestBulkSharingFailure", () => {
   it("recognizes only the observed empty-object HTTP 500", () => {
     expect(
-      isKnownWstestBulkSharingFailure(
+      isIntermittentWstestBulkSharingFailure(
         new EspmWebUiResponseError(
           "/wsBulkSharing/authorizeExchange.json",
           500,
@@ -31,6 +31,6 @@ describe("isKnownWstestBulkSharingFailure", () => {
     new EspmWebUiResponseError("/sharing/submit.json", 500, "{}"),
     new Error("selector drift"),
   ])("rejects unrelated or changed failures", (error) => {
-    expect(isKnownWstestBulkSharingFailure(error)).toBe(false);
+    expect(isIntermittentWstestBulkSharingFailure(error)).toBe(false);
   });
 });

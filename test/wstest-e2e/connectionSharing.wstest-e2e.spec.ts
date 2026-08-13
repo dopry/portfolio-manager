@@ -1,5 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { EspmWebUi, isKnownWstestBulkSharingFailure } from "./EspmWebUi.js";
+import {
+  EspmWebUi,
+  isIntermittentWstestBulkSharingFailure,
+} from "./EspmWebUi.js";
 import {
   createClient,
   disconnectIfConnected,
@@ -7,6 +10,7 @@ import {
   ensurePeerFixtures,
   ensureWhatChangedFixture,
   getE2eConfig,
+  isPendingRequestAlreadyFulfilledError,
   waitFor,
   waitForNoAccess,
   E2E_PROPERTY_NAME,
@@ -113,45 +117,33 @@ describe("Connection & Sharing (WSTest E2E)", () => {
     },
   );
 
-  step(
-    "bulk Data Exchange reports the known WSTest failure until it recovers",
-    async () => {
-      try {
-        await ui.setupBulkDataExchangeShare({
-          providerUsername: config.provider.username,
-          propertyNames: [E2E_PROPERTY_NAME],
-          accessLevel: "Full Access",
-        });
-      } catch (error) {
-        if (isKnownWstestBulkSharingFailure(error)) {
-          console.warn(
-            "Known WSTest limitation: bulk authorizeExchange returned HTTP 500 with {}",
-          );
-          return;
-        }
-        throw error;
-      }
-
-      // An unexpected success creates real pending requests. Remove them so
-      // the recovery signal is the only failure and later runs start clean.
-      await ensureCleanProviderState(provider.pm, config.peer.username);
-      throw new Error(
-        "WSTest bulk Data Exchange now succeeds; remove its known-failure quarantine",
-      );
-    },
-  );
-
   step("peer shares the fixture property for data exchange", async () => {
-    await ui.setupPersonalizedDataExchangeShare({
-      providerUsername: config.provider.username,
-      propertyNames: [E2E_PROPERTY_NAME],
-      accessLevel: "Full Access",
-    });
+    try {
+      await ui.setupBulkDataExchangeShare({
+        providerUsername: config.provider.username,
+        propertyNames: [E2E_PROPERTY_NAME],
+        accessLevel: "Full Access",
+      });
+    } catch (error) {
+      if (!isIntermittentWstestBulkSharingFailure(error)) throw error;
+      console.warn(
+        "Intermittent WSTest limitation: bulk authorizeExchange returned HTTP 500 with {}; falling back to personalized sharing",
+      );
+      await ui.setupPersonalizedDataExchangeShare({
+        providerUsername: config.provider.username,
+        propertyNames: [E2E_PROPERTY_NAME],
+        accessLevel: "Full Access",
+      });
+    }
 
     const pendingProperty = await waitFor(
       async () => {
         const shares = await provider.pm.getPendingPropertyShares();
-        return shares.find((s) => s.sharerUsername === config.peer.username);
+        return shares.find(
+          (s) =>
+            s.sharerUsername === config.peer.username &&
+            s.propertyId === fixture.propertyId,
+        );
       },
       { label: "pending property share from peer" },
     );
@@ -206,16 +198,46 @@ describe("Connection & Sharing (WSTest E2E)", () => {
     const pending = await waitFor(
       async () => {
         const shares = await provider.pm.getPendingPropertyShares();
-        return shares.find((s) => s.sharerUsername === config.peer.username);
+        return shares.find(
+          (s) =>
+            s.sharerUsername === config.peer.username &&
+            s.propertyId === fixture.propertyId,
+        );
       },
       { label: "second pending property share from peer" },
     );
+    const pendingMeter = await waitFor(
+      async () => {
+        const shares = await provider.pm.getPendingMeterShares();
+        return shares.find(
+          (s) =>
+            s.sharerUsername === config.peer.username &&
+            s.id === fixture.meterId &&
+            s.propertyId === fixture.propertyId,
+        );
+      },
+      { label: "second pending meter share from peer" },
+    );
     await provider.pm.rejectPropertyShare(pending.propertyId, "e2e reject");
-    for (const share of await provider.pm.getPendingMeterShares()) {
-      if (share.sharerUsername === config.peer.username) {
-        await provider.pm.rejectMeterShare(share.id, "e2e reject");
-      }
+    try {
+      await provider.pm.rejectMeterShare(pendingMeter.id, "e2e reject");
+    } catch (error) {
+      if (!isPendingRequestAlreadyFulfilledError(error)) throw error;
     }
+
+    await waitFor(
+      async () => {
+        const [propertyShares, meterShares] = await Promise.all([
+          provider.pm.getPendingPropertyShares(),
+          provider.pm.getPendingMeterShares(),
+        ]);
+        const peerStillPending = [...propertyShares, ...meterShares].some(
+          (share) => share.sharerUsername === config.peer.username,
+        );
+        return peerStillPending ? undefined : true;
+      },
+      { label: "rejected shares to leave pending lists" },
+    );
 
     await waitForNoAccess(() => provider.pm.getProperty(fixture.propertyId), {
       label: "property access to be revoked",

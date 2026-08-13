@@ -138,24 +138,23 @@ the repo's live-test convention), sequential lifecycle:
 1. **Connection**: seed connection request via UI →
    `getPendingConnections()` contains the peer account →
    `acceptConnection(accountId, note)` → pending list is empty.
-2. **Bulk recovery probe**: exercise **Set Up Web Services/Data Exchange** →
-   bulk Full Access. Permit only WSTest's known `authorizeExchange.json` HTTP
-   500 with `{}`; fail for any other error, and intentionally fail when the
-   endpoint starts succeeding so the quarantine is removed.
-3. **Property share (accept)**: seed a personalized Exchange Data share of the
-   fixture property (Full Access) → `getPendingPropertyShares()` →
-   `acceptPropertyShare()` → verify real access: `getProperty(propertyId)` /
-   property metrics succeed from the provider account.
-4. **Meter share**: `getPendingMeterShares()` → accept → verify
-   `getMeter`/consumption access. Cover the documented coupling: accepting a
-   meter share auto-accepts the pending property share, while accepting a
-   property share does **not** auto-accept meter shares.
-5. **Reject path**: seed a second share → `rejectPropertyShare()` → pending
-   list empty, no access granted.
-6. **Unshare / disconnect**: `unshareProperty()` removes access;
-   `disconnect({ keepShares: false })` → connection gone; re-verify provider
-   has no residual access.
-7. Cleanup in `afterAll` (best-effort, mirrors `ensureCleanState`).
+2. **Data Exchange property share (accept)**: exercise **Set Up Web Services/Data
+   Exchange** → bulk Full Access. WSTest intermittently returns the confirmed
+   `authorizeExchange.json` HTTP 500 with `{}`; only for that exact response,
+   fall back to personalized Full Access. Then `getPendingPropertyShares()` →
+   `acceptPropertyShare()` → verify real access with `getProperty(propertyId)`
+   from the provider account.
+3. **Meter share**: verify `getPendingMeterShares()` remains pending after the
+   property share is accepted → accept → verify `getMeter` access. This covers
+   that accepting a property share does **not** auto-accept meter shares.
+4. **Reject path**: unshare, seed a personalized second share → wait for its
+   property and meter requests → reject the property, then the meter if the
+   property rejection did not already fulfill it → no pending shares from the
+   peer, no access granted.
+5. **Disconnect**:
+   `disconnect({ keepShares: false })` → connection and pending connection gone.
+6. Cleanup in `afterAll` is best-effort via `ensureCleanProviderState()` and
+   `disconnectIfConnected()`.
 
 Out of scope for v1 (note as future scenarios): share-forward/middleman
 (PDA vs `notificationCreatedByAccountId`), transfer of ownership, custom
